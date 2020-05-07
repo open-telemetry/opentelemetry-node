@@ -173,3 +173,16 @@ export function isTimeInput(value: unknown) {
     value instanceof Date
   );
 }
+
+/** Add two high resolution times */
+export function addHrTime(t1: api.HrTime, t2: api.HrTime): api.HrTime {
+  const time: api.HrTime = [t1[0] + t2[0], t1[1] + t2[1]];
+
+  if (time[1] >= 1e9) {
+    // nanoseconds overflow, carry seconds field
+    time[0] += 1;
+    time[1] -= 1e9;
+  }
+
+  return time;
+}

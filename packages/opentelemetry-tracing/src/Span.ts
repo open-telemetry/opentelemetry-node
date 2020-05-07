@@ -16,6 +16,7 @@
 
 import * as api from '@opentelemetry/api';
 import {
+  addHrTime,
   hrTime,
   hrTimeDuration,
   isTimeInput,
@@ -39,18 +40,23 @@ export class Span implements api.Span, ReadableSpan {
   readonly attributes: api.Attributes = {};
   readonly links: api.Link[] = [];
   readonly events: api.TimedEvent[] = [];
-  readonly startTime: api.HrTime;
   readonly resource: Resource;
   name: string;
   status: api.Status = {
     code: api.CanonicalCode.OK,
   };
-  endTime: api.HrTime = [0, 0];
   private _ended = false;
-  private _duration: api.HrTime = [-1, -1];
+  private _duration: api.HrTime = [0, 0];
   private readonly _logger: api.Logger;
   private readonly _spanProcessor: SpanProcessor;
   private readonly _traceParams: TraceParams;
+
+  /** Performance clock is only used to calculate durations, not real timestamps */
+  private readonly _perfStartTime: api.HrTime;
+  /** System clock is used to generate start time when a start time is not input by the user */
+  private readonly _dateStartTime: api.HrTime;
+  /** A user input start time takes precedence over the system clock */
+  private readonly _inputStartTime?: api.HrTime;
 
   /** Constructs a new Span instance. */
   constructor(
@@ -60,14 +66,20 @@ export class Span implements api.Span, ReadableSpan {
     kind: api.SpanKind,
     parentSpanId?: string,
     links: api.Link[] = [],
-    startTime: api.TimeInput = hrTime()
+    startTime?: api.TimeInput
   ) {
     this.name = spanName;
     this.spanContext = spanContext;
     this.parentSpanId = parentSpanId;
     this.kind = kind;
     this.links = links;
-    this.startTime = timeInputToHrTime(startTime);
+
+    if (startTime != undefined) {
+      this._inputStartTime = timeInputToHrTime(startTime);
+    }
+    this._perfStartTime = hrTime();
+    this._dateStartTime = timeInputToHrTime(Date.now());
+
     this.resource = parentTracer.resource;
     this._logger = parentTracer.logger;
     this._traceParams = parentTracer.getActiveTraceParams();
@@ -151,15 +163,39 @@ export class Span implements api.Span, ReadableSpan {
     return this;
   }
 
-  end(endTime: api.TimeInput = hrTime()): void {
+  end(endTime?: api.TimeInput): void {
     if (this._isSpanEnded()) {
       this._logger.error('You can only call end() on a span once.');
       return;
     }
     this._ended = true;
-    this.endTime = timeInputToHrTime(endTime);
 
-    this._duration = hrTimeDuration(this.startTime, this.endTime);
+    if (!this._inputStartTime && !endTime) {
+      // if no user timestamps are provided, the start time comes from Date, and the end
+      // time is calculated using duration from the performance timer
+      this._duration = hrTimeDuration(this._perfStartTime, hrTime());
+    } else if (this._inputStartTime && endTime) {
+      // user specified start and end time
+      this._duration = hrTimeDuration(
+        this._inputStartTime,
+        timeInputToHrTime(endTime)
+      );
+    } else if (this._inputStartTime) {
+      // if user specifies start time but not end time, we lose the benefits of the
+      // monotonic clock, so we should use the system clock
+      this._duration = hrTimeDuration(
+        this._inputStartTime,
+        timeInputToHrTime(Date.now())
+      );
+    } else if (endTime) {
+      // if user specifies end time but not start time, we lose the benefits of the
+      // monotonic clock, so we should used the system clock
+      this._duration = hrTimeDuration(
+        this._dateStartTime,
+        timeInputToHrTime(endTime)
+      );
+    }
+
     if (this._duration[0] < 0) {
       this._logger.warn(
         'Inconsistent start and end time, startTime > endTime',
@@ -177,6 +213,16 @@ export class Span implements api.Span, ReadableSpan {
 
   toReadableSpan(): ReadableSpan {
     return this;
+  }
+
+  get startTime(): api.HrTime {
+    // if user did not specify the start time, use the system clock
+    return this._inputStartTime ?? this._dateStartTime;
+  }
+
+  get endTime(): api.HrTime {
+    // end time is a calculated field based on the start time and duration of the span
+    return addHrTime(this.startTime, this.duration);
   }
 
   get duration(): api.HrTime {

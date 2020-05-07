@@ -24,10 +24,13 @@ import {
   setActiveSpan,
   setExtractedSpanContext,
   TraceState,
+  addHrTime,
 } from '@opentelemetry/core';
 import { Resource } from '@opentelemetry/resources';
 import * as assert from 'assert';
-import { BasicTracerProvider, Span } from '../src';
+import * as sinon from 'sinon';
+import { BasicTracerProvider, Span, Tracer } from '../src';
+import { otperformance } from '@opentelemetry/core';
 
 describe('BasicTracerProvider', () => {
   beforeEach(() => {
@@ -335,6 +338,73 @@ describe('BasicTracerProvider', () => {
       const span = tracer.startSpan('my-span') as Span;
       assert.ok(span);
       assert.ok(span.resource instanceof Resource);
+    });
+
+    describe('timestamps', () => {
+      const sandbox = sinon.createSandbox();
+      const tracer = new BasicTracerProvider().getTracer('default') as Tracer;
+      beforeEach(() => {
+        // assume the performance timer is incorrect
+        sandbox.replaceGetter(otperformance, 'timeOrigin', () => 10_000);
+      });
+
+      afterEach(() => {
+        sandbox.restore();
+      });
+
+      it('uses timestamps from user', () => {
+        const span = tracer.startSpan('span-name', {
+          startTime: 1588636800000,
+        }) as Span;
+        span.end(1588640400000);
+
+        assert.deepStrictEqual(span.startTime, [1588636800, 0]);
+        assert.deepStrictEqual(span.duration, [60 * 60, 0]);
+        assert.deepStrictEqual(span.endTime, [1588640400, 0]);
+      });
+
+      it('uses start time from user and end time from system clock', () => {
+        const span = tracer.startSpan('span-name', {
+          startTime: 1588636800000,
+        }) as Span;
+        sandbox.replace(Date, 'now', () => 1588640400000);
+        span.end();
+
+        assert.deepStrictEqual(span.startTime, [1588636800, 0]);
+        assert.deepStrictEqual(span.duration, [60 * 60, 0]);
+        assert.deepStrictEqual(span.endTime, [1588640400, 0]);
+      });
+
+      it('uses start time from system clock and end time from user', () => {
+        sandbox.replace(Date, 'now', () => 1588636800000);
+        const span = tracer.startSpan('span-name') as Span;
+        span.end(1588640400000);
+
+        assert.deepStrictEqual(span.startTime, [1588636800, 0]);
+        assert.deepStrictEqual(span.duration, [60 * 60, 0]);
+        assert.deepStrictEqual(span.endTime, [1588640400, 0]);
+      });
+
+      it('uses start time from system clock, and generates the correct duration if system clock changes during span', () => {
+        sandbox.replace(Date, 'now', () => 1588636800000);
+        const span = tracer.startSpan('span-name') as Span;
+        span.end();
+
+        assert.deepStrictEqual(span.startTime, [1588636800, 0]);
+        assert.notDeepStrictEqual(
+          span.duration,
+          [0, 0],
+          'span duration is not zero'
+        );
+        assert.ok(
+          span.duration[0] >= 0 && span.duration[1] >= 0,
+          'span duration is positive'
+        );
+        assert.deepStrictEqual(
+          span.endTime,
+          addHrTime(span.startTime, span.duration)
+        );
+      });
     });
   });
 
