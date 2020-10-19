@@ -565,80 +565,92 @@ describe('HttpPlugin', () => {
         }
       });
 
-      it('should have 1 ended span when request is aborted', async () => {
-        nock(`${protocol}://my.server.com`)
-          .get('/')
-          .socketDelay(50)
-          .reply(200, '<html></html>');
+      describe('when request is aborted', () => {
+        describe('before the connection succeeds', () => {
+          it('should have 1 ended span', async () => {
+            nock(`${protocol}://my.server.com`)
+              .get('/')
+              .delayConnection(50)
+              .reply(200, '<html></html>');
 
-        const promiseRequest = new Promise((resolve, reject) => {
-          const req = http.request(
-            `${protocol}://my.server.com`,
-            (resp: http.IncomingMessage) => {
-              let data = '';
-              resp.on('data', chunk => {
-                data += chunk;
-              });
-              resp.on('end', () => {
-                resolve(data);
-              });
-            }
-          );
-          req.setTimeout(10, () => {
-            req.abort();
-            reject('timeout');
-          });
-          return req.end();
-        });
-
-        try {
-          await promiseRequest;
-          assert.fail();
-        } catch (error) {
-          const spans = memoryExporter.getFinishedSpans();
-          const [span] = spans;
-          assert.strictEqual(spans.length, 1);
-          assert.strictEqual(span.status.code, CanonicalCode.ABORTED);
-          assert.ok(Object.keys(span.attributes).length >= 6);
-        }
-      });
-
-      it('should have 1 ended span when request is aborted after receiving response', async () => {
-        nock(`${protocol}://my.server.com`)
-          .get('/')
-          .delay({
-            body: 50,
-          })
-          .replyWithFile(200, `${process.cwd()}/package.json`);
-
-        const promiseRequest = new Promise((resolve, reject) => {
-          const req = http.request(
-            `${protocol}://my.server.com`,
-            (resp: http.IncomingMessage) => {
-              let data = '';
-              resp.on('data', chunk => {
+            const promiseRequest = new Promise((resolve, reject) => {
+              const req = http.request(
+                `${protocol}://my.server.com`,
+                (resp: http.IncomingMessage) => {
+                  let data = '';
+                  resp.on('data', chunk => {
+                    data += chunk;
+                  });
+                  resp.on('end', () => {
+                    resolve(data);
+                  });
+                }
+              );
+              req.setTimeout(10, () => {
                 req.abort();
-                data += chunk;
+                reject('timeout');
               });
-              resp.on('end', () => {
-                resolve(data);
-              });
-            }
-          );
+              return req.end();
+            });
 
-          return req.end();
+            try {
+              await promiseRequest;
+              assert.fail();
+            } catch (error) {
+              const spans = memoryExporter.getFinishedSpans();
+              const [span] = spans;
+              assert.strictEqual(spans.length, 1);
+              assert.strictEqual(span.status.code, CanonicalCode.ABORTED);
+              assert.ok(Object.keys(span.attributes).length >= 6);
+            }
+          });
         });
 
-        try {
-          await promiseRequest;
-          assert.fail();
-        } catch (error) {
-          const spans = memoryExporter.getFinishedSpans();
-          const [span] = spans;
-          assert.strictEqual(spans.length, 1);
-          assert.strictEqual(span.status.code, CanonicalCode.ABORTED);
-          assert.ok(Object.keys(span.attributes).length > 7);
-        }
+        describe('after the response is received', () => {
+          let altServer: http.Server;
+          const altServerPort = 22346;
+
+          beforeEach(done => {
+            altServer = http.createServer((request, response) => {
+              response.write('First part of the response');
+              setTimeout(() => response.end(), 50);
+            });
+            altServer.listen(altServerPort, done);
+          });
+
+          afterEach(() => {
+            altServer.close();
+          });
+
+          it('should have 1 ended span', async () => {
+            const promiseRequest = new Promise((resolve, reject) => {
+              const req = http.request(
+                `${protocol}://${hostname}:${altServerPort}`,
+                (resp: http.IncomingMessage) => {
+                  resp.on('data', data => {
+                    req.abort();
+                  });
+                  resp.on('close', () => {
+                    resolve();
+                  });
+                }
+              );
+
+              return req.end();
+            });
+
+            try {
+              await promiseRequest;
+              assert.fail();
+            } catch (error) {
+              const spans = memoryExporter.getFinishedSpans();
+              const [span] = spans;
+              assert.strictEqual(spans.length, 1);
+              assert.strictEqual(span.status.code, CanonicalCode.ABORTED);
+              assert.ok(Object.keys(span.attributes).length > 7);
+            }
+          });
+        });
       });
 
       it("should have 1 ended span when request doesn't listening response", done => {
