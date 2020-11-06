@@ -74,6 +74,8 @@ export interface TraceParams {
   numberOfLinksPerSpan?: number;
   /** numberOfEventsPerSpan is number of message events per span */
   numberOfEventsPerSpan?: number;
+  /** this field defines maximum length of attribute value before it is truncated */
+  spanAttributeValueSizeLimit?: number | null;
 }
 
 /** Interface configuration for a buffer. */

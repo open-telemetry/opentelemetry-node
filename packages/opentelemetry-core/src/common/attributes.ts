@@ -47,6 +47,47 @@ export function isAttributeValue(val: unknown): val is AttributeValue {
   return isValidPrimitiveAttributeValue(val);
 }
 
+export function truncateValueIfTooLong(
+  value: AttributeValue,
+  limit: number | null,
+  truncationWarningCallback = () => {}
+): AttributeValue {
+  if (limit === null) {
+    return value;
+  }
+
+  if (limit < 32) {
+    throw new Error('Value size limit cannot be lower than 32.');
+  }
+
+  if (typeof value === 'boolean' || typeof value === 'number') {
+    // these types can't exceed the attribute value size limit
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    // note: this is potentially incompatible with a given exporter
+    const serialized = JSON.stringify(value);
+
+    if (serialized.length > limit) {
+      return truncateValueIfTooLong(
+        serialized,
+        limit,
+        truncationWarningCallback
+      );
+    }
+
+    return value;
+  }
+
+  if (value.length > limit) {
+    truncationWarningCallback();
+    return value.substring(0, limit);
+  }
+
+  return value;
+}
+
 function isHomogeneousAttributeValueArray(arr: unknown[]): boolean {
   let type: string | undefined;
 

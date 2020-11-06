@@ -77,11 +77,13 @@ describe('environment', () => {
         OTEL_NO_PATCH_MODULES: 'a,b,c',
         OTEL_LOG_LEVEL: 'ERROR',
         OTEL_SAMPLING_PROBABILITY: '0.5',
+        OTEL_SPAN_ATTRIBUTE_VALUE_SIZE_LIMIT: '32',
       });
       const env = getEnv();
       assert.strictEqual(env.OTEL_NO_PATCH_MODULES, 'a,b,c');
       assert.strictEqual(env.OTEL_LOG_LEVEL, LogLevel.ERROR);
       assert.strictEqual(env.OTEL_SAMPLING_PROBABILITY, 0.5);
+      assert.strictEqual(env.OTEL_SPAN_ATTRIBUTE_VALUE_SIZE_LIMIT, 32);
     });
 
     it('should parse OTEL_LOG_LEVEL despite casing', () => {

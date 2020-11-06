@@ -36,6 +36,7 @@ export const DEFAULT_CONFIG = {
     numberOfAttributesPerSpan: DEFAULT_MAX_ATTRIBUTES_PER_SPAN,
     numberOfLinksPerSpan: DEFAULT_MAX_LINKS_PER_SPAN,
     numberOfEventsPerSpan: DEFAULT_MAX_EVENTS_PER_SPAN,
+    spanAttributeValueSizeLimit: getEnv().OTEL_SPAN_ATTRIBUTE_VALUE_SIZE_LIMIT,
   },
   gracefulShutdown: true,
 };

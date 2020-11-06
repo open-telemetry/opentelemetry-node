@@ -78,6 +78,7 @@ describe('BasicTracerProvider', () => {
         numberOfAttributesPerSpan: 32,
         numberOfEventsPerSpan: 128,
         numberOfLinksPerSpan: 32,
+        spanAttributeValueSizeLimit: null,
       });
     });
 
@@ -91,6 +92,7 @@ describe('BasicTracerProvider', () => {
         numberOfAttributesPerSpan: 100,
         numberOfEventsPerSpan: 128,
         numberOfLinksPerSpan: 32,
+        spanAttributeValueSizeLimit: null,
       });
     });
 
@@ -104,6 +106,7 @@ describe('BasicTracerProvider', () => {
         numberOfAttributesPerSpan: 32,
         numberOfEventsPerSpan: 300,
         numberOfLinksPerSpan: 32,
+        spanAttributeValueSizeLimit: null,
       });
     });
 
@@ -117,6 +120,21 @@ describe('BasicTracerProvider', () => {
         numberOfAttributesPerSpan: 32,
         numberOfEventsPerSpan: 128,
         numberOfLinksPerSpan: 10,
+        spanAttributeValueSizeLimit: null,
+      });
+    });
+
+    it('should construct an instance with customized spanAttributeValueSizeLimit trace params', () => {
+      const tracer = new BasicTracerProvider({
+        traceParams: {
+          spanAttributeValueSizeLimit: 100,
+        },
+      }).getTracer('default');
+      assert.deepStrictEqual(tracer.getActiveTraceParams(), {
+        numberOfAttributesPerSpan: 32,
+        numberOfEventsPerSpan: 128,
+        numberOfLinksPerSpan: 32,
+        spanAttributeValueSizeLimit: 100,
       });
     });
 

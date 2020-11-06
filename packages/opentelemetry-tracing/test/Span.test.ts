@@ -32,6 +32,7 @@ import {
 } from '@opentelemetry/core';
 import { ExceptionAttribute } from '@opentelemetry/semantic-conventions';
 import * as assert from 'assert';
+import sinon = require('sinon');
 import { BasicTracerProvider, Span, SpanProcessor } from '../src';
 
 const performanceTimeOrigin = hrTime();
@@ -346,6 +347,86 @@ describe('Span', () => {
     assert.strictEqual(span.events[span.events.length - 1].name, 'sent149');
     assert.strictEqual(span.attributes['foo0'], undefined);
     assert.strictEqual(span.attributes['foo149'], 'bar149');
+  });
+
+  it('should truncate attribute values exceeding length limit', () => {
+    const tracerWithLimit = new BasicTracerProvider({
+      logger: new NoopLogger(),
+      traceParams: {
+        spanAttributeValueSizeLimit: 100,
+      },
+    }).getTracer('default');
+
+    const spanWithLimit = new Span(
+      tracerWithLimit,
+      name,
+      spanContext,
+      SpanKind.CLIENT
+    );
+    const spanWithoutLimit = new Span(
+      tracer,
+      name,
+      spanContext,
+      SpanKind.CLIENT
+    );
+
+    spanWithLimit.setAttribute('attr under limit', 'a'.repeat(100));
+    assert.strictEqual(
+      spanWithLimit.attributes['attr under limit'],
+      'a'.repeat(100)
+    );
+    spanWithoutLimit.setAttribute('attr under limit', 'a'.repeat(100));
+    assert.strictEqual(
+      spanWithoutLimit.attributes['attr under limit'],
+      'a'.repeat(100)
+    );
+
+    spanWithLimit.setAttribute('attr over limit', 'b'.repeat(101));
+    assert.strictEqual(
+      spanWithLimit.attributes['attr over limit'],
+      'b'.repeat(100)
+    );
+    spanWithoutLimit.setAttribute('attr over limit', 'b'.repeat(101));
+    assert.strictEqual(
+      spanWithoutLimit.attributes['attr over limit'],
+      'b'.repeat(101)
+    );
+  });
+
+  it('should warn once when truncating attribute values exceeding length limit', () => {
+    const logger = new NoopLogger();
+    const loggerWarnSpy = sinon.spy(logger, 'warn');
+
+    const tracerWithLimit = new BasicTracerProvider({
+      logger,
+      traceParams: {
+        spanAttributeValueSizeLimit: 100,
+      },
+    }).getTracer('default');
+
+    const spanWithLimit = new Span(
+      tracerWithLimit,
+      name,
+      spanContext,
+      SpanKind.CLIENT
+    );
+
+    spanWithLimit.setAttribute('longAttr', 'b'.repeat(100));
+    assert(!loggerWarnSpy.called);
+
+    spanWithLimit.setAttribute('longAttr', 'b'.repeat(101));
+    assert(
+      loggerWarnSpy.withArgs('Span attribute value truncated at key: longAttr.')
+        .calledOnce
+    );
+
+    spanWithLimit.setAttribute('longAttr', 'c'.repeat(102));
+    assert(
+      loggerWarnSpy.withArgs('Span attribute value truncated at key: longAttr.')
+        .calledOnce
+    );
+
+    assert.strictEqual(spanWithLimit.attributes.longAttr, 'c'.repeat(100));
   });
 
   it('should set an error status', () => {

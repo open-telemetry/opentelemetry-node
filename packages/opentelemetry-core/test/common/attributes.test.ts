@@ -15,9 +15,11 @@
  */
 
 import * as assert from 'assert';
+import * as sinon from 'sinon';
 import {
   isAttributeValue,
   sanitizeAttributes,
+  truncateValueIfTooLong,
 } from '../../src/common/attributes';
 
 describe('attributes', () => {
@@ -101,6 +103,64 @@ describe('attributes', () => {
       assert.strictEqual(attributes.str, 'unmodified');
       assert.ok(Array.isArray(attributes.arr));
       assert.strictEqual(attributes.arr[0], 'unmodified');
+    });
+  });
+  describe('#truncateValueIfTooLong', () => {
+    it('should not truncate any given value if the limit is not set', () => {
+      assert.strictEqual(truncateValueIfTooLong('a', null), 'a');
+      assert.strictEqual(truncateValueIfTooLong(1, null), 1);
+      assert.strictEqual(truncateValueIfTooLong(true, null), true);
+
+      const arrayRef: string[] = [];
+      assert.strictEqual(truncateValueIfTooLong(arrayRef, null), arrayRef);
+    });
+
+    it('passes numbers and bools through', () => {
+      assert.strictEqual(truncateValueIfTooLong(true, 32), true);
+      assert.strictEqual(truncateValueIfTooLong(false, 32), false);
+      assert.strictEqual(truncateValueIfTooLong(1, 32), 1);
+    });
+
+    it('truncates strings if they are longer than the limit', () => {
+      assert.strictEqual(
+        truncateValueIfTooLong('a'.repeat(100), 100),
+        'a'.repeat(100)
+      );
+      assert.strictEqual(
+        truncateValueIfTooLong('a'.repeat(101), 100),
+        'a'.repeat(100)
+      );
+    });
+
+    it('serializes and truncates arrays if they are longer than the limit', () => {
+      assert.strictEqual(
+        truncateValueIfTooLong(['a'.repeat(100)], 32),
+        '["' + 'a'.repeat(30)
+      );
+      assert.strictEqual(
+        truncateValueIfTooLong(
+          [...new Array(10).keys()].map(() => 1000),
+          32
+        ),
+        '[' + '1000,'.repeat(6) + '1'
+      );
+      assert.strictEqual(
+        truncateValueIfTooLong(
+          [...new Array(10).keys()].map(() => true),
+          32
+        ),
+        '[' + 'true,'.repeat(6) + 't'
+      );
+    });
+
+    it('executes callback if a value was truncated', () => {
+      const fakeCallback = sinon.spy();
+
+      truncateValueIfTooLong('a'.repeat(32), 32, fakeCallback);
+      assert.ok(!fakeCallback.called);
+
+      truncateValueIfTooLong('a'.repeat(33), 32, fakeCallback);
+      assert(fakeCallback.called);
     });
   });
 });

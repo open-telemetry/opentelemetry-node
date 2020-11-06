@@ -25,10 +25,12 @@ export interface ENVIRONMENT {
   OTEL_LOG_LEVEL?: LogLevel;
   OTEL_NO_PATCH_MODULES?: string;
   OTEL_SAMPLING_PROBABILITY?: number;
+  OTEL_SPAN_ATTRIBUTE_VALUE_SIZE_LIMIT?: number | null;
 }
 
 const ENVIRONMENT_NUMBERS: Partial<keyof ENVIRONMENT>[] = [
   'OTEL_SAMPLING_PROBABILITY',
+  'OTEL_SPAN_ATTRIBUTE_VALUE_SIZE_LIMIT',
 ];
 
 /**
@@ -38,6 +40,7 @@ export const DEFAULT_ENVIRONMENT: Required<ENVIRONMENT> = {
   OTEL_NO_PATCH_MODULES: '',
   OTEL_LOG_LEVEL: LogLevel.INFO,
   OTEL_SAMPLING_PROBABILITY: 1,
+  OTEL_SPAN_ATTRIBUTE_VALUE_SIZE_LIMIT: null,
 };
 
 /**
@@ -114,6 +117,10 @@ export function parseEnvironment(values: ENVIRONMENT_MAP): ENVIRONMENT {
 
       case 'OTEL_LOG_LEVEL':
         setLogLevelFromEnv(key, environment, values);
+        break;
+
+      case 'OTEL_SPAN_ATTRIBUTE_VALUE_SIZE_LIMIT':
+        parseNumber(key, environment, values, 32, Number.MAX_SAFE_INTEGER);
         break;
 
       default:

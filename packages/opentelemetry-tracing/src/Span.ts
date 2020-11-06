@@ -16,12 +16,13 @@
 
 import * as api from '@opentelemetry/api';
 import {
-  isAttributeValue,
   hrTime,
   hrTimeDuration,
   InstrumentationLibrary,
+  isAttributeValue,
   isTimeInput,
   timeInputToHrTime,
+  truncateValueIfTooLong,
 } from '@opentelemetry/core';
 import { Resource } from '@opentelemetry/resources';
 import {
@@ -56,6 +57,7 @@ export class Span implements api.Span, ReadableSpan {
   endTime: api.HrTime = [0, 0];
   private _ended = false;
   private _duration: api.HrTime = [-1, -1];
+  private _hasTruncated = false;
   private readonly _logger: api.Logger;
   private readonly _spanProcessor: SpanProcessor;
   private readonly _traceParams: TraceParams;
@@ -113,7 +115,18 @@ export class Span implements api.Span, ReadableSpan {
         delete this.attributes[attributeKeyToDelete];
       }
     }
-    this.attributes[key] = value;
+
+    console.log('limit', this._traceParams.spanAttributeValueSizeLimit);
+    this.attributes[key] = truncateValueIfTooLong(
+      value,
+      this._traceParams.spanAttributeValueSizeLimit || null,
+      this._hasTruncated
+        ? undefined
+        : () => {
+            this._hasTruncated = true;
+            this._logger.warn(`Span attribute value truncated at key: ${key}.`);
+          }
+    );
     return this;
   }
 

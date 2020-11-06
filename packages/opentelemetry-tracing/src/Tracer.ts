@@ -55,6 +55,15 @@ export class Tracer implements api.Tracer {
     this.resource = _tracerProvider.resource;
     this.instrumentationLibrary = instrumentationLibrary;
     this.logger = config.logger || new ConsoleLogger(config.logLevel);
+
+    const configuredAttributeLimit =
+      this._traceParams.spanAttributeValueSizeLimit || null;
+    if (configuredAttributeLimit !== null && configuredAttributeLimit < 32) {
+      this.logger.warn(
+        'OTEL_SPAN_ATTRIBUTE_VALUE_SIZE_LIMIT was set to a value lower than 32, which is not allowed, limit of 32 will be applied.'
+      );
+      this._traceParams.spanAttributeValueSizeLimit = 32;
+    }
   }
 
   /**

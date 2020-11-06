@@ -56,6 +56,9 @@ export function mergeConfig(userConfig: TracerConfig) {
       traceParams.numberOfEventsPerSpan || DEFAULT_MAX_EVENTS_PER_SPAN;
     target.traceParams.numberOfLinksPerSpan =
       traceParams.numberOfLinksPerSpan || DEFAULT_MAX_LINKS_PER_SPAN;
+    target.traceParams.spanAttributeValueSizeLimit =
+      target.traceParams.spanAttributeValueSizeLimit ||
+      getEnv().OTEL_SPAN_ATTRIBUTE_VALUE_SIZE_LIMIT;
   }
   return target;
 }
