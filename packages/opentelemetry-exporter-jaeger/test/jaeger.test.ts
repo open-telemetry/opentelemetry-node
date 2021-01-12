@@ -74,6 +74,25 @@ describe('JaegerExporter', () => {
       assert.strictEqual(exporter['_sender']._host, 'env-set-host');
     });
 
+    it('should respect jaeger service name env variable', () => {
+      process.env.JAEGER_SERVICE_NAME = 'env-set-service-name';
+      const exporter = new JaegerExporter({
+        serviceName: 'option-service',
+      });
+      assert.strictEqual(
+        exporter['_process'].serviceName,
+        'env-set-service-name'
+      );
+    });
+
+    it('should use the service name option if the env var is unset', () => {
+      process.env.JAEGER_SERVICE_NAME = '';
+      const exporter = new JaegerExporter({
+        serviceName: 'option-service',
+      });
+      assert.strictEqual(exporter['_process'].serviceName, 'option-service');
+    });
+
     it('should prioritize host option over env variable', () => {
       process.env.JAEGER_AGENT_HOST = 'env-set-host';
       const exporter = new JaegerExporter({

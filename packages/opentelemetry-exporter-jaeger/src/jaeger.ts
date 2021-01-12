@@ -51,6 +51,9 @@ export class JaegerExporter implements SpanExporter {
     localConfig.username = localConfig.username || process.env.JAEGER_USER;
     localConfig.password = localConfig.password || process.env.JAEGER_PASSWORD;
     localConfig.host = localConfig.host || process.env.JAEGER_AGENT_HOST;
+    if (process.env.JAEGER_SERVICE_NAME) {
+      localConfig.serviceName = process.env.JAEGER_SERVICE_NAME;
+    }
     if (localConfig.endpoint) {
       this._sender = new jaegerTypes.HTTPSender(localConfig);
     } else {
