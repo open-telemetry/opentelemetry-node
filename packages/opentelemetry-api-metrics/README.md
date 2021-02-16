@@ -64,8 +64,6 @@ Because the npm installer and node module resolution algorithm could potentially
 
 If you are writing an instrumentation library, or prefer to call the API methods directly rather than using the `register` method on the Tracer/Meter Provider, OpenTelemetry provides direct access to the underlying API methods through the `@opentelemetry/api-metrics` package. API entry points are defined as global singleton objects `trace`, `metrics`, `propagation`, and `context` which contain methods used to initialize SDK implementations and acquire resources from the API.
 
-- [Metrics API Documentation][metrics-api-docs]
-
 ```javascript
 const api = require("@opentelemetry/api-metrics");
 
@@ -98,7 +96,6 @@ Apache 2.0 - See [LICENSE][license-url] for more information.
 [npm-img]: https://badge.fury.io/js/%40opentelemetry%2Fapi.svg
 
 [trace-api-docs]: https://open-telemetry.github.io/opentelemetry-js/classes/traceapi.html
-[metrics-api-docs]: https://open-telemetry.github.io/opentelemetry-js/classes/metricsapi.html
 [propagation-api-docs]: https://open-telemetry.github.io/opentelemetry-js/classes/propagationapi.html
 [context-api-docs]: https://open-telemetry.github.io/opentelemetry-js/classes/contextapi.html
 

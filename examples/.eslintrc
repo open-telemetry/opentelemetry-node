@@ -2,6 +2,7 @@
   "env": {
     "node": true
   },
+  "root": true,
   "extends": "airbnb-base",
   "parserOptions": {
     "sourceType": "script"

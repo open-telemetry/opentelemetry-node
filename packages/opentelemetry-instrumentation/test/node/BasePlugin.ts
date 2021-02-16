@@ -28,9 +28,9 @@ export abstract class BasePlugin<T> implements OldClassPlugin<T> {
 
   enable(
     moduleExports: T,
-    tracerProvider: TracerProvider,
-    logger: Logger,
-    config?: OldPluginConfig
+    _tracerProvider: TracerProvider,
+    _logger: Logger,
+    _config?: OldPluginConfig
   ): T {
     this._moduleExports = moduleExports;
     return this.patch();

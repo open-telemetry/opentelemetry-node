@@ -163,7 +163,6 @@ Apache 2.0 - See [LICENSE][license-url] for more information.
 [npm-img]: https://badge.fury.io/js/%40opentelemetry%2Fapi.svg
 
 [trace-api-docs]: https://open-telemetry.github.io/opentelemetry-js/classes/traceapi.html
-[metrics-api-docs]: https://open-telemetry.github.io/opentelemetry-js/classes/metricsapi.html
 [propagation-api-docs]: https://open-telemetry.github.io/opentelemetry-js/classes/propagationapi.html
 [context-api-docs]: https://open-telemetry.github.io/opentelemetry-js/classes/contextapi.html
 

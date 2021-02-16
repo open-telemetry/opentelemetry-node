@@ -34,7 +34,7 @@ export class ExactProcessor<T, R extends Aggregator> extends Processor {
     this.args = args;
   }
 
-  aggregatorFor(metricDescriptor: MetricDescriptor): Aggregator {
+  aggregatorFor(_metricDescriptor: MetricDescriptor): Aggregator {
     const aggregator = new this.aggregator(...this.args);
     this.aggregators.push(aggregator);
     return aggregator;

@@ -47,7 +47,7 @@ export class TestStackContextManager implements ContextManager {
     }
   }
 
-  bind<T>(target: T, context?: Context): T {
+  bind<T>(_target: T, _context?: Context): T {
     throw new Error('Method not implemented.');
   }
 

@@ -586,7 +586,7 @@ export const runTests = (
           .then(() => {
             assert.ok(false);
           })
-          .catch((err: ServiceError) => {
+          .catch((_err: ServiceError) => {
             const spans = memoryExporter.getFinishedSpans();
             assert.strictEqual(spans.length, 2, 'Expect 2 ended spans');
 
@@ -623,7 +623,7 @@ export const runTests = (
             .then(() => {
               assert.ok(false);
             })
-            .catch((err: ServiceError) => {
+            .catch((_err: ServiceError) => {
               // Assert
               const spans = memoryExporter.getFinishedSpans();
               assert.strictEqual(spans.length, 2);

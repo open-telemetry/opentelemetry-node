@@ -9,7 +9,7 @@
   "typedocOptions": {
     "name": "OpenTelemetry API for JavaScript",
     "out": "docs/out",
-    "entryPoints": ["./src/index.ts"],
+    "mode": "file",
     "hideGenerator": true
   }
 }
