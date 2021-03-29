@@ -20,6 +20,26 @@ import { TracerProvider, diag } from '@opentelemetry/api';
 import * as RequireInTheMiddle from 'require-in-the-middle';
 import { OldClassPlugin, OldPluginConfig } from '../../../types_plugin_only';
 import * as utils from './utils';
+import { createRequire } from 'module';
+
+const getPlugin = (modulePath: string, require: NodeRequire): OldClassPlugin => {
+  try {
+    return require(modulePath).plugin;
+  } catch (e) {
+    if (require !== mainRequire) {
+      return getPlugin(modulePath, mainRequire);
+    }
+    throw e;
+  }
+};
+
+const mainRequire = ((): NodeRequire  => {
+  const mainFilename = require?.main?.filename;
+  if (!mainFilename) {
+    return require;
+  }
+  return createRequire(mainFilename);
+})();
 
 // States for the Plugin Loader
 export enum HookState {
@@ -166,8 +186,7 @@ export class PluginLoader {
 
         // Expecting a plugin from module;
         try {
-          const plugin: OldClassPlugin =
-            modulePlugin ?? require(modulePath).plugin;
+          const plugin: OldClassPlugin = modulePlugin ?? getPlugin(modulePath, require);
           if (!utils.isSupportedVersion(version, plugin.supportedVersions)) {
             diag.warn(
               `PluginLoader#load: Plugin ${name} only supports module ${plugin.moduleName} with the versions: ${plugin.supportedVersions}`

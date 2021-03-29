@@ -1,5 +1,5 @@
 {
-  "name": "grpc-example",
+  "name": "example-grpc",
   "private": true,
   "version": "0.18.0",
   "description": "Example of gRPC integration with OpenTelemetry",

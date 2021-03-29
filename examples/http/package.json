@@ -1,5 +1,5 @@
 {
-  "name": "http-example",
+  "name": "example-http",
   "private": true,
   "version": "0.18.0",
   "description": "Example of HTTP integration with OpenTelemetry",

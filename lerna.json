@@ -6,8 +6,16 @@
     "backwards-compatability/*",
     "metapackages/*",
     "packages/*",
+    "examples/*",
     "integration-tests/*"
   ],
+  "command": {
+    "publish": {
+      "ignoreChanges": [
+        "example-*"
+      ]
+    }
+  },
   "version": "0.18.0",
   "changelog": {
     "repo": "open-telemetry/opentelemetry-js",
