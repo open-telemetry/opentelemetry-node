@@ -24,9 +24,8 @@ import {
   MetricRecord,
 } from '@opentelemetry/metrics';
 import { Resource } from '@opentelemetry/resources';
-import { CollectorExporterBase } from './CollectorExporterBase';
 import { toCollectorResource } from './transform';
-import { CollectorExporterConfigBase, opentelemetryProto } from './types';
+import { opentelemetryProto } from './types';
 
 /**
  * Converts labels
@@ -160,27 +159,19 @@ export function toCollectorMetric(
  * @param startTime start time of the metric in nanoseconds
  * @param collectorMetricExporterBase
  */
-export function toCollectorExportMetricServiceRequest<
-  T extends CollectorExporterConfigBase
->(
+export function toCollectorExportMetricServiceRequest(
   metrics: MetricRecord[],
   startTime: number,
-  collectorExporterBase: CollectorExporterBase<
-    T,
-    MetricRecord,
-    opentelemetryProto.collector.metrics.v1.ExportMetricsServiceRequest
-  >
+  serviceName: string,
+  attributes?: SpanAttributes
 ): opentelemetryProto.collector.metrics.v1.ExportMetricsServiceRequest {
   const groupedMetrics: Map<
     Resource,
     Map<core.InstrumentationLibrary, MetricRecord[]>
   > = groupMetricsByResourceAndLibrary(metrics);
   const additionalAttributes = Object.assign(
-    {},
-    collectorExporterBase.attributes,
-    {
-      'service.name': collectorExporterBase.serviceName,
-    }
+    { 'service.name': serviceName },
+    attributes
   );
   return {
     resourceMetrics: toCollectorResourceMetrics(

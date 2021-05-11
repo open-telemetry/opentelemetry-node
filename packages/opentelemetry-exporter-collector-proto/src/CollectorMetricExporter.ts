@@ -44,7 +44,8 @@ export class CollectorMetricExporter
     return toCollectorExportMetricServiceRequest(
       metrics,
       this._startTime,
-      this
+      this.serviceName,
+      this.attributes
     );
   }
 

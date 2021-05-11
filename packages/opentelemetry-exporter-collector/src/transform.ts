@@ -25,12 +25,7 @@ import {
 import * as core from '@opentelemetry/core';
 import { Resource } from '@opentelemetry/resources';
 import { ReadableSpan } from '@opentelemetry/tracing';
-import { CollectorExporterBase } from './CollectorExporterBase';
-import {
-  COLLECTOR_SPAN_KIND_MAPPING,
-  opentelemetryProto,
-  CollectorExporterConfigBase,
-} from './types';
+import { COLLECTOR_SPAN_KIND_MAPPING, opentelemetryProto } from './types';
 
 const MAX_INTEGER_VALUE = 2147483647;
 const MIN_INTEGER_VALUE = -2147483648;
@@ -268,15 +263,10 @@ export function toCollectorTraceState(
  * @param collectorExporterBase
  * @param useHex - if ids should be kept as hex without converting to base64
  */
-export function toCollectorExportTraceServiceRequest<
-  T extends CollectorExporterConfigBase
->(
+export function toCollectorExportTraceServiceRequest(
   spans: ReadableSpan[],
-  collectorTraceExporterBase: CollectorExporterBase<
-    T,
-    ReadableSpan,
-    opentelemetryProto.collector.trace.v1.ExportTraceServiceRequest
-  >,
+  serviceName: string,
+  attributes?: SpanAttributes,
   useHex?: boolean
 ): opentelemetryProto.collector.trace.v1.ExportTraceServiceRequest {
   const groupedSpans: Map<
@@ -285,11 +275,8 @@ export function toCollectorExportTraceServiceRequest<
   > = groupSpansByResourceAndLibrary(spans);
 
   const additionalAttributes = Object.assign(
-    {},
-    collectorTraceExporterBase.attributes,
-    {
-      'service.name': collectorTraceExporterBase.serviceName,
-    }
+    { 'service.name': serviceName },
+    attributes
   );
 
   return {
