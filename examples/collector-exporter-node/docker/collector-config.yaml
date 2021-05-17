@@ -15,15 +15,14 @@ exporters:
 
 processors:
   batch:
-  queued_retry:
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
       exporters: [zipkin]
-      processors: [batch, queued_retry]
+      processors: [batch]
     metrics:
       receivers: [otlp]
       exporters: [prometheus]
-      processors: [batch, queued_retry]
+      processors: [batch]

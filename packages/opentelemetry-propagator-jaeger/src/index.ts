@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-export * from './JaegerHttpTracePropagator';
+export * from './JaegerPropagator';

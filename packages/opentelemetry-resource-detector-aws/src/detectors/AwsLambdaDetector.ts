@@ -17,9 +17,12 @@
 import {
   Detector,
   Resource,
-  CLOUD_RESOURCE,
   ResourceDetectionConfig,
 } from '@opentelemetry/resources';
+import {
+  CloudProviderValues,
+  ResourceAttributes,
+} from '@opentelemetry/semantic-conventions';
 
 /**
  * The AwsLambdaDetector can be used to detect if a process is running in AWS Lambda
@@ -37,18 +40,17 @@ export class AwsLambdaDetector implements Detector {
     const region = process.env.AWS_REGION;
 
     const attributes = {
-      [CLOUD_RESOURCE.PROVIDER]: 'aws',
+      [ResourceAttributes.CLOUD_PROVIDER]: String(CloudProviderValues.AWS),
     };
     if (region) {
-      attributes[CLOUD_RESOURCE.REGION] = region;
+      attributes[ResourceAttributes.CLOUD_REGION] = region;
     }
 
-    // TODO(https://github.com/open-telemetry/opentelemetry-js/issues/2123): Migrate to FAAS_RESOURCE when defined.
     if (functionName) {
-      attributes['faas.name'] = functionName;
+      attributes[ResourceAttributes.FAAS_NAME] = functionName;
     }
     if (functionVersion) {
-      attributes['faas.version'] = functionVersion;
+      attributes[ResourceAttributes.FAAS_VERSION] = functionVersion;
     }
 
     return new Resource(attributes);

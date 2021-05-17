@@ -34,21 +34,17 @@ function handleRequest(request, response) {
   });
   // Annotate our span to capture metadata about the operation
   span.addEvent('invoking handleRequest');
-  try {
-    const body = [];
-    request.on('error', (err) => console.log(err));
-    request.on('data', (chunk) => body.push(chunk));
-    request.on('end', () => {
-      // deliberately sleeping to mock some action.
-      setTimeout(() => {
-        span.end();
-        response.end('Hello World!');
-      }, 2000);
-    });
-  } catch (err) {
-    console.log(err);
-    span.end();
-  }
+
+  const body = [];
+  request.on('error', (err) => console.log(err));
+  request.on('data', (chunk) => body.push(chunk));
+  request.on('end', () => {
+    // deliberately sleeping to mock some action.
+    setTimeout(() => {
+      span.end();
+      response.end('Hello World!');
+    }, 2000);
+  });
 }
 
 startServer(443);

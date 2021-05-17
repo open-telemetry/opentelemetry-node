@@ -53,7 +53,7 @@ import {
   getMetadata,
 } from './clientUtils';
 import { EventEmitter } from 'events';
-import { AttributeNames } from '../enums';
+import { AttributeNames } from '../enums/AttributeNames';
 
 export class GrpcJsInstrumentation extends InstrumentationBase {
   constructor(

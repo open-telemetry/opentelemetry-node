@@ -22,12 +22,12 @@ import {
   ResourceDetectionConfig,
   Resource,
   ResourceAttributes,
-  CLOUD_RESOURCE,
-  HOST_RESOURCE,
-  K8S_RESOURCE,
-  CONTAINER_RESOURCE,
 } from '@opentelemetry/resources';
 import { getEnv } from '@opentelemetry/core';
+import {
+  CloudProviderValues,
+  ResourceAttributes as SemanticResourceAttributes,
+} from '@opentelemetry/semantic-conventions';
 
 /**
  * The GcpDetector can be used to detect if a process is running in the Google
@@ -60,10 +60,11 @@ class GcpDetector implements Detector {
     ]);
 
     const attributes: ResourceAttributes = {};
-    attributes[CLOUD_RESOURCE.ACCOUNT_ID] = projectId;
-    attributes[HOST_RESOURCE.ID] = instanceId;
-    attributes[CLOUD_RESOURCE.ZONE] = zoneId;
-    attributes[CLOUD_RESOURCE.PROVIDER] = 'gcp';
+    attributes[SemanticResourceAttributes.CLOUD_ACCOUNT_ID] = projectId;
+    attributes[SemanticResourceAttributes.HOST_ID] = instanceId;
+    attributes[SemanticResourceAttributes.CLOUD_AVAILABILITY_ZONE] = zoneId;
+    attributes[SemanticResourceAttributes.CLOUD_PROVIDER] =
+      CloudProviderValues.GCP;
 
     if (getEnv().KUBERNETES_SERVICE_HOST)
       this._addK8sAttributes(attributes, clusterName);
@@ -78,10 +79,10 @@ class GcpDetector implements Detector {
   ): void {
     const env = getEnv();
 
-    attributes[K8S_RESOURCE.CLUSTER_NAME] = clusterName;
-    attributes[K8S_RESOURCE.NAMESPACE_NAME] = env.NAMESPACE;
-    attributes[K8S_RESOURCE.POD_NAME] = env.HOSTNAME;
-    attributes[CONTAINER_RESOURCE.NAME] = env.CONTAINER_NAME;
+    attributes[SemanticResourceAttributes.K8S_CLUSTER_NAME] = clusterName;
+    attributes[SemanticResourceAttributes.K8S_NAMESPACE_NAME] = env.NAMESPACE;
+    attributes[SemanticResourceAttributes.K8S_POD_NAME] = env.HOSTNAME;
+    attributes[SemanticResourceAttributes.CONTAINER_NAME] = env.CONTAINER_NAME;
   }
 
   /** Gets project id from GCP project metadata. */

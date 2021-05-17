@@ -30,7 +30,7 @@ import * as sinon from 'sinon';
 import * as url from 'url';
 import { IgnoreMatcher } from '../../src/types';
 import * as utils from '../../src/utils';
-import { AttributeNames } from '../../src/enums';
+import { AttributeNames } from '../../src/enums/AttributeNames';
 
 describe('Utility', () => {
   describe('parseResponseStatus()', () => {

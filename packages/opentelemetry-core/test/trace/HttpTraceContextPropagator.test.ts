@@ -28,14 +28,14 @@ import {
 } from '@opentelemetry/api';
 import * as assert from 'assert';
 import {
-  HttpTraceContext,
+  HttpTraceContextPropagator,
   TRACE_PARENT_HEADER,
   TRACE_STATE_HEADER,
-} from '../../src/context/propagation/HttpTraceContext';
+} from '../../src/trace/HttpTraceContextPropagator';
 import { TraceState } from '../../src/trace/TraceState';
 
-describe('HttpTraceContext', () => {
-  const httpTraceContext = new HttpTraceContext();
+describe('HttpTraceContextPropagator', () => {
+  const httpTraceContext = new HttpTraceContextPropagator();
   let carrier: { [key: string]: unknown };
 
   beforeEach(() => {

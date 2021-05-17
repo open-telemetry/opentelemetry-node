@@ -58,6 +58,11 @@ export interface MetricOptions {
    * Boundaries optional for histogram
    */
   boundaries?: number[];
+
+  /**
+   * Aggregation Temporality of metric
+   */
+  aggregationTemporality?: AggregationTemporality;
 }
 
 export interface BatchObserverOptions {
@@ -71,6 +76,13 @@ export interface BatchObserverOptions {
 export enum ValueType {
   INT,
   DOUBLE,
+}
+
+/** The kind of aggregator. */
+export enum AggregationTemporality {
+  AGGREGATION_TEMPORALITY_UNSPECIFIED,
+  AGGREGATION_TEMPORALITY_DELTA,
+  AGGREGATION_TEMPORALITY_CUMULATIVE,
 }
 
 /**

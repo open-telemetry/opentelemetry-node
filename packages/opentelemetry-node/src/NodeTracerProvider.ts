@@ -26,7 +26,7 @@ import {
 } from '@opentelemetry/tracing';
 import * as semver from 'semver';
 import { NodeTracerConfig } from './config';
-import { JaegerHttpTracePropagator } from '@opentelemetry/propagator-jaeger';
+import { JaegerPropagator } from '@opentelemetry/propagator-jaeger';
 
 /**
  * Register this TracerProvider for use with the OpenTelemetry API.
@@ -49,7 +49,7 @@ export class NodeTracerProvider extends BasicTracerProvider {
       'b3multi',
       () => new B3Propagator({ injectEncoding: B3InjectEncoding.MULTI_HEADER }),
     ],
-    ['jaeger', () => new JaegerHttpTracePropagator()],
+    ['jaeger', () => new JaegerPropagator()],
   ]);
 
   constructor(config: NodeTracerConfig = {}) {

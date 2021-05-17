@@ -69,6 +69,7 @@ describe('awsEc2Detector', () => {
       scope.done();
 
       assert.ok(resource);
+
       assertCloudResource(resource, {
         provider: 'aws',
         accountId: 'my-account-id',

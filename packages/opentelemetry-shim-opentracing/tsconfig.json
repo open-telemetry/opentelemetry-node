@@ -13,6 +13,12 @@
       "path": "../opentelemetry-core"
     },
     {
+      "path": "../opentelemetry-propagator-b3"
+    },
+    {
+      "path": "../opentelemetry-propagator-jaeger"
+    },
+    {
       "path": "../opentelemetry-tracing"
     }
   ]

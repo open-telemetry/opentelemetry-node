@@ -17,42 +17,54 @@
 import * as assert from 'assert';
 import * as opentracing from 'opentracing';
 import { BasicTracerProvider, Span } from '@opentelemetry/tracing';
-import { TracerShim, SpanShim, SpanContextShim } from '../src/shim';
+import { SpanContextShim, SpanShim, TracerShim } from '../src/shim';
 import {
-  timeInputToHrTime,
-  HttpTraceContext,
   CompositePropagator,
-  HttpBaggage,
+  HttpBaggagePropagator,
+  HttpTraceContextPropagator,
+  timeInputToHrTime,
 } from '@opentelemetry/core';
 import {
   createBaggage,
+  defaultTextMapGetter,
+  defaultTextMapSetter,
+  getSpanContext,
   INVALID_SPAN_CONTEXT,
   propagation,
+  ROOT_CONTEXT,
+  setSpanContext,
 } from '@opentelemetry/api';
 import { performance } from 'perf_hooks';
+import { B3Propagator } from '@opentelemetry/propagator-b3';
+import { JaegerPropagator } from '@opentelemetry/propagator-jaeger';
 
 describe('OpenTracing Shim', () => {
-  const provider = new BasicTracerProvider();
-  const shimTracer: opentracing.Tracer = new TracerShim(
-    provider.getTracer('default')
-  );
-  opentracing.initGlobalTracer(shimTracer);
   const compositePropagator = new CompositePropagator({
-    propagators: [new HttpTraceContext(), new HttpBaggage()],
+    propagators: [
+      new HttpTraceContextPropagator(),
+      new HttpBaggagePropagator(),
+    ],
   });
 
   propagation.setGlobalPropagator(compositePropagator);
 
   describe('TracerShim', () => {
+    let shimTracer: opentracing.Tracer;
     let span: opentracing.Span;
     let context: opentracing.SpanContext;
 
-    beforeEach(() => {
-      span = shimTracer.startSpan('my-span');
-      context = span.context();
-    });
+    describe('propagation using default propagators', () => {
+      before(() => {
+        const provider = new BasicTracerProvider();
+        shimTracer = new TracerShim(provider.getTracer('default'));
+        opentracing.initGlobalTracer(shimTracer);
+      });
 
-    describe('propagation', () => {
+      beforeEach(() => {
+        span = shimTracer.startSpan('my-span');
+        context = span.context();
+      });
+
       it('injects/extracts a span object', () => {
         const carrier: { [key: string]: unknown } = {};
         shimTracer.inject(span, opentracing.FORMAT_HTTP_HEADERS, carrier);
@@ -116,48 +128,141 @@ describe('OpenTracing Shim', () => {
       });
     });
 
-    it('creates parent/child relationship using a span object', () => {
-      const childSpan = shimTracer.startSpan('other-span', {
-        childOf: span,
-      }) as SpanShim;
-      assert.strictEqual(
-        (childSpan.getSpan() as Span).parentSpanId,
-        context.toSpanId()
-      );
-      assert.strictEqual(
-        childSpan.context().toTraceId(),
-        span.context().toTraceId()
-      );
+    describe('propagation using configured propagators', () => {
+      const jaegerPropagator = new JaegerPropagator();
+      const b3Propagator = new B3Propagator();
+      before(() => {
+        const provider = new BasicTracerProvider();
+        shimTracer = new TracerShim(provider.getTracer('default'), {
+          textMapPropagator: b3Propagator,
+          httpHeadersPropagator: jaegerPropagator,
+        });
+        opentracing.initGlobalTracer(shimTracer);
+      });
+
+      beforeEach(() => {
+        span = shimTracer.startSpan('my-span');
+        context = span.context();
+      });
+
+      it('injects HTTP carriers', () => {
+        const carrier: { [key: string]: unknown } = {};
+        shimTracer.inject(context, opentracing.FORMAT_HTTP_HEADERS, carrier);
+        const extractedContext = getSpanContext(
+          jaegerPropagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
+        );
+        assert.ok(extractedContext !== null);
+        assert.strictEqual(extractedContext?.traceId, context.toTraceId());
+        assert.strictEqual(extractedContext?.spanId, context.toSpanId());
+      });
+
+      it('extracts HTTP carriers', () => {
+        const carrier: { [key: string]: unknown } = {};
+        jaegerPropagator.inject(
+          setSpanContext(
+            ROOT_CONTEXT,
+            (context as SpanContextShim).getSpanContext()
+          ),
+          carrier,
+          defaultTextMapSetter
+        );
+
+        const extractedContext = shimTracer.extract(
+          opentracing.FORMAT_HTTP_HEADERS,
+          carrier
+        );
+        assert.ok(extractedContext !== null);
+        assert.strictEqual(extractedContext!.toTraceId(), context.toTraceId());
+        assert.strictEqual(extractedContext!.toSpanId(), context.toSpanId());
+      });
+
+      it('injects TextMap carriers', () => {
+        const carrier: { [key: string]: unknown } = {};
+        shimTracer.inject(context, opentracing.FORMAT_TEXT_MAP, carrier);
+        const extractedContext = getSpanContext(
+          b3Propagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
+        );
+        assert.ok(extractedContext !== null);
+        assert.strictEqual(extractedContext?.traceId, context.toTraceId());
+        assert.strictEqual(extractedContext?.spanId, context.toSpanId());
+      });
+
+      it('extracts TextMap carriers', () => {
+        const carrier: { [key: string]: unknown } = {};
+        b3Propagator.inject(
+          setSpanContext(
+            ROOT_CONTEXT,
+            (context as SpanContextShim).getSpanContext()
+          ),
+          carrier,
+          defaultTextMapSetter
+        );
+
+        const extractedContext = shimTracer.extract(
+          opentracing.FORMAT_TEXT_MAP,
+          carrier
+        );
+        assert.ok(extractedContext !== null);
+        assert.strictEqual(extractedContext!.toTraceId(), context.toTraceId());
+        assert.strictEqual(extractedContext!.toSpanId(), context.toSpanId());
+      });
     });
 
-    it('creates parent/child relationship using a context object', () => {
-      const childSpan = shimTracer.startSpan('other-span', {
-        childOf: context,
-      }) as SpanShim;
-      assert.strictEqual(
-        (childSpan.getSpan() as Span).parentSpanId,
-        context.toSpanId()
-      );
-      assert.strictEqual(
-        childSpan.context().toTraceId(),
-        span.context().toTraceId()
-      );
-    });
+    describe('starting spans', () => {
+      before(() => {
+        const provider = new BasicTracerProvider();
+        shimTracer = new TracerShim(provider.getTracer('default'));
+        opentracing.initGlobalTracer(shimTracer);
+      });
 
-    it('translates span options correctly', () => {
-      const now = performance.now();
-      const opentracingOptions: opentracing.SpanOptions = {
-        startTime: now,
-        tags: { key: 'value', count: 1 },
-        references: [opentracing.followsFrom(context)],
-      };
-      span = shimTracer.startSpan('my-span', opentracingOptions);
+      beforeEach(() => {
+        span = shimTracer.startSpan('my-span');
+        context = span.context();
+      });
 
-      const otSpan = (span as SpanShim).getSpan() as Span;
+      it('creates parent/child relationship using a span object', () => {
+        const childSpan = shimTracer.startSpan('other-span', {
+          childOf: span,
+        }) as SpanShim;
+        assert.strictEqual(
+          (childSpan.getSpan() as Span).parentSpanId,
+          context.toSpanId()
+        );
+        assert.strictEqual(
+          childSpan.context().toTraceId(),
+          span.context().toTraceId()
+        );
+      });
 
-      assert.strictEqual(otSpan.links.length, 1);
-      assert.deepStrictEqual(otSpan.startTime, timeInputToHrTime(now));
-      assert.deepStrictEqual(otSpan.attributes, opentracingOptions.tags);
+      it('creates parent/child relationship using a context object', () => {
+        const childSpan = shimTracer.startSpan('other-span', {
+          childOf: context,
+        }) as SpanShim;
+        assert.strictEqual(
+          (childSpan.getSpan() as Span).parentSpanId,
+          context.toSpanId()
+        );
+        assert.strictEqual(
+          childSpan.context().toTraceId(),
+          span.context().toTraceId()
+        );
+      });
+
+      it('translates span options correctly', () => {
+        const now = performance.now();
+        const opentracingOptions: opentracing.SpanOptions = {
+          startTime: now,
+          tags: { key: 'value', count: 1 },
+          references: [opentracing.followsFrom(context)],
+        };
+        span = shimTracer.startSpan('my-span', opentracingOptions);
+
+        const otSpan = (span as SpanShim).getSpan() as Span;
+
+        assert.strictEqual(otSpan.links.length, 1);
+        assert.deepStrictEqual(otSpan.startTime, timeInputToHrTime(now));
+        assert.deepStrictEqual(otSpan.attributes, opentracingOptions.tags);
+      });
     });
   });
 
@@ -171,8 +276,15 @@ describe('OpenTracing Shim', () => {
   });
 
   describe('span', () => {
+    let shimTracer: opentracing.Tracer;
     let span: SpanShim;
     let otSpan: Span;
+
+    before(() => {
+      const provider = new BasicTracerProvider();
+      shimTracer = new TracerShim(provider.getTracer('default'));
+      opentracing.initGlobalTracer(shimTracer);
+    });
 
     beforeEach(() => {
       span = shimTracer.startSpan('my-span', {

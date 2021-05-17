@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+import { ResourceAttributes as SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { SDK_INFO } from '@opentelemetry/core';
-import { TELEMETRY_SDK_RESOURCE } from './constants';
 import { ResourceAttributes } from './types';
 
 /**
@@ -37,9 +37,12 @@ export class Resource {
    */
   static createTelemetrySDKResource(): Resource {
     return new Resource({
-      [TELEMETRY_SDK_RESOURCE.LANGUAGE]: SDK_INFO.LANGUAGE,
-      [TELEMETRY_SDK_RESOURCE.NAME]: SDK_INFO.NAME,
-      [TELEMETRY_SDK_RESOURCE.VERSION]: SDK_INFO.VERSION,
+      [SemanticResourceAttributes.TELEMETRY_SDK_LANGUAGE]:
+        SDK_INFO[SemanticResourceAttributes.TELEMETRY_SDK_LANGUAGE],
+      [SemanticResourceAttributes.TELEMETRY_SDK_NAME]:
+        SDK_INFO[SemanticResourceAttributes.TELEMETRY_SDK_NAME],
+      [SemanticResourceAttributes.TELEMETRY_SDK_VERSION]:
+        SDK_INFO[SemanticResourceAttributes.TELEMETRY_SDK_VERSION],
     });
   }
 

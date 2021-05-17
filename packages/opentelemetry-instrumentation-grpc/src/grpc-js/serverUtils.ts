@@ -33,7 +33,7 @@ import {
   _methodIsIgnored,
 } from '../utils';
 import { IgnoreMatcher } from '../types';
-import { AttributeNames } from '../enums';
+import { AttributeNames } from '../enums/AttributeNames';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 
 export const CALL_SPAN_ENDED = Symbol('opentelemetry call span ended');

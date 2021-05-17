@@ -343,7 +343,7 @@ export function ensureExportedCounterIsCorrect(
         },
       ],
       isMonotonic: true,
-      aggregationTemporality: 'AGGREGATION_TEMPORALITY_DELTA',
+      aggregationTemporality: 'AGGREGATION_TEMPORALITY_CUMULATIVE',
     },
   });
 }

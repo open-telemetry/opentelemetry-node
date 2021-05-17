@@ -16,6 +16,9 @@
       "path": "../opentelemetry-resources"
     },
     {
+      "path": "../opentelemetry-semantic-conventions"
+    },
+    {
       "path": "../opentelemetry-tracing"
     }
   ]

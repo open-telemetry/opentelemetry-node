@@ -18,6 +18,7 @@ import {
   SpanAttributes,
   Context,
   getSpanContext,
+  isSpanContextValid,
   Link,
   Sampler,
   SamplingResult,
@@ -69,7 +70,7 @@ export class ParentBasedSampler implements Sampler {
   ): SamplingResult {
     const parentContext = getSpanContext(context);
 
-    if (!parentContext) {
+    if (!parentContext || !isSpanContextValid(parentContext)) {
       return this._root.shouldSample(
         context,
         traceId,

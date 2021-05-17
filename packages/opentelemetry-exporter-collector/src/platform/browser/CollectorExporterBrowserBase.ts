@@ -20,6 +20,7 @@ import * as collectorTypes from '../../types';
 import { parseHeaders } from '../../util';
 import { sendWithBeacon, sendWithXhr } from './util';
 import { diag } from '@opentelemetry/api';
+import { getEnv, baggageUtils } from '@opentelemetry/core';
 
 /**
  * Collector Metric Exporter abstract base class
@@ -32,7 +33,7 @@ export abstract class CollectorExporterBrowserBase<
   ExportItem,
   ServiceRequest
 > {
-  private _headers: Record<string, string>;
+  protected _headers: Record<string, string>;
   private _useXHR: boolean = false;
 
   /**
@@ -43,7 +44,13 @@ export abstract class CollectorExporterBrowserBase<
     this._useXHR =
       !!config.headers || typeof navigator.sendBeacon !== 'function';
     if (this._useXHR) {
-      this._headers = parseHeaders(config.headers);
+      this._headers = Object.assign(
+        {},
+        parseHeaders(config.headers),
+        baggageUtils.parseKeyPairsIntoRecord(
+          getEnv().OTEL_EXPORTER_OTLP_HEADERS
+        )
+      );
     } else {
       this._headers = {};
     }

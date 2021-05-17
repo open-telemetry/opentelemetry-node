@@ -21,7 +21,7 @@ import {
   setSpan,
   getSpan,
 } from '@opentelemetry/api';
-import { HttpTraceContext } from '@opentelemetry/core';
+import { HttpTraceContextPropagator } from '@opentelemetry/core';
 import { NodeTracerProvider } from '@opentelemetry/node';
 import { AsyncHooksContextManager } from '@opentelemetry/context-async-hooks';
 import { ContextManager } from '@opentelemetry/api';
@@ -388,7 +388,7 @@ export const runTests = (
     let contextManager: ContextManager;
 
     before(() => {
-      propagation.setGlobalPropagator(new HttpTraceContext());
+      propagation.setGlobalPropagator(new HttpTraceContextPropagator());
     });
 
     beforeEach(() => {

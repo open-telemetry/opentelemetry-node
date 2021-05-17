@@ -33,7 +33,7 @@ import {
 } from 'http';
 import { Socket } from 'net';
 import * as url from 'url';
-import { AttributeNames } from './enums';
+import { AttributeNames } from './enums/AttributeNames';
 import { Err, IgnoreMatcher, ParsedRequestOptions } from './types';
 
 /**

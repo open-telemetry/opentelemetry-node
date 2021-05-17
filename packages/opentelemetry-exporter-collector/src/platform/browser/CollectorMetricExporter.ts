@@ -19,6 +19,7 @@ import { CollectorExporterConfigBase } from '../../types';
 import * as collectorTypes from '../../types';
 import { CollectorExporterBrowserBase } from './CollectorExporterBrowserBase';
 import { toCollectorExportMetricServiceRequest } from '../../transformMetrics';
+import { getEnv, baggageUtils } from '@opentelemetry/core';
 
 const DEFAULT_COLLECTOR_URL = 'http://localhost:55681/v1/metrics';
 const DEFAULT_SERVICE_NAME = 'collector-metric-exporter';
@@ -35,6 +36,16 @@ export class CollectorMetricExporter
   // Converts time to nanoseconds
   private readonly _startTime = new Date().getTime() * 1000000;
 
+  constructor(config: CollectorExporterConfigBase = {}) {
+    super(config);
+    this._headers = Object.assign(
+      this._headers,
+      baggageUtils.parseKeyPairsIntoRecord(
+        getEnv().OTEL_EXPORTER_OTLP_METRICS_HEADERS
+      )
+    );
+  }
+
   convert(
     metrics: MetricRecord[]
   ): collectorTypes.opentelemetryProto.collector.metrics.v1.ExportMetricsServiceRequest {
@@ -45,8 +56,14 @@ export class CollectorMetricExporter
     );
   }
 
-  getDefaultUrl(config: CollectorExporterConfigBase): string {
-    return config.url || DEFAULT_COLLECTOR_URL;
+  getDefaultUrl(config: CollectorExporterConfigBase) {
+    return typeof config.url === 'string'
+      ? config.url
+      : getEnv().OTEL_EXPORTER_OTLP_METRICS_ENDPOINT.length > 0
+      ? getEnv().OTEL_EXPORTER_OTLP_METRICS_ENDPOINT
+      : getEnv().OTEL_EXPORTER_OTLP_ENDPOINT.length > 0
+      ? getEnv().OTEL_EXPORTER_OTLP_ENDPOINT
+      : DEFAULT_COLLECTOR_URL;
   }
 
   getDefaultServiceName(config: CollectorExporterConfigBase): string {

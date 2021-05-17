@@ -7,8 +7,6 @@
 
 OpenTracing shim allows existing OpenTracing instrumentation to report to OpenTelemetry
 
-Note: Baggage is currently not propagated, see [issues/329](https://github.com/open-telemetry/opentelemetry-js/issues/329).
-
 ## Installation
 
 ```bash
@@ -33,6 +31,18 @@ const tracer = myOpenTelemetryTracer(...)
 opentracing.initGlobalTracer(new TracerShim(tracer));
 
 ```
+
+Optionally, you can specify propagators to be used for the OpenTracing `TextMap` and `HttpHeaders` formats:
+
+```javascript
+var b3Propagator = new B3Propagator();
+new TracerShim(tracer, {
+  textMapPropagator: b3Propagator,
+  httpHeadersPropagator: b3Propagator
+})
+```
+
+If propagators are not specified, OpenTelemetry's global propagator will be used.
 
 See [examples/opentracing-shim](https://github.com/open-telemetry/opentelemetry-js/tree/main/examples/opentracing-shim) for a short example.
 

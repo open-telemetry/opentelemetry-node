@@ -171,6 +171,7 @@ describe('transformMetrics', () => {
           labels: { foo: (1 as unknown) as string },
           aggregator: new SumAggregator(),
           resource: new Resource({}),
+          aggregationTemporality: 0,
           instrumentationLibrary: { name: 'x', version: 'y' },
         },
         1592602232694000000

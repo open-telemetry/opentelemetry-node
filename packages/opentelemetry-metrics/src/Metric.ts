@@ -27,6 +27,7 @@ export abstract class Metric<T extends BaseBoundInstrument>
   protected readonly _valueType: api.ValueType;
   protected readonly _descriptor: MetricDescriptor;
   protected readonly _boundaries: number[] | undefined;
+  protected readonly _aggregationTemporality: api.AggregationTemporality;
   private readonly _instruments: Map<string, T> = new Map();
 
   constructor(
@@ -43,6 +44,10 @@ export abstract class Metric<T extends BaseBoundInstrument>
         : api.ValueType.DOUBLE;
     this._boundaries = _options.boundaries;
     this._descriptor = this._getMetricDescriptor();
+    this._aggregationTemporality =
+      _options.aggregationTemporality === undefined
+        ? api.AggregationTemporality.AGGREGATION_TEMPORALITY_CUMULATIVE
+        : _options.aggregationTemporality;
   }
 
   /**
@@ -83,6 +88,10 @@ export abstract class Metric<T extends BaseBoundInstrument>
     return this._kind;
   }
 
+  getAggregationTemporality() {
+    return this._aggregationTemporality;
+  }
+
   getMetricRecord(): Promise<MetricRecord[]> {
     return new Promise(resolve => {
       resolve(
@@ -90,6 +99,7 @@ export abstract class Metric<T extends BaseBoundInstrument>
           descriptor: this._descriptor,
           labels: instrument.getLabels(),
           aggregator: instrument.getAggregator(),
+          aggregationTemporality: this.getAggregationTemporality(),
           resource: this.resource,
           instrumentationLibrary: this.instrumentationLibrary,
         }))

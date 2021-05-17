@@ -574,7 +574,7 @@ export function ensureCounterIsCorrect(
       isMonotonic: true,
       aggregationTemporality:
         collectorTypes.opentelemetryProto.metrics.v1.AggregationTemporality
-          .AGGREGATION_TEMPORALITY_DELTA,
+          .AGGREGATION_TEMPORALITY_CUMULATIVE,
     },
   });
 }
@@ -599,7 +599,7 @@ export function ensureDoubleCounterIsCorrect(
       isMonotonic: true,
       aggregationTemporality:
         collectorTypes.opentelemetryProto.metrics.v1.AggregationTemporality
-          .AGGREGATION_TEMPORALITY_DELTA,
+          .AGGREGATION_TEMPORALITY_CUMULATIVE,
     },
   });
 }

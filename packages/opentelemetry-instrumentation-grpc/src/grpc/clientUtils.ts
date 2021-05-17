@@ -31,7 +31,7 @@ import {
   _grpcStatusCodeToOpenTelemetryStatusCode,
   findIndex,
 } from '../utils';
-import { AttributeNames } from '../enums';
+import { AttributeNames } from '../enums/AttributeNames';
 
 /**
  * This method handles the client remote call

@@ -21,7 +21,7 @@ import * as assert from 'assert';
 import * as http from 'http';
 import * as utils from '../../src/utils';
 import { DummyPropagation } from './DummyPropagation';
-import { AttributeNames } from '../../src/enums';
+import { AttributeNames } from '../../src/enums/AttributeNames';
 
 export const assertSpan = (
   span: ReadableSpan,

@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-import { VERSION } from '../../version';
-import {
-  TelemetrySdkLanguageValues,
-  ResourceAttributes,
-} from '@opentelemetry/semantic-conventions';
+export const BAGGAGE_KEY_PAIR_SEPARATOR = '=';
+export const BAGGAGE_PROPERTIES_SEPARATOR = ';';
+export const BAGGAGE_ITEMS_SEPARATOR = ',';
 
-/** Constants describing the SDK in use */
-export const SDK_INFO = {
-  [ResourceAttributes.TELEMETRY_SDK_NAME]: 'opentelemetry',
-  [ResourceAttributes.PROCESS_RUNTIME_NAME]: 'browser',
-  [ResourceAttributes.TELEMETRY_SDK_LANGUAGE]: TelemetrySdkLanguageValues.WEBJS,
-  [ResourceAttributes.TELEMETRY_SDK_VERSION]: VERSION,
-};
+// Name of the http header used to propagate the baggage
+export const BAGGAGE_HEADER = 'baggage';
+// Maximum number of name-value pairs allowed by w3c spec
+export const BAGGAGE_MAX_NAME_VALUE_PAIRS = 180;
+// Maximum number of bytes per a single name-value pair allowed by w3c spec
+export const BAGGAGE_MAX_PER_NAME_VALUE_PAIRS = 4096;
+// Maximum total length of all name-value pairs allowed by w3c spec
+export const BAGGAGE_MAX_TOTAL_LENGTH = 8192;

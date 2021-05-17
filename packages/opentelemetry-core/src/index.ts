@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+export * from './baggage/propagation/HttpBaggagePropagator';
 export * from './common/attributes';
 export * from './common/global-error-handler';
 export * from './common/logging-error-handler';
@@ -21,17 +22,18 @@ export * from './common/time';
 export * from './common/types';
 export * from './ExportResult';
 export * from './version';
-export * from './context/propagation/composite';
-export * from './context/propagation/HttpTraceContext';
-export * from './context/propagation/types';
-export * from './baggage/propagation/HttpBaggage';
+export * as baggageUtils from './baggage/utils';
 export * from './platform';
+export * from './propagation/composite';
+export * from './trace/HttpTraceContextPropagator';
+export * from './trace/IdGenerator';
 export * from './trace/sampler/AlwaysOffSampler';
 export * from './trace/sampler/AlwaysOnSampler';
 export * from './trace/sampler/ParentBasedSampler';
 export * from './trace/sampler/TraceIdRatioBasedSampler';
 export * from './trace/TraceState';
-export * from './trace/IdGenerator';
+export * from './utils/environment';
+export * from './utils/sampling';
 export * from './utils/url';
 export * from './utils/wrap';
-export * from './utils/sampling';
+export * from './version';

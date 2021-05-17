@@ -37,9 +37,9 @@ const performanceTimeOrigin = hrTime();
 
 describe('Span', () => {
   const tracer = new BasicTracerProvider({
-    traceParams: {
-      numberOfAttributesPerSpan: 100,
-      numberOfEventsPerSpan: 100,
+    spanLimits: {
+      attributeCountLimit: 100,
+      eventCountLimit: 100,
     },
   }).getTracer('default');
   const name = 'span1';

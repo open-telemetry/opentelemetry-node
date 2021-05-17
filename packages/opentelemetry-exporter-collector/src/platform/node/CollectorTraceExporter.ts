@@ -19,9 +19,10 @@ import { CollectorExporterNodeBase } from './CollectorExporterNodeBase';
 import { CollectorExporterNodeConfigBase } from './types';
 import * as collectorTypes from '../../types';
 import { toCollectorExportTraceServiceRequest } from '../../transform';
+import { getEnv, baggageUtils } from '@opentelemetry/core';
 
 const DEFAULT_SERVICE_NAME = 'collector-trace-exporter';
-const DEFAULT_COLLECTOR_URL = 'http://localhost:55681/v1/trace';
+const DEFAULT_COLLECTOR_URL = 'http://localhost:55681/v1/traces';
 
 /**
  * Collector Trace Exporter for Node
@@ -32,17 +33,30 @@ export class CollectorTraceExporter
     collectorTypes.opentelemetryProto.collector.trace.v1.ExportTraceServiceRequest
   >
   implements SpanExporter {
+  constructor(config: CollectorExporterNodeConfigBase = {}) {
+    super(config);
+    this.headers = Object.assign(
+      this.headers,
+      baggageUtils.parseKeyPairsIntoRecord(
+        getEnv().OTEL_EXPORTER_OTLP_TRACES_HEADERS
+      )
+    );
+  }
+
   convert(
     spans: ReadableSpan[]
   ): collectorTypes.opentelemetryProto.collector.trace.v1.ExportTraceServiceRequest {
     return toCollectorExportTraceServiceRequest(spans, this, true);
   }
 
-  getDefaultUrl(config: CollectorExporterNodeConfigBase): string {
-    if (!config.url) {
-      return DEFAULT_COLLECTOR_URL;
-    }
-    return config.url;
+  getDefaultUrl(config: CollectorExporterNodeConfigBase) {
+    return typeof config.url === 'string'
+      ? config.url
+      : getEnv().OTEL_EXPORTER_OTLP_TRACES_ENDPOINT.length > 0
+      ? getEnv().OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+      : getEnv().OTEL_EXPORTER_OTLP_ENDPOINT.length > 0
+      ? getEnv().OTEL_EXPORTER_OTLP_ENDPOINT
+      : DEFAULT_COLLECTOR_URL;
   }
 
   getDefaultServiceName(config: CollectorExporterNodeConfigBase): string {

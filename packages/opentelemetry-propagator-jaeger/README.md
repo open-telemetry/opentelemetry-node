@@ -27,14 +27,17 @@ Example of usage:
 
 ```javascript
 const { NodeTracerProvider } = require('@opentelemetry/node');
-const { JaegerHttpTracePropagator } = require('@opentelemetry/propagator-jaeger');
+const { JaegerPropagator } = require('@opentelemetry/propagator-jaeger');
 
 const provider = new NodeTracerProvider();
 provider.register({
-  // Use Jaeger propagator
-  propagator: new JaegerHttpTracePropagator()
+  propagator: new JaegerPropagator()
 });
 ```
+
+## Baggage Notes
+
+Jeager Baggage is represented as multiple headers where the names are carrier dependent. For this reason, they are omitted from the `fields` method. This behavior should be taken into account if your application relies on the `fields` functionality. See the [specification][fields-spec-url] for more details.
 
 ## Trace on Jaeger UI
 
@@ -59,3 +62,4 @@ Apache 2.0 - See [LICENSE][license-url] for more information.
 [devDependencies-url]: https://david-dm.org/open-telemetry/opentelemetry-js?path=packages%2Fopentelemetry-propagator-jaeger&type=dev
 [npm-url]: https://www.npmjs.com/package/@opentelemetry/propagator-jaeger
 [npm-img]: https://badge.fury.io/js/%40opentelemetry%2Fpropagator-jaeger.svg
+[fields-spec-url]: https://github.com/open-telemetry/opentelemetry-specification/blob/master/specification/context/api-propagators.md#fields

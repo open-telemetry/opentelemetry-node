@@ -17,10 +17,13 @@
 import {
   Detector,
   Resource,
-  CONTAINER_RESOURCE,
-  K8S_RESOURCE,
   ResourceDetectionConfig,
 } from '@opentelemetry/resources';
+import {
+  CloudProviderValues,
+  CloudPlatformValues,
+  ResourceAttributes,
+} from '@opentelemetry/semantic-conventions';
 import * as https from 'https';
 import * as fs from 'fs';
 import * as util from 'util';
@@ -76,8 +79,10 @@ export class AwsEksDetector implements Detector {
       return !containerId && !clusterName
         ? Resource.empty()
         : new Resource({
-            [K8S_RESOURCE.CLUSTER_NAME]: clusterName || '',
-            [CONTAINER_RESOURCE.ID]: containerId || '',
+            [ResourceAttributes.CLOUD_PROVIDER]: CloudProviderValues.AWS,
+            [ResourceAttributes.CLOUD_PLATFORM]: CloudPlatformValues.AWS_EKS,
+            [ResourceAttributes.K8S_CLUSTER_NAME]: clusterName || '',
+            [ResourceAttributes.CONTAINER_ID]: containerId || '',
           });
     } catch (e) {
       diag.warn('Process is not running on K8S', e);

@@ -32,7 +32,7 @@ import {
 } from '../utils';
 import { CALL_SPAN_ENDED } from './serverUtils';
 import { EventEmitter } from 'events';
-import { AttributeNames } from '../enums';
+import { AttributeNames } from '../enums/AttributeNames';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 
 /**

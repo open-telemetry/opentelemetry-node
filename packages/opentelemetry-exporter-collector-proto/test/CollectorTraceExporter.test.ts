@@ -44,6 +44,45 @@ describe('CollectorTraceExporter - node with proto over http', () => {
   let collectorExporterConfig: CollectorExporterNodeConfigBase;
   let spans: ReadableSpan[];
 
+  describe('when configuring via environment', () => {
+    const envSource = process.env;
+    it('should use url defined in env', () => {
+      envSource.OTEL_EXPORTER_OTLP_ENDPOINT = 'http://foo.bar';
+      const collectorExporter = new CollectorTraceExporter();
+      assert.strictEqual(
+        collectorExporter.url,
+        envSource.OTEL_EXPORTER_OTLP_ENDPOINT
+      );
+      envSource.OTEL_EXPORTER_OTLP_ENDPOINT = '';
+    });
+    it('should override global exporter url with signal url defined in env', () => {
+      envSource.OTEL_EXPORTER_OTLP_ENDPOINT = 'http://foo.bar';
+      envSource.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT = 'http://foo.traces';
+      const collectorExporter = new CollectorTraceExporter();
+      assert.strictEqual(
+        collectorExporter.url,
+        envSource.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+      );
+      envSource.OTEL_EXPORTER_OTLP_ENDPOINT = '';
+      envSource.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT = '';
+    });
+    it('should use headers defined via env', () => {
+      envSource.OTEL_EXPORTER_OTLP_HEADERS = 'foo=bar';
+      const collectorExporter = new CollectorTraceExporter();
+      assert.strictEqual(collectorExporter.headers.foo, 'bar');
+      envSource.OTEL_EXPORTER_OTLP_HEADERS = '';
+    });
+    it('should override global headers config with signal headers defined via env', () => {
+      envSource.OTEL_EXPORTER_OTLP_HEADERS = 'foo=bar,bar=foo';
+      envSource.OTEL_EXPORTER_OTLP_TRACES_HEADERS = 'foo=boo';
+      const collectorExporter = new CollectorTraceExporter();
+      assert.strictEqual(collectorExporter.headers.foo, 'boo');
+      assert.strictEqual(collectorExporter.headers.bar, 'foo');
+      envSource.OTEL_EXPORTER_OTLP_TRACES_HEADERS = '';
+      envSource.OTEL_EXPORTER_OTLP_HEADERS = '';
+    });
+  });
+
   describe('export', () => {
     beforeEach(() => {
       collectorExporterConfig = {

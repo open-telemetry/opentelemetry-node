@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-import { TextMapPropagator } from '@opentelemetry/api';
+import { HrTime, SpanAttributes } from '@opentelemetry/api';
 
-/** Configuration object for composite propagator */
-export interface CompositePropagatorConfig {
-  /**
-   * List of propagators to run. Propagators run in the
-   * list order. If a propagator later in the list writes the same context
-   * key as a propagator earlier in the list, the later on will "win".
-   */
-  propagators?: TextMapPropagator[];
+/**
+ * Represents a timed event.
+ * A timed event is an event with a timestamp.
+ */
+export interface TimedEvent {
+  time: HrTime;
+  /** The name of the event. */
+  name: string;
+  /** The attributes of the event. */
+  attributes?: SpanAttributes;
 }

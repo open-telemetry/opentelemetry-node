@@ -89,46 +89,25 @@ Please note that versions of Node.JS v8 prior to `v8.5.0` will NOT work, because
 Automated browser tests are run in the latest version of Headless Chrome.
 There is currently no list of officially supported browsers, but OpenTelemetry is developed using standard web technologies with wide support and should work in currently supported versions of major browsers.
 
-## Release Schedule
-
-OpenTelemetry JS is under active development.
-This release isn't guaranteed to conform to a specific version of the specification, and future
-releases will not attempt to maintain backwards compatibility with the alpha release.
-
-| Component                  | Initial Version | Release Date     |
-|----------------------------|-----------------|------------------|
-| Tracing API                | Alpha v0.1.0    | October 14 2019  |
-| Tracing SDK (Node and Web) | Alpha v0.1.0    | October 14 2019  |
-| Jaeger Trace Exporter      | Alpha v0.1.0    | October 14 2019  |
-| Trace Context Propagation  | Alpha v0.1.0    | October 14 2019  |
-| Zipkin Trace Exporter      | Alpha v0.1.0    | October 14 2019  |
-| OpenTracing Bridge         | Alpha v0.1.0    | October 14 2019  |
-| Metrics API                | Alpha v0.2.0    | November 04 2019 |
-| Metrics SDK                | Alpha v0.2.0    | November 04 2019 |
-| Prometheus Metric Exporter | Alpha v0.3.0    | December 13 2019 |
-| Resources                  | Beta v0.5.0     | March 16 2020    |
-| Metrics SDK (Complete)     | Beta v0.5.0     | March 16 2020    |
-| OpenCensus Bridge          | Unknown         | Unknown          |
-| Support for Tags/Baggage   | Unknown         | Unknown          |
-
 ## Feature Status
 
-Last updated March 2020
+As of [`v0.19.0`][feature-status-release]:
 
-| Feature             | API Status | Specification Target | SDK Status  |
-|---------------------|------------|----------------------|-------------|
-| Tracing             | Beta       | v0.3                 | Beta        |
-| Metrics             | Beta       | v0.3                 | Beta        |
-| Context             | Beta       | v0.3                 | Beta        |
-| Propagation         | Beta       | v0.3                 | Beta        |
-| Baggage             | Alpha      | v0.3                 | Development |
-| OpenTracing Bridge  | N/A        | v0.3                 | Beta        |
-| Resources           | N/A        | v0.3                 | Beta        |
+| Feature             | Status      |
+|---------------------|-------------|
+| B3 Propagation      | Beta        |
+| Zipkin Export       | Beta        |
+| Jaeger Propagation  | Beta        |
+| Jaeger Export       | Beta        |
+| OpenTracing Bridge  | Beta        |
+| Resources           | Beta        |
+| Tracing             | Beta        |
+| W3C Baggage         | Beta        |
+| W3C Trace Context   | Beta        |
+| Metrics API         | Development |
+| Metrics SDK         | Development |
 
-See the [project
-milestones](https://github.com/open-telemetry/opentelemetry-js/milestones)
-for details on upcoming releases. The dates and features described here are
-estimates, and subject to change.
+For a more detailed breakdown of feature support see the [specification compliance matrix][compliance-matrix].
 
 ## Contributing
 
@@ -244,6 +223,14 @@ To request automatic tracing support for a module not on this list, please [file
 | [@opentelemetry/shim-opentracing][otel-shim-opentracing] | OpenTracing shim allows existing OpenTracing instrumentation to report to OpenTelemetry |
 
 ## Upgrade guidelines
+
+### 0.19.x to x
+
+- `HttpBaggage` renamed to `HttpBaggagePropagator`
+
+- `HttpTraceContext` renamed to `HttpTraceContextPropagator`
+
+- `JaegerHttpTracePropagator` renamed to `JaegerPropagator`
 
 ### 0.18.x to 0.19.0
 
@@ -415,6 +402,8 @@ Apache 2.0 - See [LICENSE][license-url] for more information.
 [good-first-issues]: https://github.com/open-telemetry/OpenTelemetry-js/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
 
 [docs]: https://open-telemetry.github.io/opentelemetry-js
+[feature-status-release]: https://github.com/open-telemetry/opentelemetry-js/releases/tag/v0.19.0
+[compliance-matrix]: https://github.com/open-telemetry/opentelemetry-specification/blob/main/spec-compliance-matrix.md
 
 [otel-metrics]: https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-metrics
 [otel-node]: https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-node

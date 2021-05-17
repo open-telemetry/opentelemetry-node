@@ -27,7 +27,7 @@ import { Resource } from '@opentelemetry/resources';
 import { ZipkinExporter } from '../../src';
 import * as zipkinTypes from '../../src/types';
 import { TraceFlags } from '@opentelemetry/api';
-import { SERVICE_RESOURCE } from '@opentelemetry/resources';
+import { ResourceAttributes } from '@opentelemetry/semantic-conventions';
 
 const MICROS_PER_SECS = 1e6;
 
@@ -417,7 +417,7 @@ describe('Zipkin Exporter - node', () => {
           },
         ],
         resource: new Resource({
-          [SERVICE_RESOURCE.NAME]: resource_service_name,
+          [ResourceAttributes.SERVICE_NAME]: resource_service_name,
         }),
         instrumentationLibrary: { name: 'default', version: '0.0.1' },
       };
@@ -519,7 +519,7 @@ describe('Zipkin Exporter - node', () => {
           },
         ],
         resource: new Resource({
-          [SERVICE_RESOURCE.NAME]: resource_service_name,
+          [ResourceAttributes.SERVICE_NAME]: resource_service_name,
         }),
         instrumentationLibrary: { name: 'default', version: '0.0.1' },
       };
@@ -542,7 +542,7 @@ describe('Zipkin Exporter - node', () => {
         links: [],
         events: [],
         resource: new Resource({
-          [SERVICE_RESOURCE.NAME]: resource_service_name_prime,
+          [ResourceAttributes.SERVICE_NAME]: resource_service_name_prime,
         }),
         instrumentationLibrary: { name: 'default', version: '0.0.1' },
       };
@@ -598,7 +598,7 @@ describe('Zipkin Exporter - node', () => {
         attributes: {
           key1: 'value1',
           key2: 'value2',
-          [SERVICE_RESOURCE.NAME]: span_service_name,
+          [ResourceAttributes.SERVICE_NAME]: span_service_name,
         },
         links: [],
         events: [
@@ -627,7 +627,7 @@ describe('Zipkin Exporter - node', () => {
           code: api.SpanStatusCode.OK,
         },
         attributes: {
-          [SERVICE_RESOURCE.NAME]: span_service_name_prime,
+          [ResourceAttributes.SERVICE_NAME]: span_service_name_prime,
         },
         links: [],
         events: [],

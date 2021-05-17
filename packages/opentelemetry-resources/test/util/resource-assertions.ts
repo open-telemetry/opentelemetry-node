@@ -17,15 +17,7 @@
 import { SDK_INFO } from '@opentelemetry/core';
 import * as assert from 'assert';
 import { Resource } from '../../src/Resource';
-import {
-  CLOUD_RESOURCE,
-  CONTAINER_RESOURCE,
-  HOST_RESOURCE,
-  K8S_RESOURCE,
-  TELEMETRY_SDK_RESOURCE,
-  SERVICE_RESOURCE,
-  PROCESS_RESOURCE,
-} from '../../src/constants';
+import { ResourceAttributes } from '@opentelemetry/semantic-conventions';
 
 /**
  * Test utility method to validate a cloud resource
@@ -42,25 +34,25 @@ export const assertCloudResource = (
     zone?: string;
   }
 ) => {
-  assertHasOneLabel(CLOUD_RESOURCE, resource);
+  assertHasOneLabel('CLOUD', resource);
   if (validations.provider)
     assert.strictEqual(
-      resource.attributes[CLOUD_RESOURCE.PROVIDER],
+      resource.attributes[ResourceAttributes.CLOUD_PROVIDER],
       validations.provider
     );
   if (validations.accountId)
     assert.strictEqual(
-      resource.attributes[CLOUD_RESOURCE.ACCOUNT_ID],
+      resource.attributes[ResourceAttributes.CLOUD_ACCOUNT_ID],
       validations.accountId
     );
   if (validations.region)
     assert.strictEqual(
-      resource.attributes[CLOUD_RESOURCE.REGION],
+      resource.attributes[ResourceAttributes.CLOUD_REGION],
       validations.region
     );
   if (validations.zone)
     assert.strictEqual(
-      resource.attributes[CLOUD_RESOURCE.ZONE],
+      resource.attributes[ResourceAttributes.CLOUD_AVAILABILITY_ZONE],
       validations.zone
     );
 };
@@ -80,25 +72,25 @@ export const assertContainerResource = (
     imageTag?: string;
   }
 ) => {
-  assertHasOneLabel(CONTAINER_RESOURCE, resource);
+  assertHasOneLabel('CONTAINER', resource);
   if (validations.name)
     assert.strictEqual(
-      resource.attributes[CONTAINER_RESOURCE.NAME],
+      resource.attributes[ResourceAttributes.CONTAINER_NAME],
       validations.name
     );
   if (validations.id)
     assert.strictEqual(
-      resource.attributes[CONTAINER_RESOURCE.ID],
+      resource.attributes[ResourceAttributes.CONTAINER_ID],
       validations.id
     );
   if (validations.imageName)
     assert.strictEqual(
-      resource.attributes[CONTAINER_RESOURCE.IMAGE_NAME],
+      resource.attributes[ResourceAttributes.CONTAINER_IMAGE_NAME],
       validations.imageName
     );
   if (validations.imageTag)
     assert.strictEqual(
-      resource.attributes[CONTAINER_RESOURCE.IMAGE_TAG],
+      resource.attributes[ResourceAttributes.CONTAINER_IMAGE_TAG],
       validations.imageTag
     );
 };
@@ -121,32 +113,35 @@ export const assertHostResource = (
     imageVersion?: string;
   }
 ) => {
-  assertHasOneLabel(HOST_RESOURCE, resource);
+  assertHasOneLabel('HOST', resource);
   if (validations.id)
-    assert.strictEqual(resource.attributes[HOST_RESOURCE.ID], validations.id);
+    assert.strictEqual(
+      resource.attributes[ResourceAttributes.HOST_ID],
+      validations.id
+    );
   if (validations.name)
     assert.strictEqual(
-      resource.attributes[HOST_RESOURCE.NAME],
+      resource.attributes[ResourceAttributes.HOST_NAME],
       validations.name
     );
   if (validations.hostType)
     assert.strictEqual(
-      resource.attributes[HOST_RESOURCE.TYPE],
+      resource.attributes[ResourceAttributes.HOST_TYPE],
       validations.hostType
     );
   if (validations.imageName)
     assert.strictEqual(
-      resource.attributes[HOST_RESOURCE.IMAGE_NAME],
+      resource.attributes[ResourceAttributes.HOST_IMAGE_NAME],
       validations.imageName
     );
   if (validations.imageId)
     assert.strictEqual(
-      resource.attributes[HOST_RESOURCE.IMAGE_ID],
+      resource.attributes[ResourceAttributes.HOST_IMAGE_ID],
       validations.imageId
     );
   if (validations.imageVersion)
     assert.strictEqual(
-      resource.attributes[HOST_RESOURCE.IMAGE_VERSION],
+      resource.attributes[ResourceAttributes.HOST_IMAGE_VERSION],
       validations.imageVersion
     );
 };
@@ -166,25 +161,25 @@ export const assertK8sResource = (
     deploymentName?: string;
   }
 ) => {
-  assertHasOneLabel(K8S_RESOURCE, resource);
+  assertHasOneLabel('K8S', resource);
   if (validations.clusterName)
     assert.strictEqual(
-      resource.attributes[K8S_RESOURCE.CLUSTER_NAME],
+      resource.attributes[ResourceAttributes.K8S_CLUSTER_NAME],
       validations.clusterName
     );
   if (validations.namespaceName)
     assert.strictEqual(
-      resource.attributes[K8S_RESOURCE.NAMESPACE_NAME],
+      resource.attributes[ResourceAttributes.K8S_NAMESPACE_NAME],
       validations.namespaceName
     );
   if (validations.podName)
     assert.strictEqual(
-      resource.attributes[K8S_RESOURCE.POD_NAME],
+      resource.attributes[ResourceAttributes.K8S_POD_NAME],
       validations.podName
     );
   if (validations.deploymentName)
     assert.strictEqual(
-      resource.attributes[K8S_RESOURCE.DEPLOYMENT_NAME],
+      resource.attributes[ResourceAttributes.K8S_DEPLOYMENT_NAME],
       validations.deploymentName
     );
 };
@@ -212,17 +207,17 @@ export const assertTelemetrySDKResource = (
 
   if (validations.name)
     assert.strictEqual(
-      resource.attributes[TELEMETRY_SDK_RESOURCE.NAME],
+      resource.attributes[ResourceAttributes.TELEMETRY_SDK_NAME],
       validations.name
     );
   if (validations.language)
     assert.strictEqual(
-      resource.attributes[TELEMETRY_SDK_RESOURCE.LANGUAGE],
+      resource.attributes[ResourceAttributes.TELEMETRY_SDK_LANGUAGE],
       validations.language
     );
   if (validations.version)
     assert.strictEqual(
-      resource.attributes[TELEMETRY_SDK_RESOURCE.VERSION],
+      resource.attributes[ResourceAttributes.TELEMETRY_SDK_VERSION],
       validations.version
     );
 };
@@ -243,21 +238,21 @@ export const assertServiceResource = (
   }
 ) => {
   assert.strictEqual(
-    resource.attributes[SERVICE_RESOURCE.NAME],
+    resource.attributes[ResourceAttributes.SERVICE_NAME],
     validations.name
   );
   assert.strictEqual(
-    resource.attributes[SERVICE_RESOURCE.INSTANCE_ID],
+    resource.attributes[ResourceAttributes.SERVICE_INSTANCE_ID],
     validations.instanceId
   );
   if (validations.namespace)
     assert.strictEqual(
-      resource.attributes[SERVICE_RESOURCE.NAMESPACE],
+      resource.attributes[ResourceAttributes.SERVICE_NAMESPACE],
       validations.namespace
     );
   if (validations.version)
     assert.strictEqual(
-      resource.attributes[SERVICE_RESOURCE.VERSION],
+      resource.attributes[ResourceAttributes.SERVICE_VERSION],
       validations.version
     );
 };
@@ -278,24 +273,24 @@ export const assertProcessResource = (
   }
 ) => {
   assert.strictEqual(
-    resource.attributes[PROCESS_RESOURCE.PID],
+    resource.attributes[ResourceAttributes.PROCESS_PID],
     validations.pid
   );
   if (validations.name) {
     assert.strictEqual(
-      resource.attributes[PROCESS_RESOURCE.NAME],
+      resource.attributes[ResourceAttributes.PROCESS_EXECUTABLE_NAME],
       validations.name
     );
   }
   if (validations.command) {
     assert.strictEqual(
-      resource.attributes[PROCESS_RESOURCE.COMMAND],
+      resource.attributes[ResourceAttributes.PROCESS_COMMAND],
       validations.command
     );
   }
   if (validations.commandLine) {
     assert.strictEqual(
-      resource.attributes[PROCESS_RESOURCE.COMMAND_LINE],
+      resource.attributes[ResourceAttributes.PROCESS_COMMAND_LINE],
       validations.commandLine
     );
   }
@@ -310,18 +305,24 @@ export const assertEmptyResource = (resource: Resource) => {
   assert.strictEqual(Object.keys(resource.attributes).length, 0);
 };
 
-const assertHasOneLabel = (
-  constants: { [key: string]: string },
-  resource: Resource
-): void => {
-  const hasOne = Object.values(constants).reduce(
-    // eslint-disable-next-line no-prototype-builtins
-    (found, key) => found || resource.attributes.hasOwnProperty(key),
-    false
-  );
+const assertHasOneLabel = (prefix: string, resource: Resource): void => {
+  const hasOne = Object.entries(ResourceAttributes).find(([key, value]) => {
+    return (
+      key.startsWith(prefix) &&
+      Object.prototype.hasOwnProperty.call(resource.attributes, value)
+    );
+  });
+
   assert.ok(
     hasOne,
     'Resource must have one of the following attributes: ' +
-      Object.values(constants).join(', ')
+      Object.entries(ResourceAttributes)
+        .reduce((result, [key, value]) => {
+          if (key.startsWith(prefix)) {
+            result.push(value);
+          }
+          return result;
+        })
+        .join(', ')
   );
 };

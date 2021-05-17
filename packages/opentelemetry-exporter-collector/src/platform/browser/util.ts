@@ -49,7 +49,7 @@ export function sendWithBeacon(
 export function sendWithXhr(
   body: string,
   url: string,
-  headers: { [key: string]: string },
+  headers: Record<string, string>,
   onSuccess: () => void,
   onError: (error: collectorTypes.CollectorExporterError) => void
 ) {

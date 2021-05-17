@@ -16,7 +16,9 @@
 
 import {
   Context,
+  getBaggage,
   getSpanContext,
+  setBaggage,
   setSpanContext,
   SpanContext,
   TraceFlags,
@@ -24,9 +26,12 @@ import {
   TextMapPropagator,
   TextMapSetter,
   isInstrumentationSuppressed,
+  createBaggage,
 } from '@opentelemetry/api';
 
 export const UBER_TRACE_ID_HEADER = 'uber-trace-id';
+export const UBER_BAGGAGE_HEADER_PREFIX = 'uberctx';
+const UBER_BAGGAGE_HEADER_REGEX = /^uberctx-(.+)/i;
 
 /**
  * Propagates {@link SpanContext} through Trace Context format propagation.
@@ -43,7 +48,7 @@ export const UBER_TRACE_ID_HEADER = 'uber-trace-id';
  * One byte bitmap, as two hex digits.
  * Inspired by jaeger-client-node project.
  */
-export class JaegerHttpTracePropagator implements TextMapPropagator {
+export class JaegerPropagator implements TextMapPropagator {
   private readonly _jaegerTraceHeader: string;
 
   /**
@@ -55,17 +60,28 @@ export class JaegerHttpTracePropagator implements TextMapPropagator {
 
   inject(context: Context, carrier: unknown, setter: TextMapSetter) {
     const spanContext = getSpanContext(context);
-    if (!spanContext || isInstrumentationSuppressed(context)) return;
+    const baggage = getBaggage(context);
+    if (spanContext && isInstrumentationSuppressed(context) === false) {
+      const traceFlags = `0${(
+        spanContext.traceFlags || TraceFlags.NONE
+      ).toString(16)}`;
 
-    const traceFlags = `0${(spanContext.traceFlags || TraceFlags.NONE).toString(
-      16
-    )}`;
+      setter.set(
+        carrier,
+        this._jaegerTraceHeader,
+        `${spanContext.traceId}:${spanContext.spanId}:0:${traceFlags}`
+      );
+    }
 
-    setter.set(
-      carrier,
-      this._jaegerTraceHeader,
-      `${spanContext.traceId}:${spanContext.spanId}:0:${traceFlags}`
-    );
+    if (baggage) {
+      for (const [key, entry] of baggage.getAllEntries()) {
+        setter.set(
+          carrier,
+          `${UBER_BAGGAGE_HEADER_PREFIX}-${key}`,
+          encodeURIComponent(entry.value)
+        );
+      }
+    }
   }
 
   extract(context: Context, carrier: unknown, getter: TextMapGetter): Context {
@@ -73,13 +89,38 @@ export class JaegerHttpTracePropagator implements TextMapPropagator {
     const uberTraceId = Array.isArray(uberTraceIdHeader)
       ? uberTraceIdHeader[0]
       : uberTraceIdHeader;
+    const baggageValues = getter
+      .keys(carrier)
+      .filter(key => UBER_BAGGAGE_HEADER_REGEX.test(key))
+      .map(key => {
+        const value = getter.get(carrier, key);
+        return {
+          key: key.substring(UBER_BAGGAGE_HEADER_PREFIX.length + 1),
+          value: Array.isArray(value) ? value[0] : value,
+        };
+      });
 
-    if (typeof uberTraceId !== 'string') return context;
+    let newContext = context;
+    // if the trace id header is present and valid, inject it into the context
+    if (typeof uberTraceId === 'string') {
+      const spanContext = deserializeSpanContext(uberTraceId);
+      if (spanContext) {
+        newContext = setSpanContext(newContext, spanContext);
+      }
+    }
+    if (baggageValues.length === 0) return newContext;
 
-    const spanContext = deserializeSpanContext(uberTraceId);
-    if (!spanContext) return context;
+    // if baggage values are present, inject it into the current baggage
+    let currentBaggage = getBaggage(context) ?? createBaggage();
+    for (const baggageEntry of baggageValues) {
+      if (baggageEntry.value === undefined) continue;
+      currentBaggage = currentBaggage.setEntry(baggageEntry.key, {
+        value: decodeURIComponent(baggageEntry.value),
+      });
+    }
+    newContext = setBaggage(newContext, currentBaggage);
 
-    return setSpanContext(context, spanContext);
+    return newContext;
   }
 
   fields(): string[] {

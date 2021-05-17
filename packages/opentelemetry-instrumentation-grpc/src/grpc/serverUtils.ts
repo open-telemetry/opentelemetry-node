@@ -23,7 +23,7 @@ import {
   _grpcStatusCodeToSpanStatus,
   _methodIsIgnored,
 } from '../utils';
-import { AttributeNames } from '../enums';
+import { AttributeNames } from '../enums/AttributeNames';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 
 export const clientStreamAndUnaryHandler = function <RequestType, ResponseType>(

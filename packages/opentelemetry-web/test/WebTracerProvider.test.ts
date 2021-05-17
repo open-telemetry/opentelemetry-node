@@ -17,7 +17,8 @@
 import { context, getSpan, setSpan, ContextManager } from '@opentelemetry/api';
 import { ZoneContextManager } from '@opentelemetry/context-zone';
 import { B3Propagator } from '@opentelemetry/propagator-b3';
-import { Resource, TELEMETRY_SDK_RESOURCE } from '@opentelemetry/resources';
+import { Resource } from '@opentelemetry/resources';
+import { ResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { Span, Tracer } from '@opentelemetry/tracing';
 import * as assert from 'assert';
 import { WebTracerConfig } from '../src';
@@ -131,7 +132,7 @@ describe('WebTracerProvider', () => {
         assert.ok(span);
         assert.ok(span.resource instanceof Resource);
         assert.equal(
-          span.resource.attributes[TELEMETRY_SDK_RESOURCE.LANGUAGE],
+          span.resource.attributes[ResourceAttributes.TELEMETRY_SDK_LANGUAGE],
           'webjs'
         );
       });

@@ -5,7 +5,7 @@
 [![devDependencies][devDependencies-image]][devDependencies-url]
 [![Apache License][license-image]][license-image]
 
-This module provides exporter for web and node to be used with [opentelemetry-collector][opentelemetry-collector-url] - last tested with version **0.16.0**.
+This module provides exporter for web and node to be used with [opentelemetry-collector][opentelemetry-collector-url] - last tested with version **0.25.0**.
 
 ## Installation
 
@@ -15,7 +15,7 @@ npm install --save @opentelemetry/exporter-collector
 
 ## Traces in Web
 
-The CollectorTraceExporter in Web expects the endpoint to end in `/v1/trace`.
+The CollectorTraceExporter in Web expects the endpoint to end in `/v1/traces`.
 
 ```js
 import { BatchSpanProcessor } from '@opentelemetry/tracing';

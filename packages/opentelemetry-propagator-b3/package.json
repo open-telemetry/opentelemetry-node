@@ -48,14 +48,14 @@
   "devDependencies": {
     "@opentelemetry/api": "^1.0.0-rc.0",
     "@types/mocha": "8.2.2",
-    "@types/node": "14.14.41",
+    "@types/node": "14.14.43",
     "codecov": "3.8.1",
     "gts": "3.1.0",
     "istanbul-instrumenter-loader": "3.0.1",
     "mocha": "7.2.0",
     "nyc": "15.1.0",
     "rimraf": "3.0.2",
-    "ts-loader": "8.1.0",
+    "ts-loader": "8.2.0",
     "ts-mocha": "8.0.0",
     "typescript": "4.2.4"
   }

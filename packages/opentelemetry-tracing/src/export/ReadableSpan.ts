@@ -21,10 +21,10 @@ import {
   HrTime,
   Link,
   SpanContext,
-  TimedEvent,
 } from '@opentelemetry/api';
 import { Resource } from '@opentelemetry/resources';
 import { InstrumentationLibrary } from '@opentelemetry/core';
+import { TimedEvent } from '../TimedEvent';
 
 export interface ReadableSpan {
   readonly name: string;

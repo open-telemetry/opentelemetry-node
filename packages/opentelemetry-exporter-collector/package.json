@@ -53,10 +53,10 @@
     "access": "public"
   },
   "devDependencies": {
-    "@babel/core": "7.13.16",
+    "@babel/core": "7.14.0",
     "@opentelemetry/api": "^1.0.0-rc.0",
     "@types/mocha": "8.2.2",
-    "@types/node": "14.14.41",
+    "@types/node": "14.14.43",
     "@types/sinon": "9.0.11",
     "@types/webpack-env": "1.16.0",
     "babel-loader": "8.2.2",
@@ -74,7 +74,7 @@
     "nyc": "15.1.0",
     "rimraf": "3.0.2",
     "sinon": "10.0.0",
-    "ts-loader": "8.1.0",
+    "ts-loader": "8.2.0",
     "ts-mocha": "8.0.0",
     "ts-node": "9.1.1",
     "typescript": "4.2.4",

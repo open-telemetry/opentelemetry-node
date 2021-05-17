@@ -26,7 +26,7 @@ import { Context, ROOT_CONTEXT } from '@opentelemetry/api';
 import * as assert from 'assert';
 import {
   CompositePropagator,
-  HttpTraceContext,
+  HttpTraceContextPropagator,
   RandomIdGenerator,
 } from '../../src';
 import {
@@ -39,7 +39,7 @@ import {
 import {
   TRACE_PARENT_HEADER,
   TRACE_STATE_HEADER,
-} from '../../src/context/propagation/HttpTraceContext';
+} from '../../src/trace/HttpTraceContextPropagator';
 import { TraceState } from '../../src/trace/TraceState';
 
 describe('Composite Propagator', () => {
@@ -72,7 +72,7 @@ describe('Composite Propagator', () => {
       const composite = new CompositePropagator({
         propagators: [
           new B3Propagator({ injectEncoding: B3InjectEncoding.MULTI_HEADER }),
-          new HttpTraceContext(),
+          new HttpTraceContextPropagator(),
         ],
       });
       composite.inject(ctxWithSpanContext, carrier, defaultTextMapSetter);
@@ -89,7 +89,10 @@ describe('Composite Propagator', () => {
 
     it('should not throw', () => {
       const composite = new CompositePropagator({
-        propagators: [new ThrowingPropagator(), new HttpTraceContext()],
+        propagators: [
+          new ThrowingPropagator(),
+          new HttpTraceContextPropagator(),
+        ],
       });
       composite.inject(ctxWithSpanContext, carrier, defaultTextMapSetter);
 
@@ -117,7 +120,7 @@ describe('Composite Propagator', () => {
       const composite = new CompositePropagator({
         propagators: [
           new B3Propagator({ injectEncoding: B3InjectEncoding.MULTI_HEADER }),
-          new HttpTraceContext(),
+          new HttpTraceContextPropagator(),
         ],
       });
       const spanContext = getSpanContext(
@@ -137,7 +140,10 @@ describe('Composite Propagator', () => {
 
     it('should not throw', () => {
       const composite = new CompositePropagator({
-        propagators: [new ThrowingPropagator(), new HttpTraceContext()],
+        propagators: [
+          new ThrowingPropagator(),
+          new HttpTraceContextPropagator(),
+        ],
       });
       const spanContext = getSpanContext(
         composite.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
