@@ -562,7 +562,7 @@ describe('HttpInstrumentation', () => {
       it('should have 1 ended span when request is aborted', async () => {
         nock(`${protocol}://my.server.com`)
           .get('/')
-          .socketDelay(50)
+          .delayConnection(50)
           .reply(200, '<html></html>');
 
         const promiseRequest = new Promise((resolve, reject) => {
@@ -611,7 +611,7 @@ describe('HttpInstrumentation', () => {
             (resp: http.IncomingMessage) => {
               let data = '';
               resp.on('data', chunk => {
-                req.abort();
+                req.destroy(Error());
                 data += chunk;
               });
               resp.on('end', () => {
