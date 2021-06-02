@@ -19,6 +19,7 @@ import * as opentracing from 'opentracing';
 import {
   SpanAttributes,
   SpanAttributeValue,
+  SpanStatusCode,
   TextMapPropagator,
 } from '@opentelemetry/api';
 
@@ -298,7 +299,14 @@ export class SpanShim extends opentracing.Span {
    * @param keyValueMap set of KV pairs representing tags
    */
   override addTags(keyValueMap: SpanAttributes): this {
-    this._span.setAttributes(keyValueMap);
+    for (const [key, value] of Object.entries(keyValueMap)) {
+      if (this._setErrorAsSpanStatusCode(key, value)) {
+        continue;
+      }
+      if (value !== undefined) {
+        this._span.setAttribute(key, value);
+      }
+    }
     return this;
   }
 
@@ -309,11 +317,7 @@ export class SpanShim extends opentracing.Span {
    * @param value value for the tag
    */
   override setTag(key: string, value: SpanAttributeValue): this {
-    if (
-      key === opentracing.Tags.ERROR &&
-      (value === true || value === 'true')
-    ) {
-      this._span.setStatus({ code: api.SpanStatusCode.ERROR });
+    if (this._setErrorAsSpanStatusCode(key, value)) {
       return this;
     }
 
@@ -330,12 +334,39 @@ export class SpanShim extends opentracing.Span {
     return this;
   }
 
-  /*
-   * Returns the underlying {@link types.Span} that the shim
+  /**
+   * Returns the underlying {@link api.Span} that the shim
    * is wrapping.
    */
   getSpan(): api.Span {
     return this._span;
+  }
+
+  private _setErrorAsSpanStatusCode(
+    key: string,
+    value: SpanAttributeValue | undefined
+  ): boolean {
+    if (key === opentracing.Tags.ERROR) {
+      const statusCode = SpanShim._mapErrorTag(value);
+      this._span.setStatus({ code: statusCode });
+      return statusCode !== SpanStatusCode.UNSET;
+    }
+    return false;
+  }
+
+  private static _mapErrorTag(
+    value: SpanAttributeValue | undefined
+  ): SpanStatusCode {
+    switch (value) {
+      case true:
+      case 'true':
+        return SpanStatusCode.ERROR;
+      case false:
+      case 'false':
+        return SpanStatusCode.OK;
+      default:
+        return SpanStatusCode.UNSET;
+    }
   }
 }
 
