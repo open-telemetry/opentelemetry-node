@@ -41,7 +41,8 @@ jobs:
             metapackages/*/package-lock.json
             packages/*/package-lock.json
             integration-tests/*/package-lock.json
-          key: ${{ runner.os }}-lint-${{ hashFiles('**/package.json') }}
+          # increment the trailing number to break the cache manually
+          key: ${{ runner.os }}-lint-${{ hashFiles('**/package.json') }}-0
 
       # On a cache hit, use ci to speed up the install process
       - name: Bootstrap (cache hit)

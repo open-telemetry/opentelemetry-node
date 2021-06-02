@@ -20,7 +20,7 @@ import {
   SimpleSpanProcessor,
   BasicTracerProvider,
 } from '../../src';
-import { context, setSpan } from '@opentelemetry/api';
+import { context, trace } from '@opentelemetry/api';
 import { ExportResult, ExportResultCode } from '@opentelemetry/core';
 
 describe('InMemorySpanExporter', () => {
@@ -37,10 +37,10 @@ describe('InMemorySpanExporter', () => {
     const root = provider.getTracer('default').startSpan('root');
     const child = provider
       .getTracer('default')
-      .startSpan('child', {}, setSpan(context.active(), root));
+      .startSpan('child', {}, trace.setSpan(context.active(), root));
     const grandChild = provider
       .getTracer('default')
-      .startSpan('grand-child', {}, setSpan(context.active(), child));
+      .startSpan('grand-child', {}, trace.setSpan(context.active(), child));
 
     assert.strictEqual(memoryExporter.getFinishedSpans().length, 0);
     grandChild.end();
@@ -54,10 +54,10 @@ describe('InMemorySpanExporter', () => {
     assert.strictEqual(span1.name, 'grand-child');
     assert.strictEqual(span2.name, 'child');
     assert.strictEqual(span3.name, 'root');
-    assert.strictEqual(span1.spanContext.traceId, span2.spanContext.traceId);
-    assert.strictEqual(span2.spanContext.traceId, span3.spanContext.traceId);
-    assert.strictEqual(span1.parentSpanId, span2.spanContext.spanId);
-    assert.strictEqual(span2.parentSpanId, span3.spanContext.spanId);
+    assert.strictEqual(span1.spanContext().traceId, span2.spanContext().traceId);
+    assert.strictEqual(span2.spanContext().traceId, span3.spanContext().traceId);
+    assert.strictEqual(span1.parentSpanId, span2.spanContext().spanId);
+    assert.strictEqual(span2.parentSpanId, span3.spanContext().spanId);
   });
 
   it('should shutdown the exporter', () => {
@@ -65,7 +65,7 @@ describe('InMemorySpanExporter', () => {
 
     provider
       .getTracer('default')
-      .startSpan('child', {}, setSpan(context.active(), root))
+      .startSpan('child', {}, trace.setSpan(context.active(), root))
       .end();
     root.end();
     assert.strictEqual(memoryExporter.getFinishedSpans().length, 2);
@@ -75,7 +75,7 @@ describe('InMemorySpanExporter', () => {
     // after shutdown no new spans are accepted
     provider
       .getTracer('default')
-      .startSpan('child1', {}, setSpan(context.active(), root))
+      .startSpan('child1', {}, trace.setSpan(context.active(), root))
       .end();
     assert.strictEqual(memoryExporter.getFinishedSpans().length, 0);
   });

@@ -18,9 +18,7 @@ import {
   context,
   propagation,
   Span as ISpan,
-  SpanKind,
-  getSpan,
-  setSpan,
+  SpanKind, trace,
 } from '@opentelemetry/api';
 import { NodeTracerProvider } from '@opentelemetry/node';
 import {
@@ -43,6 +41,7 @@ import { ContextManager } from '@opentelemetry/api';
 import { AsyncHooksContextManager } from '@opentelemetry/context-async-hooks';
 import type { ClientRequest, IncomingMessage, ServerResponse } from 'http';
 import { isWrapped } from '@opentelemetry/instrumentation';
+import { getRPCMetadata, RPCType } from '@opentelemetry/core';
 
 const instrumentation = new HttpInstrumentation();
 instrumentation.enable();
@@ -332,7 +331,7 @@ describe('HttpInstrumentation', () => {
         doNock(hostname, testPath, 200, 'Ok');
         const name = 'TestRootSpan';
         const span = provider.getTracer('default').startSpan(name);
-        return context.with(setSpan(context.active(), span), async () => {
+        return context.with(trace.setSpan(context.active(), span), async () => {
           const result = await httpRequest.get(
             `${protocol}://${hostname}${testPath}`
           );
@@ -353,13 +352,13 @@ describe('HttpInstrumentation', () => {
           assert.strictEqual(spans.length, 2);
           assert.strictEqual(reqSpan.name, 'HTTP GET');
           assert.strictEqual(
-            localSpan.spanContext.traceId,
-            reqSpan.spanContext.traceId
+            localSpan.spanContext().traceId,
+            reqSpan.spanContext().traceId
           );
           assertSpan(reqSpan, SpanKind.CLIENT, validations);
           assert.notStrictEqual(
-            localSpan.spanContext.spanId,
-            reqSpan.spanContext.spanId
+            localSpan.spanContext().spanId,
+            reqSpan.spanContext().spanId
           );
         });
       });
@@ -375,7 +374,7 @@ describe('HttpInstrumentation', () => {
           );
           const name = 'TestRootSpan';
           const span = provider.getTracer('default').startSpan(name);
-          return context.with(setSpan(context.active(), span), async () => {
+          return context.with(trace.setSpan(context.active(), span), async () => {
             const result = await httpRequest.get(
               `${protocol}://${hostname}${testPath}`
             );
@@ -396,13 +395,13 @@ describe('HttpInstrumentation', () => {
             assert.strictEqual(spans.length, 2);
             assert.strictEqual(reqSpan.name, 'HTTP GET');
             assert.strictEqual(
-              localSpan.spanContext.traceId,
-              reqSpan.spanContext.traceId
+              localSpan.spanContext().traceId,
+              reqSpan.spanContext().traceId
             );
             assertSpan(reqSpan, SpanKind.CLIENT, validations);
             assert.notStrictEqual(
-              localSpan.spanContext.spanId,
-              reqSpan.spanContext.spanId
+              localSpan.spanContext().spanId,
+              reqSpan.spanContext().spanId
             );
           });
         });
@@ -414,14 +413,14 @@ describe('HttpInstrumentation', () => {
         doNock(hostname, testPath, 200, 'Ok', num);
         const name = 'TestRootSpan';
         const span = provider.getTracer('default').startSpan(name);
-        await context.with(setSpan(context.active(), span), async () => {
+        await context.with(trace.setSpan(context.active(), span), async () => {
           for (let i = 0; i < num; i++) {
             await httpRequest.get(`${protocol}://${hostname}${testPath}`);
             const spans = memoryExporter.getFinishedSpans();
             assert.strictEqual(spans[i].name, 'HTTP GET');
             assert.strictEqual(
-              span.context().traceId,
-              spans[i].spanContext.traceId
+              span.spanContext().traceId,
+              spans[i].spanContext().traceId
             );
           }
           span.end();
@@ -706,16 +705,16 @@ describe('HttpInstrumentation', () => {
       });
 
       it('should not set span as active in context for outgoing request', done => {
-        assert.deepStrictEqual(getSpan(context.active()), undefined);
+        assert.deepStrictEqual(trace.getSpan(context.active()), undefined);
         http.get(`${protocol}://${hostname}:${serverPort}/test`, res => {
-          assert.deepStrictEqual(getSpan(context.active()), undefined);
+          assert.deepStrictEqual(trace.getSpan(context.active()), undefined);
 
           res.on('data', () => {
-            assert.deepStrictEqual(getSpan(context.active()), undefined);
+            assert.deepStrictEqual(trace.getSpan(context.active()), undefined);
           });
 
           res.on('end', () => {
-            assert.deepStrictEqual(getSpan(context.active()), undefined);
+            assert.deepStrictEqual(trace.getSpan(context.active()), undefined);
             done();
           });
         });
@@ -813,7 +812,7 @@ describe('HttpInstrumentation', () => {
         const span = tracer.startSpan('parentSpan', {
           kind: SpanKind.INTERNAL,
         });
-        context.with(setSpan(context.active(), span), () => {
+        context.with(trace.setSpan(context.active(), span), () => {
           httpRequest
             .get(`${protocol}://${hostname}:${serverPort}${testPath}`)
             .then(result => {
@@ -840,6 +839,33 @@ describe('HttpInstrumentation', () => {
             })
             .catch(done);
         });
+      });
+    });
+    describe('rpc metadata', () => {
+      beforeEach(() => {
+        memoryExporter.reset();
+        instrumentation.setConfig({ requireParentforOutgoingSpans: true });
+        instrumentation.enable();
+      });
+
+      afterEach(() => {
+        server.close();
+        instrumentation.disable();
+      });
+
+      it('should set rpc metadata for incoming http request', async () => {
+        server = http.createServer((request, response) => {
+          const rpcMemadata = getRPCMetadata(context.active());
+          assert(typeof rpcMemadata !== 'undefined');
+          assert(rpcMemadata.type === RPCType.HTTP);
+          assert(rpcMemadata.span.setAttribute('key', 'value'));
+          response.end('Test Server Response');
+        });
+        await new Promise<void>(resolve => server.listen(serverPort, resolve));
+        await httpRequest.get(`${protocol}://${hostname}:${serverPort}`);
+        const spans = memoryExporter.getFinishedSpans();
+        assert.strictEqual(spans.length, 1);
+        assert.strictEqual(spans[0].attributes.key, 'value');
       });
     });
   });

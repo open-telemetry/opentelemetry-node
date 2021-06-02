@@ -40,7 +40,7 @@ const DEFAULT_FLAGS = 0x1;
  * @param span Span to be translated
  */
 export function spanToThrift(span: ReadableSpan): ThriftSpan {
-  const traceId = span.spanContext.traceId.padStart(32, '0');
+  const traceId = span.spanContext().traceId.padStart(32, '0');
   const traceIdHigh = traceId.slice(0, 16);
   const traceIdLow = traceId.slice(16);
   const parentSpan = span.parentSpanId
@@ -105,11 +105,11 @@ export function spanToThrift(span: ReadableSpan): ThriftSpan {
   return {
     traceIdLow: Utils.encodeInt64(traceIdLow),
     traceIdHigh: Utils.encodeInt64(traceIdHigh),
-    spanId: Utils.encodeInt64(span.spanContext.spanId),
+    spanId: Utils.encodeInt64(span.spanContext().spanId),
     parentSpanId: parentSpan,
     operationName: span.name,
     references: spanLinksToThriftRefs(span.links, span.parentSpanId),
-    flags: span.spanContext.traceFlags || DEFAULT_FLAGS,
+    flags: span.spanContext().traceFlags || DEFAULT_FLAGS,
     startTime: Utils.encodeInt64(hrTimeToMicroseconds(span.startTime)),
     duration: Utils.encodeInt64(hrTimeToMicroseconds(span.duration)),
     tags: spanTags,

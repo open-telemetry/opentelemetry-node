@@ -18,6 +18,7 @@ import { diag } from '@opentelemetry/api';
 import { ExportResult, ExportResultCode, getEnv } from '@opentelemetry/core';
 import { ReadableSpan, SpanExporter } from '@opentelemetry/tracing';
 import { Socket } from 'dgram';
+import { ResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { spanToThrift } from './transform';
 import * as jaegerTypes from './types';
 
@@ -25,16 +26,16 @@ import * as jaegerTypes from './types';
  * Format and sends span information to Jaeger Exporter.
  */
 export class JaegerExporter implements SpanExporter {
-  private readonly _process: jaegerTypes.ThriftProcess;
-  private readonly _sender: typeof jaegerTypes.UDPSender;
   private readonly _onShutdownFlushTimeout: number;
+  private readonly _localConfig: jaegerTypes.ExporterConfig;
   private _isShutdown = false;
   private _shutdownFlushTimeout: NodeJS.Timeout | undefined;
   private _shuttingDownPromise: Promise<void> = Promise.resolve();
 
-  constructor(config: jaegerTypes.ExporterConfig) {
+  private _sender?: typeof jaegerTypes.UDPSender;
+
+  constructor(config?: jaegerTypes.ExporterConfig) {
     const localConfig = Object.assign({}, config);
-    const tags: jaegerTypes.Tag[] = localConfig.tags || [];
     this._onShutdownFlushTimeout =
       typeof localConfig.flushTimeout === 'number'
         ? localConfig.flushTimeout
@@ -54,24 +55,8 @@ export class JaegerExporter implements SpanExporter {
     localConfig.password =
       localConfig.password || env.OTEL_EXPORTER_JAEGER_PASSWORD;
     localConfig.host = localConfig.host || env.OTEL_EXPORTER_JAEGER_AGENT_HOST;
-    if (localConfig.endpoint) {
-      this._sender = new jaegerTypes.HTTPSender(localConfig);
-    } else {
-      this._sender = localConfig.endpoint = new jaegerTypes.UDPSender(
-        localConfig
-      );
-    }
 
-    if (this._sender._client instanceof Socket) {
-      // unref socket to prevent it from keeping the process running
-      this._sender._client.unref();
-    }
-
-    this._process = {
-      serviceName: localConfig.serviceName,
-      tags: jaegerTypes.ThriftUtils.getThriftTags(tags),
-    };
-    this._sender.setProcess(this._process);
+    this._localConfig = localConfig;
   }
 
   /** Exports a list of spans to Jaeger. */
@@ -144,12 +129,12 @@ export class JaegerExporter implements SpanExporter {
     // Flush all spans on each export. No-op if span buffer is empty
     await this._flush();
 
-    if (done) return done({ code: ExportResultCode.SUCCESS });
+    if (done) return process.nextTick(done, { code: ExportResultCode.SUCCESS });
   }
 
   private async _append(span: jaegerTypes.ThriftSpan): Promise<number> {
     return new Promise((resolve, reject) => {
-      this._sender.append(span, (count: number, err?: string) => {
+      this._getSender(span).append(span, (count: number, err?: string) => {
         if (err) {
           return reject(new Error(err));
         }
@@ -158,8 +143,36 @@ export class JaegerExporter implements SpanExporter {
     });
   }
 
+  private _getSender(span: jaegerTypes.ThriftSpan): typeof jaegerTypes.UDPSender {
+    if (this._sender) {
+      return this._sender;
+    }
+
+    const sender = this._localConfig.endpoint ? new jaegerTypes.HTTPSender(this._localConfig) : new jaegerTypes.UDPSender(this._localConfig);
+
+    if (sender._client instanceof Socket) {
+      // unref socket to prevent it from keeping the process running
+      sender._client.unref();
+    }
+
+    const serviceNameTag = span.tags.find(t => t.key === ResourceAttributes.SERVICE_NAME)
+    const serviceName = serviceNameTag?.vStr || "unknown_service";
+
+    sender.setProcess({
+      serviceName,
+      tags: jaegerTypes.ThriftUtils.getThriftTags(this._localConfig.tags || []),
+    });
+
+    this._sender = sender;
+    return sender;
+  }
+
   private async _flush(): Promise<void> {
     await new Promise<void>((resolve, reject) => {
+      if (!this._sender) {
+        return resolve();
+      }
+
       this._sender.flush((_count: number, err?: string) => {
         if (err) {
           return reject(new Error(err));

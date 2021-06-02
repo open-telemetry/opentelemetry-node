@@ -70,6 +70,19 @@ export abstract class InstrumentationAbstract<T = any>
     );
   }
 
+  /* Returns InstrumentationConfig */
+  public getConfig() {
+    return this._config;
+  }
+
+  /**
+   * Sets InstrumentationConfig to this plugin
+   * @param InstrumentationConfig
+   */
+  public setConfig(config: types.InstrumentationConfig = {}) {
+    this._config = Object.assign({}, config);
+  }
+
   /**
    * Sets TraceProvider to this plugin
    * @param tracerProvider

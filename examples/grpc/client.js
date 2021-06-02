@@ -15,8 +15,8 @@ function main() {
   // the span, which is created to track work that happens outside of the
   // request lifecycle entirely.
   const span = tracer.startSpan('client.js:main()');
-  api.context.with(api.setSpan(api.context.active(), span), () => {
-    console.log('Client traceId ', span.context().traceId);
+  api.context.with(api.trace.setSpan(api.context.active(), span), () => {
+    console.log('Client traceId ', span.spanContext().traceId);
     const client = new services.GreeterClient(
       `localhost:${PORT}`,
       grpc.credentials.createInsecure(),

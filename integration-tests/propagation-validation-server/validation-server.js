@@ -1,7 +1,7 @@
 const axios = require("axios");
 const { HttpTraceContextPropagator } = require("@opentelemetry/core");
 const { BasicTracerProvider } = require("@opentelemetry/tracing");
-const { context, propagation, setSpan, trace, ROOT_CONTEXT } = require("@opentelemetry/api");
+const { context, propagation, trace, ROOT_CONTEXT } = require("@opentelemetry/api");
 const {
   AsyncHooksContextManager,
 } = require("@opentelemetry/context-async-hooks");
@@ -36,7 +36,7 @@ app.post("/verify-tracecontext", (req, res) => {
       req.body.map((action) => {
         const span = tracer.startSpan("propagate-w3c");
         let promise;
-        context.with(setSpan(context.active(), span), () => {
+        context.with(trace.setSpan(context.active(), span), () => {
           const headers = {};
           propagation.inject(context.active(), headers);
           promise = axios

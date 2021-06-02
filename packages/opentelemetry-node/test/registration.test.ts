@@ -16,7 +16,6 @@
 
 import {
   context,
-  NoopTextMapPropagator,
   propagation,
   trace,
   ProxyTracerProvider,
@@ -25,7 +24,6 @@ import {
   AsyncHooksContextManager,
   AsyncLocalStorageContextManager,
 } from '@opentelemetry/context-async-hooks';
-import { NoopContextManager } from '@opentelemetry/api';
 import { CompositePropagator } from '@opentelemetry/core';
 import * as assert from 'assert';
 import { NodeTracerProvider } from '../src';
@@ -58,28 +56,29 @@ describe('API registration', () => {
   it('should register configured implementations', () => {
     const tracerProvider = new NodeTracerProvider();
 
-    const contextManager = new NoopContextManager();
-    const propagator = new NoopTextMapPropagator();
+    const mockContextManager = { disable() {} } as any;
+    const mockPropagator = {} as any;
 
     tracerProvider.register({
-      contextManager,
-      propagator,
+      contextManager: mockContextManager,
+      propagator: mockPropagator,
     });
 
-    assert.ok(context['_getContextManager']() === contextManager);
-    assert.ok(propagation['_getGlobalPropagator']() === propagator);
+    assert.strictEqual(context['_getContextManager'](), mockContextManager);
+    assert.strictEqual(propagation['_getGlobalPropagator'](), mockPropagator);
 
     const apiTracerProvider = trace.getTracerProvider() as ProxyTracerProvider;
-    assert.ok(apiTracerProvider.getDelegate() === tracerProvider);
+    assert.strictEqual(apiTracerProvider.getDelegate(), tracerProvider);
   });
 
   it('should skip null context manager', () => {
     const tracerProvider = new NodeTracerProvider();
+    const ctxManager = context['_getContextManager']();
     tracerProvider.register({
       contextManager: null,
     });
 
-    assert.ok(context['_getContextManager']() instanceof NoopContextManager);
+    assert.strictEqual(context['_getContextManager'](), ctxManager, "context manager should not change");
 
     assert.ok(
       propagation['_getGlobalPropagator']() instanceof CompositePropagator
@@ -90,14 +89,14 @@ describe('API registration', () => {
   });
 
   it('should skip null propagator', () => {
+    const propagator = propagation['_getGlobalPropagator']();
+
     const tracerProvider = new NodeTracerProvider();
     tracerProvider.register({
       propagator: null,
     });
 
-    assert.ok(
-      propagation['_getGlobalPropagator']() instanceof NoopTextMapPropagator
-    );
+    assert.strictEqual(propagation['_getGlobalPropagator'](), propagator);
 
     assert.ok(context['_getContextManager']() instanceof DefaultContextManager);
 

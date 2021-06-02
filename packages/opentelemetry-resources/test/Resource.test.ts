@@ -17,7 +17,7 @@
 import * as assert from 'assert';
 import { SDK_INFO } from '@opentelemetry/core';
 import { Resource } from '../src';
-import { assertTelemetrySDKResource } from './util/resource-assertions';
+import { ResourceAttributes } from '@opentelemetry/semantic-conventions';
 
 describe('Resource', () => {
   const resource1 = new Resource({
@@ -84,15 +84,15 @@ describe('Resource', () => {
       'custom.number': 42,
       'custom.boolean': true,
     });
-    assert.equal(resource.attributes['custom.string'], 'strvalue');
-    assert.equal(resource.attributes['custom.number'], 42);
-    assert.equal(resource.attributes['custom.boolean'], true);
+    assert.strictEqual(resource.attributes['custom.string'], 'strvalue');
+    assert.strictEqual(resource.attributes['custom.number'], 42);
+    assert.strictEqual(resource.attributes['custom.boolean'], true);
   });
 
   describe('.empty()', () => {
-    it('should return an empty resource', () => {
+    it('should return an empty resource (except required service name)', () => {
       const resource = Resource.empty();
-      assert.equal(Object.entries(resource.attributes), 0);
+      assert.deepStrictEqual(Object.keys(resource.attributes), []);
     });
 
     it('should return the same empty resource', () => {
@@ -100,14 +100,13 @@ describe('Resource', () => {
     });
   });
 
-  describe('.createTelemetrySDKResource()', () => {
-    it('should return a telemetry SDK resource', () => {
-      const resource = Resource.createTelemetrySDKResource();
-      assertTelemetrySDKResource(resource, {
-        language: SDK_INFO.LANGUAGE,
-        name: SDK_INFO.NAME,
-        version: SDK_INFO.VERSION,
-      });
+  describe('.default()', () => {
+    it('should return a default resource', () => {
+      const resource = Resource.default();
+      assert.strictEqual(resource.attributes[ResourceAttributes.TELEMETRY_SDK_NAME], SDK_INFO[ResourceAttributes.TELEMETRY_SDK_NAME]);
+      assert.strictEqual(resource.attributes[ResourceAttributes.TELEMETRY_SDK_LANGUAGE], SDK_INFO[ResourceAttributes.TELEMETRY_SDK_LANGUAGE]);
+      assert.strictEqual(resource.attributes[ResourceAttributes.TELEMETRY_SDK_VERSION], SDK_INFO[ResourceAttributes.TELEMETRY_SDK_VERSION]);
+      assert.strictEqual(resource.attributes[ResourceAttributes.SERVICE_NAME], `unknown_service:${process.argv0}`);
     });
   });
 });

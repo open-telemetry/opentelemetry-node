@@ -15,19 +15,15 @@
  */
 
 import {
-  createBaggage,
   defaultTextMapGetter,
-  defaultTextMapSetter,
-  getBaggage,
-  getSpanContext,
+  defaultTextMapSetter, propagation,
   ROOT_CONTEXT,
-  setBaggage,
-  setSpanContext,
   SpanContext,
-  suppressInstrumentation,
   TextMapGetter,
+  trace,
   TraceFlags,
 } from '@opentelemetry/api';
+import { suppressTracing } from '@opentelemetry/core';
 import * as assert from 'assert';
 import {
   JaegerPropagator,
@@ -54,7 +50,7 @@ describe('JaegerPropagator', () => {
       };
 
       jaegerPropagator.inject(
-        setSpanContext(ROOT_CONTEXT, spanContext),
+        trace.setSpanContext(ROOT_CONTEXT, spanContext),
         carrier,
         defaultTextMapSetter
       );
@@ -72,7 +68,7 @@ describe('JaegerPropagator', () => {
       };
 
       customJaegerPropagator.inject(
-        setSpanContext(ROOT_CONTEXT, spanContext),
+        trace.setSpanContext(ROOT_CONTEXT, spanContext),
         carrier,
         defaultTextMapSetter
       );
@@ -90,7 +86,7 @@ describe('JaegerPropagator', () => {
       };
 
       jaegerPropagator.inject(
-        suppressInstrumentation(setSpanContext(ROOT_CONTEXT, spanContext)),
+        suppressTracing(trace.setSpanContext(ROOT_CONTEXT, spanContext)),
         carrier,
         defaultTextMapSetter
       );
@@ -98,7 +94,7 @@ describe('JaegerPropagator', () => {
     });
 
     it('should propagate baggage with url encoded values', () => {
-      const baggage = createBaggage({
+      const baggage = propagation.createBaggage({
         test: {
           value: '1',
         },
@@ -108,7 +104,7 @@ describe('JaegerPropagator', () => {
       });
 
       jaegerPropagator.inject(
-        setBaggage(ROOT_CONTEXT, baggage),
+        propagation.setBaggage(ROOT_CONTEXT, baggage),
         carrier,
         defaultTextMapSetter
       );
@@ -124,7 +120,7 @@ describe('JaegerPropagator', () => {
     it('should extract context of a sampled span from carrier', () => {
       carrier[UBER_TRACE_ID_HEADER] =
         'd4cda95b652f4a1592b449d5929fda1b:6e0c63257de34c92:0:01';
-      const extractedSpanContext = getSpanContext(
+      const extractedSpanContext = trace.getSpanContext(
         jaegerPropagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
       );
 
@@ -139,7 +135,7 @@ describe('JaegerPropagator', () => {
     it('should extract context of a sampled span from carrier with 1 bit flag', () => {
       carrier[UBER_TRACE_ID_HEADER] =
         '9c41e35aeb6d1272:45fd2a9709dadcf1:a13699e3fb724f40:1';
-      const extractedSpanContext = getSpanContext(
+      const extractedSpanContext = trace.getSpanContext(
         jaegerPropagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
       );
 
@@ -154,7 +150,7 @@ describe('JaegerPropagator', () => {
     it('should extract context of a sampled span from UTF-8 encoded carrier', () => {
       carrier[UBER_TRACE_ID_HEADER] =
         'ac1f3dc3c2c0b06e%3A5ac292c4a11a163e%3Ac086aaa825821068%3A1';
-      const extractedSpanContext = getSpanContext(
+      const extractedSpanContext = trace.getSpanContext(
         jaegerPropagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
       );
 
@@ -169,7 +165,7 @@ describe('JaegerPropagator', () => {
     it('should use custom header if provided', () => {
       carrier[customHeader] =
         'd4cda95b652f4a1592b449d5929fda1b:6e0c63257de34c92:0:01';
-      const extractedSpanContext = getSpanContext(
+      const extractedSpanContext = trace.getSpanContext(
         customJaegerPropagator.extract(
           ROOT_CONTEXT,
           carrier,
@@ -187,7 +183,7 @@ describe('JaegerPropagator', () => {
 
     it('returns undefined if UBER_TRACE_ID_HEADER header is missing', () => {
       assert.deepStrictEqual(
-        getSpanContext(
+        trace.getSpanContext(
           jaegerPropagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
         ),
         undefined
@@ -197,7 +193,7 @@ describe('JaegerPropagator', () => {
     it('returns undefined if UBER_TRACE_ID_HEADER header is invalid', () => {
       carrier[UBER_TRACE_ID_HEADER] = 'invalid!';
       assert.deepStrictEqual(
-        getSpanContext(
+        trace.getSpanContext(
           jaegerPropagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
         ),
         undefined
@@ -207,7 +203,7 @@ describe('JaegerPropagator', () => {
     it('should extract baggage from carrier', () => {
       carrier[`${UBER_BAGGAGE_HEADER_PREFIX}-test`] = 'value';
       carrier[`${UBER_BAGGAGE_HEADER_PREFIX}-myuser`] = '%25id%25';
-      const extractedBaggage = getBaggage(
+      const extractedBaggage = propagation.getBaggage(
         jaegerPropagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
       );
 
@@ -222,9 +218,9 @@ describe('JaegerPropagator', () => {
     it('should extract baggage from carrier and not override current one', () => {
       carrier[`${UBER_BAGGAGE_HEADER_PREFIX}-test`] = 'value';
       carrier[`${UBER_BAGGAGE_HEADER_PREFIX}-myuser`] = '%25id%25';
-      const extractedBaggage = getBaggage(
+      const extractedBaggage = propagation.getBaggage(
         jaegerPropagator.extract(
-          setBaggage(ROOT_CONTEXT, createBaggage({ one: { value: 'two' } })),
+          propagation.setBaggage(ROOT_CONTEXT, propagation.createBaggage({ one: { value: 'two' } })),
           carrier,
           defaultTextMapGetter
         )
@@ -243,7 +239,7 @@ describe('JaegerPropagator', () => {
 
     it('should handle invalid baggage from carrier (undefined)', () => {
       carrier[`${UBER_BAGGAGE_HEADER_PREFIX}-test`] = undefined;
-      const extractedBaggage = getBaggage(
+      const extractedBaggage = propagation.getBaggage(
         jaegerPropagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
       );
 
@@ -253,7 +249,7 @@ describe('JaegerPropagator', () => {
 
     it('should handle invalid baggage from carrier (array)', () => {
       carrier[`${UBER_BAGGAGE_HEADER_PREFIX}-test`] = ['one', 'two'];
-      const extractedBaggage = getBaggage(
+      const extractedBaggage = propagation.getBaggage(
         jaegerPropagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
       );
 

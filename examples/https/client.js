@@ -11,7 +11,7 @@ function makeRequest() {
   // the span, which is created to track work that happens outside of the
   // request lifecycle entirely.
   const span = tracer.startSpan('makeRequest');
-  api.context.with(api.setSpan(api.context.active(), span), () => {
+  api.context.with(api.trace.setSpan(api.context.active(), span), () => {
     https.get({
       host: 'localhost',
       port: 443,

@@ -16,16 +16,14 @@
 
 import {
   Context,
-  getSpanContext,
-  isInstrumentationSuppressed,
   isSpanContextValid,
-  setSpanContext,
   SpanContext,
   TextMapGetter,
   TextMapPropagator,
-  TextMapSetter,
+  TextMapSetter, trace,
   TraceFlags,
 } from '@opentelemetry/api';
+import { isTracingSuppressed } from './suppress-tracing';
 import { TraceState } from './TraceState';
 
 export const TRACE_PARENT_HEADER = 'traceparent';
@@ -74,10 +72,10 @@ export function parseTraceParent(traceParent: string): SpanContext | null {
  */
 export class HttpTraceContextPropagator implements TextMapPropagator {
   inject(context: Context, carrier: unknown, setter: TextMapSetter) {
-    const spanContext = getSpanContext(context);
+    const spanContext = trace.getSpanContext(context);
     if (
       !spanContext ||
-      isInstrumentationSuppressed(context) ||
+      isTracingSuppressed(context) ||
       !isSpanContextValid(spanContext)
     )
       return;
@@ -119,7 +117,7 @@ export class HttpTraceContextPropagator implements TextMapPropagator {
         typeof state === 'string' ? state : undefined
       );
     }
-    return setSpanContext(context, spanContext);
+    return trace.setSpanContext(context, spanContext);
   }
 
   fields(): string[] {

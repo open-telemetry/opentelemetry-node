@@ -1,7 +1,5 @@
 'use strict';
-// for debugging
-// import { context, getSpan, setSpan } from '../../../../packages/opentelemetry-api/src';
-import { context, getSpan, setSpan } from '@opentelemetry/api';
+import { context, trace } from '@opentelemetry/api';
 import { ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/tracing';
 import { CollectorTraceExporter } from '@opentelemetry/exporter-collector';
 import { WebTracerProvider } from '@opentelemetry/web';
@@ -49,17 +47,17 @@ const prepareClickEvent = () => {
 
   const onClick = () => {
     const singleSpan = webTracerWithZone.startSpan(`files-series-info`);
-    context.with(setSpan(context.active(), singleSpan), () => {
+    context.with(trace.setSpan(context.active(), singleSpan), () => {
       getData(url).then((_data) => {
-        getSpan(context.active()).addEvent('fetching-single-span-completed');
+        trace.getSpan(context.active()).addEvent('fetching-single-span-completed');
         singleSpan.end();
       });
     });
     for (let i = 0, j = 5; i < j; i += 1) {
       const span = webTracerWithZone.startSpan(`files-series-info-${i}`);
-      context.with(setSpan(context.active(), span), () => {
+      context.with(trace.setSpan(context.active(), span), () => {
         getData(url).then((_data) => {
-          getSpan(context.active()).addEvent(`fetching-span-${i}-completed`);
+          trace.getSpan(context.active()).addEvent(`fetching-span-${i}-completed`);
           span.end();
         });
       });

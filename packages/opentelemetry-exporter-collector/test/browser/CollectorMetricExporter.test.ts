@@ -84,7 +84,6 @@ describe('CollectorMetricExporter - web', () => {
       beforeEach(() => {
         collectorExporter = new CollectorMetricExporter({
           url: 'http://foo.bar.com',
-          serviceName: 'bar',
         });
         // Overwrites the start time to make tests consistent
         Object.defineProperty(collectorExporter, '_startTime', {
@@ -193,7 +192,6 @@ describe('CollectorMetricExporter - web', () => {
         (window.navigator as any).sendBeacon = false;
         collectorExporter = new CollectorMetricExporter({
           url: 'http://foo.bar.com',
-          serviceName: 'bar',
         });
         // Overwrites the start time to make tests consistent
         Object.defineProperty(collectorExporter, '_startTime', {

@@ -29,7 +29,7 @@ import { TimedEvent } from '../TimedEvent';
 export interface ReadableSpan {
   readonly name: string;
   readonly kind: SpanKind;
-  readonly spanContext: SpanContext;
+  readonly spanContext: () => SpanContext;
   readonly parentSpanId?: string;
   readonly startTime: HrTime;
   readonly endTime: HrTime;

@@ -16,8 +16,6 @@
 
 import {
   context,
-  NoopContextManager,
-  NoopTextMapPropagator,
   propagation,
   trace,
   ProxyTracerProvider,
@@ -48,8 +46,8 @@ describe('API registration', () => {
   it('should register configured implementations', () => {
     const tracerProvider = new WebTracerProvider();
 
-    const contextManager = new NoopContextManager();
-    const propagator = new NoopTextMapPropagator();
+    const contextManager = { disable() { }, enable() { } } as any;
+    const propagator = {} as any;
 
     tracerProvider.register({
       contextManager,
@@ -64,12 +62,13 @@ describe('API registration', () => {
   });
 
   it('should skip null context manager', () => {
+    const ctxManager = context['_getContextManager']();
     const tracerProvider = new WebTracerProvider();
     tracerProvider.register({
       contextManager: null,
     });
 
-    assert.ok(context['_getContextManager']() instanceof NoopContextManager);
+    assert.strictEqual(context['_getContextManager'](), ctxManager, "context manager should not change");
 
     assert.ok(
       propagation['_getGlobalPropagator']() instanceof CompositePropagator
@@ -79,14 +78,13 @@ describe('API registration', () => {
   });
 
   it('should skip null propagator', () => {
+    const propagator = propagation['_getGlobalPropagator']();
     const tracerProvider = new WebTracerProvider();
     tracerProvider.register({
       propagator: null,
     });
 
-    assert.ok(
-      propagation['_getGlobalPropagator']() instanceof NoopTextMapPropagator
-    );
+    assert.strictEqual(propagation["_getGlobalPropagator"](), propagator, "propagator should not change")
 
     assert.ok(context['_getContextManager']() instanceof StackContextManager);
     const apiTracerProvider = trace.getTracerProvider() as ProxyTracerProvider;

@@ -33,10 +33,10 @@ export function mergeConfig(userConfig: TracerConfig) {
     userConfig
   );
 
-  target.traceParams = Object.assign(
+  target.spanLimits = Object.assign(
     {},
-    DEFAULT_CONFIG.traceParams,
-    userConfig.traceParams || {}
+    DEFAULT_CONFIG.spanLimits,
+    userConfig.spanLimits || {}
   );
 
   return target;

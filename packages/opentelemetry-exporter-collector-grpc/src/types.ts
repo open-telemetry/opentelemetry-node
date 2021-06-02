@@ -33,7 +33,7 @@ export interface GRPCQueueItem<ExportedItem> {
 export interface ServiceClient extends grpc.Client {
   export: (
     request: any,
-    metadata: grpc.Metadata | undefined,
+    metadata: grpc.Metadata,
     callback: Function
   ) => {};
 }

@@ -129,7 +129,6 @@ describe('CollectorMetricExporter - node with json over http', () => {
           foo: 'bar',
         },
         hostname: 'foo',
-        serviceName: 'bar',
         attributes: {},
         url: 'http://foo.bar.com',
         keepAlive: true,

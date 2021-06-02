@@ -24,10 +24,12 @@ import { hrTimeToMicroseconds } from '@opentelemetry/core';
 import { SpanStatusCode, TraceFlags } from '@opentelemetry/api';
 
 describe('transform', () => {
-  const spanContext = {
-    traceId: 'd4cda95b652f4a1592b449d5929fda1b',
-    spanId: '6e0c63257de34c92',
-    traceFlags: TraceFlags.NONE,
+  const spanContext = () => {
+    return {
+      traceId: 'd4cda95b652f4a1592b449d5929fda1b',
+      spanId: '6e0c63257de34c92',
+      traceFlags: TraceFlags.NONE,
+    };
   };
 
   describe('spanToThrift', () => {
@@ -52,6 +54,7 @@ describe('transform', () => {
             context: {
               traceId: 'a4cda95b652f4a1592b449d5929fda1b',
               spanId: '3e0c63257de34c92',
+              traceFlags: TraceFlags.SAMPLED,
             },
             attributes: {
               testBool: true,
@@ -217,6 +220,7 @@ describe('transform', () => {
             context: {
               traceId: 'a4cda95b652f4a1592b449d5929fda1b',
               spanId: '3e0c63257de34c92',
+              traceFlags: TraceFlags.SAMPLED,
             },
           },
         ],
@@ -249,10 +253,12 @@ describe('transform', () => {
       const readableSpan: ReadableSpan = {
         name: 'my-span1',
         kind: api.SpanKind.CLIENT,
-        spanContext: {
-          traceId: '92b449d5929fda1b',
-          spanId: '6e0c63257de34c92',
-          traceFlags: TraceFlags.NONE,
+        spanContext: () => {
+          return {
+            traceId: '92b449d5929fda1b',
+            spanId: '6e0c63257de34c92',
+            traceFlags: TraceFlags.NONE,
+          };
         },
         startTime: [1566156729, 709],
         endTime: [1566156731, 709],
@@ -304,6 +310,7 @@ describe('transform', () => {
             context: {
               traceId: 'a4cda95b652f4a1592b449d5929fda1b',
               spanId: '3e0c63257de34c92',
+              traceFlags: TraceFlags.SAMPLED,
             },
             attributes: {
               testBool: true,

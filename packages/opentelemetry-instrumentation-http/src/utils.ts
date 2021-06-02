@@ -18,6 +18,7 @@ import {
   SpanStatusCode,
   Span,
   SpanStatus,
+  context,
 } from '@opentelemetry/api';
 import {
   NetTransportValues,
@@ -31,7 +32,7 @@ import {
   RequestOptions,
   ServerResponse,
 } from 'http';
-import { Socket } from 'net';
+import { getRPCMetadata, RPCType } from '@opentelemetry/core';
 import * as url from 'url';
 import { AttributeNames } from './enums/AttributeNames';
 import { Err, IgnoreMatcher, ParsedRequestOptions } from './types';
@@ -465,25 +466,15 @@ export const getIncomingRequestAttributes = (
  * @param {(ServerResponse & { socket: Socket; })} response the response object
  */
 export const getIncomingRequestAttributesOnResponse = (
-  request: IncomingMessage & { __ot_middlewares?: string[] },
-  response: ServerResponse & { socket: Socket }
+  request: IncomingMessage,
+  response: ServerResponse
 ): SpanAttributes => {
   // take socket from the request,
   // since it may be detached from the response object in keep-alive mode
   const { socket } = request;
   const { statusCode, statusMessage } = response;
   const { localAddress, localPort, remoteAddress, remotePort } = socket;
-  const { __ot_middlewares } = (request as unknown) as {
-    [key: string]: unknown;
-  };
-  const route = Array.isArray(__ot_middlewares)
-    ? __ot_middlewares
-        .filter(path => path !== '/')
-        .map(path => {
-          return path[0] === '/' ? path : '/' + path;
-        })
-        .join('')
-    : undefined;
+  const rpcMetadata = getRPCMetadata(context.active());
 
   const attributes: SpanAttributes = {
     [SemanticAttributes.NET_HOST_IP]: localAddress,
@@ -494,8 +485,8 @@ export const getIncomingRequestAttributesOnResponse = (
     [AttributeNames.HTTP_STATUS_TEXT]: (statusMessage || '').toUpperCase(),
   };
 
-  if (route !== undefined) {
-    attributes[SemanticAttributes.HTTP_ROUTE] = route;
+  if (rpcMetadata?.type === RPCType.HTTP && rpcMetadata.route !== undefined) {
+    attributes[SemanticAttributes.HTTP_ROUTE] = rpcMetadata.route;
   }
   return attributes;
 };

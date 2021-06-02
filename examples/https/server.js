@@ -25,9 +25,9 @@ function startServer(port) {
 
 /** A function which handles requests and send response. */
 function handleRequest(request, response) {
-  const currentSpan = api.getSpan(api.context.active());
+  const currentSpan = api.trace.getSpan(api.context.active());
   // display traceid in the terminal
-  console.log(`traceid: ${currentSpan.context().traceId}`);
+  console.log(`traceid: ${currentSpan.spanContext().traceId}`);
   const span = tracer.startSpan('handleRequest', {
     kind: 1, // server
     attributes: { key: 'value' },

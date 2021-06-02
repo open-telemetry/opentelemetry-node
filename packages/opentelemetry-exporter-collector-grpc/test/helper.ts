@@ -28,6 +28,7 @@ import { Resource } from '@opentelemetry/resources';
 import { ReadableSpan } from '@opentelemetry/tracing';
 import * as assert from 'assert';
 import * as grpc from '@grpc/grpc-js';
+import { VERSION } from '@opentelemetry/core';
 
 const meterProvider = new metrics.MeterProvider({
   interval: 30000,
@@ -111,10 +112,12 @@ export function mockValueRecorder(): metrics.Metric<metrics.BoundValueRecorder> 
 export const mockedReadableSpan: ReadableSpan = {
   name: 'documentFetch',
   kind: 0,
-  spanContext: {
-    traceId: '1f1008dc8e270e85c40a0d7c3939b278',
-    spanId: '5e107261f64fa53e',
-    traceFlags: TraceFlags.SAMPLED,
+  spanContext: () => {
+    return {
+      traceId: '1f1008dc8e270e85c40a0d7c3939b278',
+      spanId: '5e107261f64fa53e',
+      traceFlags: TraceFlags.SAMPLED,
+    };
   },
   parentSpanId: '78a8915098864388',
   startTime: [1574120165, 429803070],
@@ -127,6 +130,7 @@ export const mockedReadableSpan: ReadableSpan = {
       context: {
         traceId: '1f1008dc8e270e85c40a0d7c3939b278',
         spanId: '78a8915098864388',
+        traceFlags: TraceFlags.SAMPLED,
       },
       attributes: { component: 'document-load' },
     },
@@ -154,11 +158,11 @@ export const mockedReadableSpan: ReadableSpan = {
     },
   ],
   duration: [0, 8885000],
-  resource: new Resource({
+  resource: Resource.default().merge(new Resource({
     service: 'ui',
     version: 1,
     cost: 112.12,
-  }),
+  })),
   instrumentationLibrary: { name: 'default', version: '0.0.1' },
 };
 
@@ -406,11 +410,32 @@ export function ensureResourceIsCorrect(
   assert.deepStrictEqual(resource, {
     attributes: [
       {
-        key: 'service.name',
-        value: {
-          stringValue: 'basic-service',
-          value: 'stringValue',
-        },
+        "key": "service.name",
+        "value": {
+          "stringValue": `unknown_service:${process.argv0}`,
+          "value": "stringValue"
+        }
+      },
+      {
+        "key": "telemetry.sdk.language",
+        "value": {
+          "stringValue": "nodejs",
+          "value": "stringValue"
+        }
+      },
+      {
+        "key": "telemetry.sdk.name",
+        "value": {
+          "stringValue": "opentelemetry",
+          "value": "stringValue"
+        }
+      },
+      {
+        "key": "telemetry.sdk.version",
+        "value": {
+          "stringValue": VERSION,
+          "value": "stringValue"
+        }
       },
       {
         key: 'service',

@@ -73,6 +73,7 @@ export abstract class InstrumentationBase<T = any>
       return exports;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const version = require(path.join(baseDir, 'package.json')).version;
     module.moduleVersion = version;
     if (module.name === name) {

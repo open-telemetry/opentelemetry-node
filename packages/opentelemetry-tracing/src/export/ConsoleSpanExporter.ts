@@ -55,10 +55,10 @@ export class ConsoleSpanExporter implements SpanExporter {
    */
   private _exportInfo(span: ReadableSpan) {
     return {
-      traceId: span.spanContext.traceId,
+      traceId: span.spanContext().traceId,
       parentId: span.parentSpanId,
       name: span.name,
-      id: span.spanContext.spanId,
+      id: span.spanContext().spanId,
       kind: span.kind,
       timestamp: hrTimeToMicroseconds(span.startTime),
       duration: hrTimeToMicroseconds(span.duration),

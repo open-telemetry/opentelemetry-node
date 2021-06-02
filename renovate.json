@@ -11,7 +11,7 @@
       "rangeStrategy": "bump"
     }
   ],
-  "ignoreDeps": ["gcp-metadata", "got", "mocha", "husky"],
+  "ignoreDeps": ["gcp-metadata", "got", "mocha", "husky", "karma-webpack"],
   "assignees": ["@dyladan", "@obecny", "@vmarchaud"],
   "schedule": ["before 3am on Friday"],
   "labels": ["dependencies"]

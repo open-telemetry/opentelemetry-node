@@ -23,10 +23,12 @@ import { Span } from '../src/types';
 export const mockedReadableSpan: ReadableSpan = {
   name: 'documentFetch',
   kind: 0,
-  spanContext: {
-    traceId: '1f1008dc8e270e85c40a0d7c3939b278',
-    spanId: '5e107261f64fa53e',
-    traceFlags: TraceFlags.SAMPLED,
+  spanContext: () => {
+    return {
+      traceId: '1f1008dc8e270e85c40a0d7c3939b278',
+      spanId: '5e107261f64fa53e',
+      traceFlags: TraceFlags.SAMPLED,
+    };
   },
   parentSpanId: '78a8915098864388',
   startTime: [1574120165, 429803070],
@@ -53,7 +55,7 @@ export function ensureHeadersContain(
     assert.strictEqual(
       v,
       actual[k],
-      `Expected ${actual} to contain ${k}: ${v}`
+      `Expected ${ actual } to contain ${ k }: ${ v }`
     );
   });
 }

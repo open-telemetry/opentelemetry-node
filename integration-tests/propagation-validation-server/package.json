@@ -19,10 +19,10 @@
     "express": "4.17.1"
   },
   "devDependencies": {
-    "@opentelemetry/api": "^1.0.0-rc.0",
-    "typescript": "4.2.4"
+    "@opentelemetry/api": "^0.20.0",
+    "typescript": "4.3.2"
   },
   "peerDependencies": {
-    "@opentelemetry/api": "^1.0.0-rc.0"
+    "@opentelemetry/api": "^0.20.0"
   }
 }

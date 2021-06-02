@@ -22,5 +22,5 @@ import { Resource } from '../../Resource';
  * is async to match the signature of corresponding method for node.
  */
 export const detectResources = async (): Promise<Resource> => {
-  return Resource.createTelemetrySDKResource();
+  return Resource.empty();
 };

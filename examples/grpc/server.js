@@ -21,9 +21,9 @@ function startServer() {
 }
 
 function sayHello(call, callback) {
-  const currentSpan = api.getSpan(api.context.active());
+  const currentSpan = api.trace.getSpan(api.context.active());
   // display traceid in the terminal
-  console.log(`traceid: ${currentSpan.context().traceId}`);
+  console.log(`traceid: ${currentSpan.spanContext().traceId}`);
   const span = tracer.startSpan('server.js:sayHello()', {
     parent: currentSpan,
     kind: 1, // server

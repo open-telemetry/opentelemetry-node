@@ -44,6 +44,12 @@ export interface Instrumentation {
   /** Method to set meter provider  */
   setMeterProvider(meterProvider: MeterProvider): void;
 
+  /** Method to set instrumentation config  */
+  setConfig(config: InstrumentationConfig): void;
+
+  /** Method to get instrumentation config  */
+  getConfig(): InstrumentationConfig;
+
   /**
    * Contains all supported versions.
    * All versions must be compatible with [semver](https://semver.org/spec/v2.0.0.html) format.

@@ -39,8 +39,8 @@ export const assertSpan = (
     component: string;
   }
 ) => {
-  assert.strictEqual(span.spanContext.traceId.length, 32);
-  assert.strictEqual(span.spanContext.spanId.length, 16);
+  assert.strictEqual(span.spanContext().traceId.length, 32);
+  assert.strictEqual(span.spanContext().spanId.length, 16);
   assert.strictEqual(span.kind, kind);
   assert.strictEqual(
     span.name,

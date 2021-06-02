@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { NoopTracerProvider, NOOP_TRACER } from '@opentelemetry/api';
 import * as assert from 'assert';
 import * as fs from 'fs';
 import type { AddressInfo } from 'net';
@@ -29,14 +28,23 @@ instrumentation.disable();
 
 import * as https from 'https';
 import { httpsRequest } from '../utils/httpsRequest';
+import { INVALID_SPAN_CONTEXT, trace, TracerProvider } from '@opentelemetry/api';
 
 describe('HttpsInstrumentation', () => {
   let server: https.Server;
   let serverPort = 0;
 
   describe('disable()', () => {
-    const provider = new NoopTracerProvider();
+    let provider: TracerProvider;
+    let startSpanStub: sinon.SinonStub;
+  
     before(() => {
+      provider = {
+        getTracer: () => {
+          startSpanStub = sinon.stub().returns(trace.wrapSpanContext(INVALID_SPAN_CONTEXT));
+          return { startSpan: startSpanStub } as any;
+        }
+      };
       nock.cleanAll();
       nock.enableNetConnect();
 
@@ -60,10 +68,6 @@ describe('HttpsInstrumentation', () => {
       });
     });
 
-    beforeEach(() => {
-      sinon.spy(NOOP_TRACER, 'startSpan');
-    });
-
     afterEach(() => {
       sinon.restore();
     });
@@ -78,12 +82,8 @@ describe('HttpsInstrumentation', () => {
 
         const options = { host: 'localhost', path: testPath, port: serverPort };
 
-        await httpsRequest.get(options).then(result => {
-          assert.strictEqual(
-            (NOOP_TRACER.startSpan as sinon.SinonSpy).called,
-            false
-          );
-
+        await httpsRequest.get(options).then(() => {
+          sinon.assert.notCalled(startSpanStub);
           assert.strictEqual(isWrapped(https.Server.prototype.emit), false);
         });
       });

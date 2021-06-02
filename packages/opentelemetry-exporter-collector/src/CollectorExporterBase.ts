@@ -30,7 +30,6 @@ export abstract class CollectorExporterBase<
   ExportItem,
   ServiceRequest
 > {
-  public readonly serviceName: string;
   public readonly url: string;
   public readonly hostname: string | undefined;
   public readonly attributes?: SpanAttributes;
@@ -43,7 +42,6 @@ export abstract class CollectorExporterBase<
    * @param config
    */
   constructor(config: T = {} as T) {
-    this.serviceName = this.getDefaultServiceName(config);
     this.url = this.getDefaultUrl(config);
     if (typeof config.hostname === 'string') {
       this.hostname = config.hostname;
@@ -140,6 +138,5 @@ export abstract class CollectorExporterBase<
     onError: (error: CollectorExporterError) => void
   ): void;
   abstract getDefaultUrl(config: T): string;
-  abstract getDefaultServiceName(config: T): string;
   abstract convert(objects: ExportItem[]): ServiceRequest;
 }

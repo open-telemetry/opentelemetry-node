@@ -25,14 +25,12 @@ import {
   timeInputToHrTime,
 } from '@opentelemetry/core';
 import {
-  createBaggage,
   defaultTextMapGetter,
   defaultTextMapSetter,
-  getSpanContext,
   INVALID_SPAN_CONTEXT,
   propagation,
   ROOT_CONTEXT,
-  setSpanContext,
+  trace,
 } from '@opentelemetry/api';
 import { performance } from 'perf_hooks';
 import { B3Propagator } from '@opentelemetry/propagator-b3';
@@ -148,7 +146,7 @@ describe('OpenTracing Shim', () => {
       it('injects HTTP carriers', () => {
         const carrier: { [key: string]: unknown } = {};
         shimTracer.inject(context, opentracing.FORMAT_HTTP_HEADERS, carrier);
-        const extractedContext = getSpanContext(
+        const extractedContext = trace.getSpanContext(
           jaegerPropagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
         );
         assert.ok(extractedContext !== null);
@@ -159,7 +157,7 @@ describe('OpenTracing Shim', () => {
       it('extracts HTTP carriers', () => {
         const carrier: { [key: string]: unknown } = {};
         jaegerPropagator.inject(
-          setSpanContext(
+          trace.setSpanContext(
             ROOT_CONTEXT,
             (context as SpanContextShim).getSpanContext()
           ),
@@ -179,7 +177,7 @@ describe('OpenTracing Shim', () => {
       it('injects TextMap carriers', () => {
         const carrier: { [key: string]: unknown } = {};
         shimTracer.inject(context, opentracing.FORMAT_TEXT_MAP, carrier);
-        const extractedContext = getSpanContext(
+        const extractedContext = trace.getSpanContext(
           b3Propagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
         );
         assert.ok(extractedContext !== null);
@@ -190,7 +188,7 @@ describe('OpenTracing Shim', () => {
       it('extracts TextMap carriers', () => {
         const carrier: { [key: string]: unknown } = {};
         b3Propagator.inject(
-          setSpanContext(
+          trace.setSpanContext(
             ROOT_CONTEXT,
             (context as SpanContextShim).getSpanContext()
           ),
@@ -268,7 +266,7 @@ describe('OpenTracing Shim', () => {
 
   describe('SpanContextShim', () => {
     it('returns the correct context', () => {
-      const shim = new SpanContextShim(INVALID_SPAN_CONTEXT, createBaggage());
+      const shim = new SpanContextShim(INVALID_SPAN_CONTEXT, propagation.createBaggage());
       assert.strictEqual(shim.getSpanContext(), INVALID_SPAN_CONTEXT);
       assert.strictEqual(shim.toTraceId(), INVALID_SPAN_CONTEXT.traceId);
       assert.strictEqual(shim.toSpanId(), INVALID_SPAN_CONTEXT.spanId);

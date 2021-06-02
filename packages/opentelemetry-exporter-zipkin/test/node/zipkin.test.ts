@@ -37,10 +37,12 @@ function getReadableSpan() {
   const readableSpan: ReadableSpan = {
     name: 'my-span',
     kind: api.SpanKind.INTERNAL,
-    spanContext: {
-      traceId: 'd4cda95b652f4a1592b449d5929fda1b',
-      spanId: '6e0c63257de34c92',
-      traceFlags: TraceFlags.NONE,
+    spanContext: () => {
+      return {
+        traceId: 'd4cda95b652f4a1592b449d5929fda1b',
+        spanId: '6e0c63257de34c92',
+        traceFlags: TraceFlags.NONE,
+      };
     },
     startTime: [startTime, 0],
     endTime: [startTime + duration, 0],
@@ -134,10 +136,12 @@ describe('Zipkin Exporter - node', () => {
         name: 'my-span',
         kind: api.SpanKind.INTERNAL,
         parentSpanId,
-        spanContext: {
-          traceId: 'd4cda95b652f4a1592b449d5929fda1b',
-          spanId: '6e0c63257de34c92',
-          traceFlags: TraceFlags.NONE,
+        spanContext: () => {
+          return {
+            traceId: 'd4cda95b652f4a1592b449d5929fda1b',
+            spanId: '6e0c63257de34c92',
+            traceFlags: TraceFlags.NONE,
+          };
         },
         startTime: [startTime, 0],
         endTime: [startTime + duration, 0],
@@ -164,10 +168,12 @@ describe('Zipkin Exporter - node', () => {
       const span2: ReadableSpan = {
         name: 'my-span',
         kind: api.SpanKind.SERVER,
-        spanContext: {
-          traceId: 'd4cda95b652f4a1592b449d5929fda1b',
-          spanId: '6e0c63257de34c92',
-          traceFlags: TraceFlags.NONE,
+        spanContext: () => {
+          return {
+            traceId: 'd4cda95b652f4a1592b449d5929fda1b',
+            spanId: '6e0c63257de34c92',
+            traceFlags: TraceFlags.NONE,
+          };
         },
         startTime: [startTime, 0],
         endTime: [startTime + duration, 0],
@@ -200,7 +206,7 @@ describe('Zipkin Exporter - node', () => {
               },
             ],
             duration: duration * MICROS_PER_SECS,
-            id: span1.spanContext.spanId,
+            id: span1.spanContext().spanId,
             localEndpoint: {
               serviceName: 'my-service',
             },
@@ -212,12 +218,12 @@ describe('Zipkin Exporter - node', () => {
               'ot.status_code': 'OK',
             },
             timestamp: startTime * MICROS_PER_SECS,
-            traceId: span1.spanContext.traceId,
+            traceId: span1.spanContext().traceId,
           },
           // Span 2
           {
             duration: duration * MICROS_PER_SECS,
-            id: span2.spanContext.spanId,
+            id: span2.spanContext().spanId,
             kind: 'SERVER',
             localEndpoint: {
               serviceName: 'my-service',
@@ -227,7 +233,7 @@ describe('Zipkin Exporter - node', () => {
               'ot.status_code': 'OK',
             },
             timestamp: hrTimeToMicroseconds([startTime, 0]),
-            traceId: span2.spanContext.traceId,
+            traceId: span2.spanContext().traceId,
           },
         ]);
       });
@@ -307,372 +313,220 @@ describe('Zipkin Exporter - node', () => {
       });
     });
 
-    it('should set serviceName to "Opentelemetry Service" by default', () => {
+
+    it('should call globalErrorHandler on error', () => {
+      const expectedError = new Error('Whoops');
       const scope = nock('http://localhost:9411')
         .post('/api/v2/spans')
-        .replyWithError(new Error('My Socket Error'));
-
-      const parentSpanId = '5c1c63257de34c67';
-      const startTime = 1566156729709;
-      const duration = 2000;
-
-      const span1: ReadableSpan = {
-        name: 'my-span',
-        kind: api.SpanKind.INTERNAL,
-        parentSpanId,
-        spanContext: {
-          traceId: 'd4cda95b652f4a1592b449d5929fda1b',
-          spanId: '6e0c63257de34c92',
-          traceFlags: TraceFlags.NONE,
-        },
-        startTime: [startTime, 0],
-        endTime: [startTime + duration, 0],
-        ended: true,
-        duration: [duration, 0],
-        status: {
-          code: api.SpanStatusCode.OK,
-        },
-        attributes: {
-          key1: 'value1',
-          key2: 'value2',
-        },
-        links: [],
-        events: [
-          {
-            name: 'my-event',
-            time: [startTime + 10, 0],
-            attributes: { key3: 'value3' },
-          },
-        ],
-        resource: Resource.empty(),
-        instrumentationLibrary: { name: 'default', version: '0.0.1' },
-      };
-      const span2: ReadableSpan = {
-        name: 'my-span',
-        kind: api.SpanKind.SERVER,
-        spanContext: {
-          traceId: 'd4cda95b652f4a1592b449d5929fda1b',
-          spanId: '6e0c63257de34c92',
-          traceFlags: TraceFlags.NONE,
-        },
-        startTime: [startTime, 0],
-        endTime: [startTime + duration, 0],
-        ended: true,
-        duration: [duration, 0],
-        status: {
-          code: api.SpanStatusCode.OK,
-        },
-        attributes: {},
-        links: [],
-        events: [],
-        resource: Resource.empty(),
-        instrumentationLibrary: { name: 'default', version: '0.0.1' },
-      };
-
-      const exporter = new ZipkinExporter({});
-
-      exporter.export([span1, span2], (result: ExportResult) => {
-        scope.done();
-        assert.equal(exporter['_serviceName'], 'OpenTelemetry Service');
-      });
-    });
-
-    it('should set serviceName if resource has one', () => {
-      const resource_service_name = 'resource_service_name';
-
-      const scope = nock('http://localhost:9411')
-        .post('/api/v2/spans')
-        .replyWithError(new Error('My Socket Error'));
-
-      const parentSpanId = '5c1c63257de34c67';
-      const startTime = 1566156729709;
-      const duration = 2000;
-
-      const span1: ReadableSpan = {
-        name: 'my-span',
-        kind: api.SpanKind.INTERNAL,
-        parentSpanId,
-        spanContext: {
-          traceId: 'd4cda95b652f4a1592b449d5929fda1b',
-          spanId: '6e0c63257de34c92',
-          traceFlags: TraceFlags.NONE,
-        },
-        startTime: [startTime, 0],
-        endTime: [startTime + duration, 0],
-        ended: true,
-        duration: [duration, 0],
-        status: {
-          code: api.SpanStatusCode.OK,
-        },
-        attributes: {
-          key1: 'value1',
-          key2: 'value2',
-        },
-        links: [],
-        events: [
-          {
-            name: 'my-event',
-            time: [startTime + 10, 0],
-            attributes: { key3: 'value3' },
-          },
-        ],
-        resource: new Resource({
-          [ResourceAttributes.SERVICE_NAME]: resource_service_name,
-        }),
-        instrumentationLibrary: { name: 'default', version: '0.0.1' },
-      };
-      const span2: ReadableSpan = {
-        name: 'my-span',
-        kind: api.SpanKind.SERVER,
-        spanContext: {
-          traceId: 'd4cda95b652f4a1592b449d5929fda1b',
-          spanId: '6e0c63257de34c92',
-          traceFlags: TraceFlags.NONE,
-        },
-        startTime: [startTime, 0],
-        endTime: [startTime + duration, 0],
-        ended: true,
-        duration: [duration, 0],
-        status: {
-          code: api.SpanStatusCode.OK,
-        },
-        attributes: {},
-        links: [],
-        events: [],
-        resource: Resource.empty(),
-        instrumentationLibrary: { name: 'default', version: '0.0.1' },
-      };
-
-      const exporter = new ZipkinExporter({});
-
-      exporter.export([span1, span2], (result: ExportResult) => {
-        scope.done();
-        assert.equal(exporter['_serviceName'], resource_service_name);
-
-        // checking if service name remains consistent in further exports
-        exporter.export([span2], (result: ExportResult) => {
-          scope.done();
-          assert.equal(exporter['_serviceName'], resource_service_name);
-        });
-      });
-
-      it('should call globalErrorHandler on error', () => {
-        const expectedError = new Error('Whoops');
-        const scope = nock('http://localhost:9411')
-          .post('/api/v2/spans')
-          .replyWithError(expectedError);
-
-        const exporter = new ZipkinExporter({
-          serviceName: 'my-service',
-        });
-
-        exporter.export([getReadableSpan()], (result: ExportResult) => {
-          assert.deepStrictEqual(result.code, ExportResultCode.FAILED);
-          assert.deepStrictEqual(result.error, expectedError);
-          scope.done();
-        });
-      });
-    });
-
-    it('should set serviceName per-span if resource has one', () => {
-      const resource_service_name = 'resource_service_name';
-      const resource_service_name_prime = 'resource_service_name_prime';
-
-      let requestBody: zipkinTypes.Span[];
-      const scope = nock('http://localhost:9411')
-        .post('/api/v2/spans', body => {
-          requestBody = body;
-          return true;
-        })
-        .replyWithError(new Error('My Socket Error'));
-
-      const parentSpanId = '5c1c63257de34c67';
-      const startTime = 1566156729709;
-      const duration = 2000;
-
-      const span1: ReadableSpan = {
-        name: 'my-span',
-        kind: api.SpanKind.INTERNAL,
-        parentSpanId,
-        spanContext: {
-          traceId: 'd4cda95b652f4a1592b449d5929fda1b',
-          spanId: '6e0c63257de34c92',
-          traceFlags: TraceFlags.NONE,
-        },
-        startTime: [startTime, 0],
-        endTime: [startTime + duration, 0],
-        ended: true,
-        duration: [duration, 0],
-        status: {
-          code: api.SpanStatusCode.OK,
-        },
-        attributes: {
-          key1: 'value1',
-          key2: 'value2',
-        },
-        links: [],
-        events: [
-          {
-            name: 'my-event',
-            time: [startTime + 10, 0],
-            attributes: { key3: 'value3' },
-          },
-        ],
-        resource: new Resource({
-          [ResourceAttributes.SERVICE_NAME]: resource_service_name,
-        }),
-        instrumentationLibrary: { name: 'default', version: '0.0.1' },
-      };
-      const span2: ReadableSpan = {
-        name: 'my-span',
-        kind: api.SpanKind.SERVER,
-        spanContext: {
-          traceId: 'd4cda95b652f4a1592b449d5929fda1b',
-          spanId: '6e0c63257de34c92',
-          traceFlags: TraceFlags.NONE,
-        },
-        startTime: [startTime, 0],
-        endTime: [startTime + duration, 0],
-        ended: true,
-        duration: [duration, 0],
-        status: {
-          code: api.SpanStatusCode.OK,
-        },
-        attributes: {},
-        links: [],
-        events: [],
-        resource: new Resource({
-          [ResourceAttributes.SERVICE_NAME]: resource_service_name_prime,
-        }),
-        instrumentationLibrary: { name: 'default', version: '0.0.1' },
-      };
-
-      const exporter = new ZipkinExporter({});
-
-      exporter.export([span1, span2], (result: ExportResult) => {
-        requestBody;
-        scope.done();
-        assert.equal(
-          requestBody[0].localEndpoint.serviceName,
-          resource_service_name
-        );
-        assert.equal(
-          requestBody[1].localEndpoint.serviceName,
-          resource_service_name_prime
-        );
-      });
-    });
-
-    it('should set serviceName per-span if span has attribute', () => {
-      const span_service_name = 'span_service_name';
-      const span_service_name_prime = 'span_service_name_prime';
-
-      let requestBody: any;
-      const scope = nock('http://localhost:9411')
-        .post('/api/v2/spans', body => {
-          requestBody = body;
-          return true;
-        })
-        .replyWithError(new Error('My Socket Error'));
-
-      const parentSpanId = '5c1c63257de34c67';
-      const startTime = 1566156729709;
-      const duration = 2000;
-
-      const span1: ReadableSpan = {
-        name: 'my-span',
-        kind: api.SpanKind.INTERNAL,
-        parentSpanId,
-        spanContext: {
-          traceId: 'd4cda95b652f4a1592b449d5929fda1b',
-          spanId: '6e0c63257de34c92',
-          traceFlags: TraceFlags.NONE,
-        },
-        startTime: [startTime, 0],
-        endTime: [startTime + duration, 0],
-        ended: true,
-        duration: [duration, 0],
-        status: {
-          code: api.SpanStatusCode.OK,
-        },
-        attributes: {
-          key1: 'value1',
-          key2: 'value2',
-          [ResourceAttributes.SERVICE_NAME]: span_service_name,
-        },
-        links: [],
-        events: [
-          {
-            name: 'my-event',
-            time: [startTime + 10, 0],
-            attributes: { key3: 'value3' },
-          },
-        ],
-        resource: Resource.empty(),
-        instrumentationLibrary: { name: 'default', version: '0.0.1' },
-      };
-      const span2: ReadableSpan = {
-        name: 'my-span',
-        kind: api.SpanKind.SERVER,
-        spanContext: {
-          traceId: 'd4cda95b652f4a1592b449d5929fda1b',
-          spanId: '6e0c63257de34c92',
-          traceFlags: TraceFlags.NONE,
-        },
-        startTime: [startTime, 0],
-        endTime: [startTime + duration, 0],
-        ended: true,
-        duration: [duration, 0],
-        status: {
-          code: api.SpanStatusCode.OK,
-        },
-        attributes: {
-          [ResourceAttributes.SERVICE_NAME]: span_service_name_prime,
-        },
-        links: [],
-        events: [],
-        resource: Resource.empty(),
-        instrumentationLibrary: { name: 'default', version: '0.0.1' },
-      };
-
-      const exporter = new ZipkinExporter({});
-
-      exporter.export([span1, span2], (result: ExportResult) => {
-        requestBody;
-        scope.done();
-        assert.equal(
-          requestBody[0].localEndpoint.serviceName,
-          span_service_name
-        );
-        assert.equal(
-          requestBody[1].localEndpoint.serviceName,
-          span_service_name_prime
-        );
-      });
-    });
-
-    it('should support setting url via env', () => {
-      process.env.OTEL_EXPORTER_ZIPKIN_ENDPOINT = 'http://localhost:9412';
-      const scope = nock('http://localhost:9412').post('/').reply(200);
+        .replyWithError(expectedError);
 
       const exporter = new ZipkinExporter({
         serviceName: 'my-service',
       });
 
       exporter.export([getReadableSpan()], (result: ExportResult) => {
+        assert.deepStrictEqual(result.code, ExportResultCode.FAILED);
+        assert.deepStrictEqual(result.error, expectedError);
         scope.done();
-        assert.strictEqual(result.code, ExportResultCode.SUCCESS);
       });
     });
   });
 
-  describe('shutdown', () => {
-    before(() => {
-      nock.disableNetConnect();
-    });
+  it('should set serviceName per-span if resource has one', () => {
+    const resource_service_name = 'resource_service_name';
+    const resource_service_name_prime = 'resource_service_name_prime';
 
+    let requestBody: zipkinTypes.Span[];
+    const scope = nock('http://localhost:9411')
+      .post('/api/v2/spans', body => {
+        requestBody = body;
+        return true;
+      })
+      .replyWithError(new Error('My Socket Error'));
+
+    const parentSpanId = '5c1c63257de34c67';
+    const startTime = 1566156729709;
+    const duration = 2000;
+
+    const span1: ReadableSpan = {
+      name: 'my-span',
+      kind: api.SpanKind.INTERNAL,
+      parentSpanId,
+      spanContext: () => ({
+        traceId: 'd4cda95b652f4a1592b449d5929fda1b',
+        spanId: '6e0c63257de34c92',
+        traceFlags: TraceFlags.NONE,
+      }),
+      startTime: [startTime, 0],
+      endTime: [startTime + duration, 0],
+      ended: true,
+      duration: [duration, 0],
+      status: {
+        code: api.SpanStatusCode.OK,
+      },
+      attributes: {
+        key1: 'value1',
+        key2: 'value2',
+      },
+      links: [],
+      events: [
+        {
+          name: 'my-event',
+          time: [startTime + 10, 0],
+          attributes: { key3: 'value3' },
+        },
+      ],
+      resource: new Resource({
+        [ResourceAttributes.SERVICE_NAME]: resource_service_name,
+      }),
+      instrumentationLibrary: { name: 'default', version: '0.0.1' },
+    };
+    const span2: ReadableSpan = {
+      name: 'my-span',
+      kind: api.SpanKind.SERVER,
+      spanContext: () => ({
+        traceId: 'd4cda95b652f4a1592b449d5929fda1b',
+        spanId: '6e0c63257de34c92',
+        traceFlags: TraceFlags.NONE,
+      }),
+      startTime: [startTime, 0],
+      endTime: [startTime + duration, 0],
+      ended: true,
+      duration: [duration, 0],
+      status: {
+        code: api.SpanStatusCode.OK,
+      },
+      attributes: {},
+      links: [],
+      events: [],
+      resource: new Resource({
+        [ResourceAttributes.SERVICE_NAME]: resource_service_name_prime,
+      }),
+      instrumentationLibrary: { name: 'default', version: '0.0.1' },
+    };
+
+    const exporter = new ZipkinExporter({});
+
+    exporter.export([span1, span2], (result: ExportResult) => {
+      requestBody;
+      scope.done();
+      assert.equal(
+        requestBody[0].localEndpoint.serviceName,
+        resource_service_name
+      );
+      assert.equal(
+        requestBody[1].localEndpoint.serviceName,
+        resource_service_name_prime
+      );
+    });
+  });
+
+  it('should set serviceName per-span if span has attribute', () => {
+    const span_service_name = 'span_service_name';
+    const span_service_name_prime = 'span_service_name_prime';
+
+    let requestBody: any;
+    const scope = nock('http://localhost:9411')
+      .post('/api/v2/spans', body => {
+        requestBody = body;
+        return true;
+      })
+      .replyWithError(new Error('My Socket Error'));
+
+    const parentSpanId = '5c1c63257de34c67';
+    const startTime = 1566156729709;
+    const duration = 2000;
+
+    const span1: ReadableSpan = {
+      name: 'my-span',
+      kind: api.SpanKind.INTERNAL,
+      parentSpanId,
+      spanContext: () => ({
+        traceId: 'd4cda95b652f4a1592b449d5929fda1b',
+        spanId: '6e0c63257de34c92',
+        traceFlags: TraceFlags.NONE,
+      }),
+      startTime: [startTime, 0],
+      endTime: [startTime + duration, 0],
+      ended: true,
+      duration: [duration, 0],
+      status: {
+        code: api.SpanStatusCode.OK,
+      },
+      attributes: {
+        key1: 'value1',
+        key2: 'value2',
+        [ResourceAttributes.SERVICE_NAME]: span_service_name,
+      },
+      links: [],
+      events: [
+        {
+          name: 'my-event',
+          time: [startTime + 10, 0],
+          attributes: { key3: 'value3' },
+        },
+      ],
+      resource: Resource.empty(),
+      instrumentationLibrary: { name: 'default', version: '0.0.1' },
+    };
+    const span2: ReadableSpan = {
+      name: 'my-span',
+      kind: api.SpanKind.SERVER,
+      spanContext: () => ({
+        traceId: 'd4cda95b652f4a1592b449d5929fda1b',
+        spanId: '6e0c63257de34c92',
+        traceFlags: TraceFlags.NONE,
+      }),
+      startTime: [startTime, 0],
+      endTime: [startTime + duration, 0],
+      ended: true,
+      duration: [duration, 0],
+      status: {
+        code: api.SpanStatusCode.OK,
+      },
+      attributes: {
+        [ResourceAttributes.SERVICE_NAME]: span_service_name_prime,
+      },
+      links: [],
+      events: [],
+      resource: Resource.empty(),
+      instrumentationLibrary: { name: 'default', version: '0.0.1' },
+    };
+
+    const exporter = new ZipkinExporter({});
+
+    exporter.export([span1, span2], (result: ExportResult) => {
+      requestBody;
+      scope.done();
+      assert.equal(
+        requestBody[0].localEndpoint.serviceName,
+        span_service_name
+      );
+      assert.equal(
+        requestBody[1].localEndpoint.serviceName,
+        span_service_name_prime
+      );
+    });
+  });
+
+  describe('when env.OTEL_EXPORTER_ZIPKIN_ENDPOINT is set', () => {
+    before(() => {
+      process.env.OTEL_EXPORTER_ZIPKIN_ENDPOINT = 'http://localhost:9412';
+    })
     after(() => {
-      nock.enableNetConnect();
+      delete process.env.OTEL_EXPORTER_ZIPKIN_ENDPOINT
+    })
+    it('should use url from env', () => {
+      const scope = nock('http://localhost:9412').post('/').reply(200);
+  
+      const exporter = new ZipkinExporter({
+        serviceName: 'my-service',
+      });
+  
+      exporter.export([getReadableSpan()], (result: ExportResult) => {
+        scope.done();
+        assert.strictEqual(result.code, ExportResultCode.SUCCESS);
+      });
     });
   });
 });

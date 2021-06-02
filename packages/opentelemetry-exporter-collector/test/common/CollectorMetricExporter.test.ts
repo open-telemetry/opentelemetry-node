@@ -41,9 +41,6 @@ class CollectorMetricExporter extends CollectorExporterBase<
   getDefaultUrl(config: CollectorExporterConfig) {
     return config.url || '';
   }
-  getDefaultServiceName(config: CollectorExporterConfig): string {
-    return config.serviceName || 'collector-metric-exporter';
-  }
   convert(
     metrics: MetricRecord[]
   ): collectorTypes.opentelemetryProto.collector.metrics.v1.ExportMetricsServiceRequest {
@@ -67,7 +64,6 @@ describe('CollectorMetricExporter - common', () => {
       onInitSpy = sinon.stub(CollectorMetricExporter.prototype, 'onInit');
       collectorExporterConfig = {
         hostname: 'foo',
-        serviceName: 'bar',
         attributes: {},
         url: 'http://foo.bar.com',
       };
@@ -100,10 +96,6 @@ describe('CollectorMetricExporter - common', () => {
         assert.strictEqual(collectorExporter.hostname, 'foo');
       });
 
-      it('should set serviceName', () => {
-        assert.strictEqual(collectorExporter.serviceName, 'bar');
-      });
-
       it('should set url', () => {
         assert.strictEqual(collectorExporter.url, 'http://foo.bar.com');
       });
@@ -112,13 +104,6 @@ describe('CollectorMetricExporter - common', () => {
     describe('when config is missing certain params', () => {
       beforeEach(() => {
         collectorExporter = new CollectorMetricExporter();
-      });
-
-      it('should set default serviceName', () => {
-        assert.strictEqual(
-          collectorExporter.serviceName,
-          'collector-metric-exporter'
-        );
       });
     });
   });
@@ -201,7 +186,6 @@ describe('CollectorMetricExporter - common', () => {
       );
       collectorExporterConfig = {
         hostname: 'foo',
-        serviceName: 'bar',
         attributes: {},
         url: 'http://foo.bar.com',
       };

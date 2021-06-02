@@ -1,18 +1,23 @@
 receivers:
-  opencensus:
-    endpoint: 0.0.0.0:55678
+  otlp:
+    protocols:
+      grpc:
+      http:
+        cors_allowed_origins:
+        - http://*
+        - https://*
 
 exporters:
-  zipkin:
-    url: "http://zipkin-all-in-one:9411/api/v2/spans"
+  jaeger:
+    endpoint: jaeger-all-in-one:14250
+    insecure: true
 
 processors:
   batch:
-  queued_retry:
 
 service:
   pipelines:
     traces:
-      receivers: [opencensus]
-      exporters: [zipkin]
-      processors: [batch, queued_retry]
+      receivers: [otlp]
+      exporters: [jaeger]
+      processors: [batch]

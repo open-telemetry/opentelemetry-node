@@ -55,7 +55,7 @@ export abstract class BaseObserverMetric
     );
   }
 
-  async getMetricRecord(): Promise<MetricRecord[]> {
+  override async getMetricRecord(): Promise<MetricRecord[]> {
     const observerResult = new ObserverResult();
     await this._callback(observerResult);
 

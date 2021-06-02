@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { SpanAttributes, TimedEvent } from '@opentelemetry/api';
+import { SpanAttributes } from '@opentelemetry/api';
+import { TimedEvent } from '@opentelemetry/tracing';
 import * as assert from 'assert';
 import * as transform from '../../src/transform';
 import {

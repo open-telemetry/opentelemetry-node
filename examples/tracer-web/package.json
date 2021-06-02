@@ -34,7 +34,7 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "@opentelemetry/api": "^1.0.0-rc.0",
+    "@opentelemetry/api": "^0.20.0",
     "@opentelemetry/context-zone": "0.19.0",
     "@opentelemetry/core": "0.19.0",
     "@opentelemetry/exporter-collector": "0.19.0",

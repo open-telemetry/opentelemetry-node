@@ -124,7 +124,6 @@ const testCollectorExporter = (params: TestParams) =>
           )
         : undefined;
       collectorExporter = new CollectorTraceExporter({
-        serviceName: 'basic-service',
         url: 'grpcs://' + address,
         credentials,
         metadata: params.metadata,
@@ -146,8 +145,7 @@ const testCollectorExporter = (params: TestParams) =>
         // Need to stub/spy on the underlying logger as the 'diag' instance is global
         const spyLoggerWarn = sinon.stub(diag, 'warn');
         collectorExporter = new CollectorTraceExporter({
-          serviceName: 'basic-service',
-          url: address,
+          url: `http://${address}`,
           headers: {
             foo: 'bar',
           },
@@ -158,8 +156,7 @@ const testCollectorExporter = (params: TestParams) =>
       it('should warn about path in url', () => {
         const spyLoggerWarn = sinon.stub(diag, 'warn');
         collectorExporter = new CollectorTraceExporter({
-          serviceName: 'basic-service',
-          url: address + '/v1/trace',
+          url: `http://${address}/v1/trace`,
         });
         const args = spyLoggerWarn.args[0];
         assert.strictEqual(
@@ -215,7 +212,7 @@ describe('CollectorTraceExporter - node (getDefaultUrl)', () => {
     const url = 'http://foo.bar.com';
     const collectorExporter = new CollectorTraceExporter({ url });
     setTimeout(() => {
-      assert.strictEqual(collectorExporter['url'], url);
+      assert.strictEqual(collectorExporter['url'], 'foo.bar.com');
       done();
     });
   });
@@ -228,7 +225,7 @@ describe('when configuring via environment', () => {
     const collectorExporter = new CollectorTraceExporter();
     assert.strictEqual(
       collectorExporter.url,
-      envSource.OTEL_EXPORTER_OTLP_ENDPOINT
+      'foo.bar'
     );
     envSource.OTEL_EXPORTER_OTLP_ENDPOINT = '';
   });
@@ -238,7 +235,7 @@ describe('when configuring via environment', () => {
     const collectorExporter = new CollectorTraceExporter();
     assert.strictEqual(
       collectorExporter.url,
-      envSource.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+      'foo.traces'
     );
     envSource.OTEL_EXPORTER_OTLP_ENDPOINT = '';
     envSource.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT = '';

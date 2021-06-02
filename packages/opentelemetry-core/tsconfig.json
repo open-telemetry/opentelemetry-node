@@ -10,9 +10,6 @@
   ],
   "references": [
     {
-      "path": "../opentelemetry-propagator-b3"
-    },
-    {
       "path": "../opentelemetry-semantic-conventions"
     }
   ]

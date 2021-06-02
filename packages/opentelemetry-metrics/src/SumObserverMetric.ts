@@ -45,7 +45,7 @@ export class SumObserverMetric
     );
   }
 
-  protected _processResults(observerResult: ObserverResult) {
+  protected override _processResults(observerResult: ObserverResult) {
     observerResult.values.forEach((value, labels) => {
       const instrument = this.bind(labels);
       // SumObserver is monotonic which means it should only accept values

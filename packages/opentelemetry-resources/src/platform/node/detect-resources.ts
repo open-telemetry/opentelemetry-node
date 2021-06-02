@@ -48,7 +48,7 @@ export const detectResources = async (
 
   return resources.reduce(
     (acc, resource) => acc.merge(resource),
-    Resource.createTelemetrySDKResource()
+    Resource.empty()
   );
 };
 

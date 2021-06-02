@@ -95,10 +95,12 @@ const parentIdHex = '78a8915098864388';
 export const mockedReadableSpan: ReadableSpan = {
   name: 'documentFetch',
   kind: 0,
-  spanContext: {
-    traceId: traceIdHex,
-    spanId: spanIdHex,
-    traceFlags: TraceFlags.SAMPLED,
+  spanContext: () => {
+    return {
+      traceId: traceIdHex,
+      spanId: spanIdHex,
+      traceFlags: TraceFlags.SAMPLED,
+    };
   },
   parentSpanId: parentIdHex,
   startTime: [1574120165, 429803070],
@@ -111,6 +113,7 @@ export const mockedReadableSpan: ReadableSpan = {
       context: {
         traceId: traceIdHex,
         spanId: parentIdHex,
+        traceFlags: TraceFlags.SAMPLED,
       },
       attributes: { component: 'document-load' },
     },

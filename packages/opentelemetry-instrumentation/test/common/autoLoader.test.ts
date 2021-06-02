@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-import { NOOP_TRACER_PROVIDER } from '@opentelemetry/api';
+import { Tracer, TracerProvider } from '@opentelemetry/api';
 import { NOOP_METER_PROVIDER } from '@opentelemetry/api-metrics';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import { InstrumentationBase, registerInstrumentations } from '../../src';
 
+class DummyTracerProvider implements TracerProvider {
+  getTracer(name: string, version?: string): Tracer {
+    throw new Error("not implemented");
+  }
+}
 class FooInstrumentation extends InstrumentationBase {
   init() {
     return [];
   }
-  enable() {}
-  disable() {}
+  override enable() {}
+  override disable() {}
 }
 
 describe('autoLoader', () => {
@@ -45,7 +50,7 @@ describe('autoLoader', () => {
       let enableSpy: sinon.SinonSpy;
       let setTracerProviderSpy: sinon.SinonSpy;
       let setsetMeterProvider: sinon.SinonSpy;
-      const tracerProvider = NOOP_TRACER_PROVIDER;
+      const tracerProvider = new DummyTracerProvider();
       const meterProvider = NOOP_METER_PROVIDER;
       beforeEach(() => {
         instrumentation = new FooInstrumentation('foo', '1', {});

@@ -19,6 +19,7 @@ import {
   ROOT_CONTEXT,
   SpanKind,
   TraceFlags,
+  context,
 } from '@opentelemetry/api';
 import { BasicTracerProvider, Span } from '@opentelemetry/tracing';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
@@ -31,6 +32,8 @@ import * as url from 'url';
 import { IgnoreMatcher } from '../../src/types';
 import * as utils from '../../src/utils';
 import { AttributeNames } from '../../src/enums/AttributeNames';
+import { RPCType, setRPCMetadata } from '@opentelemetry/core';
+import { AsyncHooksContextManager } from '@opentelemetry/context-async-hooks';
 
 describe('Utility', () => {
   describe('parseResponseStatus()', () => {
@@ -285,16 +288,30 @@ describe('Utility', () => {
   });
 
   describe('getIncomingRequestAttributesOnResponse()', () => {
-    it('should correctly parse the middleware stack if present', () => {
+    it('should correctly parse the middleware stack if present', done => {
+      context.setGlobalContextManager(new AsyncHooksContextManager().enable());
       const request = {
-        __ot_middlewares: ['/test', '/toto', '/'],
         socket: {},
-      } as IncomingMessage & { __ot_middlewares?: string[] };
-
-      const attributes = utils.getIncomingRequestAttributesOnResponse(request, {
-        socket: {},
-      } as ServerResponse & { socket: Socket });
-      assert.deepEqual(attributes[SemanticAttributes.HTTP_ROUTE], '/test/toto');
+      } as IncomingMessage;
+      context.with(
+        setRPCMetadata(context.active(), {
+          type: RPCType.HTTP,
+          route: '/user/:id',
+          span: (null as unknown) as Span,
+        }),
+        () => {
+          const attributes = utils.getIncomingRequestAttributesOnResponse(
+            request,
+            {} as ServerResponse
+          );
+          assert.deepStrictEqual(
+            attributes[SemanticAttributes.HTTP_ROUTE],
+            '/user/:id'
+          );
+          context.disable();
+          return done();
+        }
+      );
     });
 
     it('should succesfully process without middleware stack', () => {

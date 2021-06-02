@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import * as assert from 'assert';
 import {
+  context,
+  createContextKey,
+  INVALID_TRACEID,
+  ROOT_CONTEXT,
   Sampler,
   SamplingDecision,
-  TraceFlags,
-  ROOT_CONTEXT,
-  suppressInstrumentation,
   SpanContext,
-  INVALID_TRACEID,
-  setSpanContext,
+  trace,
+  TraceFlags
 } from '@opentelemetry/api';
-import { BasicTracerProvider, Tracer, Span } from '../src';
+import { getSpan } from '@opentelemetry/api/build/src/trace/context-utils';
 import {
-  InstrumentationLibrary,
-  AlwaysOnSampler,
   AlwaysOffSampler,
+  AlwaysOnSampler,
+  InstrumentationLibrary,
+  suppressTracing
 } from '@opentelemetry/core';
+import * as assert from 'assert';
+import { BasicTracerProvider, Span, Tracer } from '../src';
+import { TestStackContextManager } from './export/TestStackContextManager';
+import * as sinon from 'sinon';
 
 describe('Tracer', () => {
   const tracerProvider = new BasicTracerProvider();
@@ -49,7 +53,13 @@ describe('Tracer', () => {
     }
   }
 
+  beforeEach(() => {
+    const contextManager = new TestStackContextManager().enable();
+    context.setGlobalContextManager(contextManager);
+  });
+
   afterEach(() => {
+    context.disable();
     delete envSource.OTEL_TRACES_SAMPLER;
     delete envSource.OTEL_TRACES_SAMPLER_ARG;
   });
@@ -121,8 +131,8 @@ describe('Tracer', () => {
     assert.strictEqual(lib.version, '0.0.1');
   });
 
-  describe('when suppressInstrumentation true', () => {
-    const context = suppressInstrumentation(ROOT_CONTEXT);
+  describe('when suppressTracing true', () => {
+    const context = suppressTracing(ROOT_CONTEXT);
 
     it('should return cached no-op span ', done => {
       const tracer = new Tracer(
@@ -154,10 +164,10 @@ describe('Tracer', () => {
     const span = tracer.startSpan(
       'aSpan',
       undefined,
-      setSpanContext(ROOT_CONTEXT, parent)
+      trace.setSpanContext(ROOT_CONTEXT, parent)
     );
     assert.strictEqual((span as Span).parentSpanId, parent.spanId);
-    assert.strictEqual(span.context().traceId, parent.traceId);
+    assert.strictEqual(span.spanContext().traceId, parent.traceId);
   });
 
   it('should not use spanId from invalid parent', () => {
@@ -174,7 +184,7 @@ describe('Tracer', () => {
     const span = tracer.startSpan(
       'aSpan',
       undefined,
-      setSpanContext(ROOT_CONTEXT, parent)
+      trace.setSpanContext(ROOT_CONTEXT, parent)
     );
     assert.strictEqual((span as Span).parentSpanId, undefined);
   });
@@ -188,7 +198,7 @@ describe('Tracer', () => {
       tracerProvider
     );
     const span = tracer.startSpan('my-span');
-    const context = span.context();
+    const context = span.spanContext();
     assert.strictEqual(context.traceFlags, TraceFlags.SAMPLED);
     span.end();
   });
@@ -202,7 +212,7 @@ describe('Tracer', () => {
       tracerProvider
     );
     const span = tracer.startSpan('my-span');
-    const context = span.context();
+    const context = span.spanContext();
     assert.strictEqual(context.traceFlags, TraceFlags.SAMPLED);
     span.end();
   });
@@ -216,8 +226,74 @@ describe('Tracer', () => {
       tracerProvider
     );
     const span = tracer.startSpan('my-span');
-    const context = span.context();
+    const context = span.spanContext();
     assert.strictEqual(context.traceFlags, TraceFlags.NONE);
     span.end();
+  });
+
+  it('should start an active span with name and function args', () => {
+    const tracer = new Tracer(
+      { name: 'default', version: '0.0.1' },
+      { sampler: new TestSampler() },
+      tracerProvider
+    );
+
+    const spy = sinon.spy(tracer, "startSpan");
+
+    assert.strictEqual(tracer.startActiveSpan('my-span', span => {
+      try {
+        assert(spy.calledWith('my-span'))
+        assert.strictEqual(getSpan(context.active()), span)
+        return 1
+      } finally {
+        span.end();
+      }
+    }), 1);
+  });
+
+  it('should start an active span with name, options and function args', () => {
+
+    const tracer = new Tracer(
+      { name: 'default', version: '0.0.1' },
+      { sampler: new TestSampler() },
+      tracerProvider
+    );
+
+    const spy = sinon.spy(tracer, "startSpan");
+
+    assert.strictEqual(tracer.startActiveSpan('my-span', {attributes: {foo: 'bar'}}, span => {
+      try {
+        assert(spy.calledWith('my-span', {attributes: {foo: 'bar'}}))
+        assert.strictEqual(getSpan(context.active()), span)
+        return 1
+      } finally {
+        span.end();
+      }
+    }), 1);
+  });
+
+  it('should start an active span with name, options, context and function args', () => {
+    const tracer = new Tracer(
+      { name: 'default', version: '0.0.1' },
+      { sampler: new TestSampler() },
+      tracerProvider
+    );
+
+    const ctxKey = createContextKey('foo');
+
+    const ctx = context.active().setValue(ctxKey, 'bar')
+
+    const spy = sinon.spy(tracer, "startSpan");
+
+    assert.strictEqual(tracer.startActiveSpan('my-span', {attributes: {foo: 'bar'}}, ctx, span => {
+      try {
+        assert(spy.calledWith('my-span', {attributes: {foo: 'bar'}}, ctx))
+        assert.strictEqual(getSpan(context.active()), span)
+        assert.strictEqual(ctx.getValue(ctxKey), 'bar')
+        return 1
+      } finally {
+        span.end();
+      }
+    }), 1);
   });
 });

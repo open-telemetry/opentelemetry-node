@@ -17,13 +17,10 @@
 import {
   defaultTextMapGetter,
   defaultTextMapSetter,
-  getSpanContext,
   INVALID_SPANID,
   INVALID_TRACEID,
   ROOT_CONTEXT,
-  setSpanContext,
-  SpanContext,
-  suppressInstrumentation,
+  SpanContext, trace,
   TraceFlags,
 } from '@opentelemetry/api';
 import * as assert from 'assert';
@@ -32,6 +29,7 @@ import {
   TRACE_PARENT_HEADER,
   TRACE_STATE_HEADER,
 } from '../../src/trace/HttpTraceContextPropagator';
+import { suppressTracing } from '../../src/trace/suppress-tracing';
 import { TraceState } from '../../src/trace/TraceState';
 
 describe('HttpTraceContextPropagator', () => {
@@ -51,7 +49,7 @@ describe('HttpTraceContextPropagator', () => {
       };
 
       httpTraceContext.inject(
-        setSpanContext(ROOT_CONTEXT, spanContext),
+        trace.setSpanContext(ROOT_CONTEXT, spanContext),
         carrier,
         defaultTextMapSetter
       );
@@ -71,7 +69,7 @@ describe('HttpTraceContextPropagator', () => {
       };
 
       httpTraceContext.inject(
-        setSpanContext(ROOT_CONTEXT, spanContext),
+        trace.setSpanContext(ROOT_CONTEXT, spanContext),
         carrier,
         defaultTextMapSetter
       );
@@ -90,7 +88,7 @@ describe('HttpTraceContextPropagator', () => {
       };
 
       httpTraceContext.inject(
-        suppressInstrumentation(setSpanContext(ROOT_CONTEXT, spanContext)),
+        suppressTracing(trace.setSpanContext(ROOT_CONTEXT, spanContext)),
         carrier,
         defaultTextMapSetter
       );
@@ -107,7 +105,7 @@ describe('HttpTraceContextPropagator', () => {
       };
 
       httpTraceContext.inject(
-        suppressInstrumentation(setSpanContext(ROOT_CONTEXT, spanContext)),
+        suppressTracing(trace.setSpanContext(ROOT_CONTEXT, spanContext)),
         carrier,
         defaultTextMapSetter
       );
@@ -120,7 +118,7 @@ describe('HttpTraceContextPropagator', () => {
     it('should extract context of a sampled span from carrier', () => {
       carrier[TRACE_PARENT_HEADER] =
         '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01';
-      const extractedSpanContext = getSpanContext(
+      const extractedSpanContext = trace.getSpanContext(
         httpTraceContext.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
       );
 
@@ -135,7 +133,7 @@ describe('HttpTraceContextPropagator', () => {
     it('should extract context of a sampled span from carrier using a future version', () => {
       carrier[TRACE_PARENT_HEADER] =
         'cc-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01';
-      const extractedSpanContext = getSpanContext(
+      const extractedSpanContext = trace.getSpanContext(
         httpTraceContext.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
       );
 
@@ -150,7 +148,7 @@ describe('HttpTraceContextPropagator', () => {
     it('should extract context of a sampled span from carrier using a future version and future fields', () => {
       carrier[TRACE_PARENT_HEADER] =
         'cc-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01-what-the-future-will-be-like';
-      const extractedSpanContext = getSpanContext(
+      const extractedSpanContext = trace.getSpanContext(
         httpTraceContext.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
       );
 
@@ -164,7 +162,7 @@ describe('HttpTraceContextPropagator', () => {
 
     it('returns null if traceparent header is missing', () => {
       assert.deepStrictEqual(
-        getSpanContext(
+        trace.getSpanContext(
           httpTraceContext.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
         ),
         undefined
@@ -174,7 +172,7 @@ describe('HttpTraceContextPropagator', () => {
     it('returns null if traceparent header is invalid', () => {
       carrier[TRACE_PARENT_HEADER] = 'invalid!';
       assert.deepStrictEqual(
-        getSpanContext(
+        trace.getSpanContext(
           httpTraceContext.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
         ),
         undefined
@@ -187,7 +185,7 @@ describe('HttpTraceContextPropagator', () => {
         '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01-extra';
 
       assert.deepStrictEqual(
-        getSpanContext(
+        trace.getSpanContext(
           httpTraceContext.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
         ),
         undefined
@@ -198,7 +196,7 @@ describe('HttpTraceContextPropagator', () => {
       carrier[TRACE_PARENT_HEADER] = [
         '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01',
       ];
-      const extractedSpanContext = getSpanContext(
+      const extractedSpanContext = trace.getSpanContext(
         httpTraceContext.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
       );
       assert.deepStrictEqual(extractedSpanContext, {
@@ -213,7 +211,7 @@ describe('HttpTraceContextPropagator', () => {
       carrier[TRACE_PARENT_HEADER] =
         '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01';
       carrier[TRACE_STATE_HEADER] = 'foo=bar,baz=qux';
-      const extractedSpanContext = getSpanContext(
+      const extractedSpanContext = trace.getSpanContext(
         httpTraceContext.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
       );
 
@@ -231,7 +229,7 @@ describe('HttpTraceContextPropagator', () => {
       carrier[TRACE_PARENT_HEADER] =
         '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01';
       carrier[TRACE_STATE_HEADER] = ['foo=bar,baz=qux', 'quux=quuz'];
-      const extractedSpanContext = getSpanContext(
+      const extractedSpanContext = trace.getSpanContext(
         httpTraceContext.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
       );
       assert.deepStrictEqual(extractedSpanContext, {
@@ -285,7 +283,7 @@ describe('HttpTraceContextPropagator', () => {
       Object.getOwnPropertyNames(testCases).forEach(testCase => {
         carrier[TRACE_PARENT_HEADER] = testCases[testCase];
 
-        const extractedSpanContext = getSpanContext(
+        const extractedSpanContext = trace.getSpanContext(
           httpTraceContext.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
         );
         assert.deepStrictEqual(extractedSpanContext, undefined, testCase);
@@ -296,7 +294,7 @@ describe('HttpTraceContextPropagator', () => {
       carrier[TRACE_PARENT_HEADER] =
         '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01';
       carrier[TRACE_STATE_HEADER] = 'foo=1 \t , \t bar=2, \t baz=3 ';
-      const extractedSpanContext = getSpanContext(
+      const extractedSpanContext = trace.getSpanContext(
         httpTraceContext.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
       );
 

@@ -21,7 +21,6 @@ import { toCollectorExportTraceServiceRequest } from '../../transform';
 import * as collectorTypes from '../../types';
 import { getEnv, baggageUtils } from '@opentelemetry/core';
 
-const DEFAULT_SERVICE_NAME = 'collector-trace-exporter';
 const DEFAULT_COLLECTOR_URL = 'http://localhost:55681/v1/traces';
 
 /**
@@ -56,9 +55,5 @@ export class CollectorTraceExporter
       : getEnv().OTEL_EXPORTER_OTLP_ENDPOINT.length > 0
       ? getEnv().OTEL_EXPORTER_OTLP_ENDPOINT
       : DEFAULT_COLLECTOR_URL;
-  }
-
-  getDefaultServiceName(config: CollectorExporterConfigBase): string {
-    return config.serviceName ?? DEFAULT_SERVICE_NAME;
   }
 }

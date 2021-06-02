@@ -17,7 +17,6 @@
 import {
   SpanStatusCode,
   Exception,
-  LinkContext,
   ROOT_CONTEXT,
   SpanContext,
   SpanKind,
@@ -37,9 +36,9 @@ const performanceTimeOrigin = hrTime();
 
 describe('Span', () => {
   const tracer = new BasicTracerProvider({
-    traceParams: {
-      numberOfAttributesPerSpan: 100,
-      numberOfEventsPerSpan: 100,
+    spanLimits: {
+      attributeCountLimit: 100,
+      eventCountLimit: 100,
     },
   }).getTracer('default');
   const name = 'span1';
@@ -48,9 +47,10 @@ describe('Span', () => {
     spanId: '6e0c63257de34c92',
     traceFlags: TraceFlags.SAMPLED,
   };
-  const linkContext: LinkContext = {
+  const linkContext: SpanContext = {
     traceId: 'e4cda95b652f4a1592b449d5929fda1b',
     spanId: '7e0c63257de34c92',
+    traceFlags: TraceFlags.SAMPLED
   };
 
   it('should create a Span instance', () => {
@@ -179,7 +179,7 @@ describe('Span', () => {
       spanContext,
       SpanKind.CLIENT
     );
-    const context = span.context();
+    const context = span.spanContext();
     assert.strictEqual(context.traceId, spanContext.traceId);
     assert.strictEqual(context.traceFlags, TraceFlags.SAMPLED);
     assert.strictEqual(context.traceState, undefined);
@@ -312,9 +312,10 @@ describe('Span', () => {
       spanId: '5e0c63257de34c92',
       traceFlags: TraceFlags.SAMPLED,
     };
-    const linkContext: LinkContext = {
+    const linkContext: SpanContext = {
       traceId: 'b3cda95b652f4a1592b449d5929fda1b',
       spanId: '6e0c63257de34c92',
+      traceFlags: TraceFlags.SAMPLED
     };
     const attributes = { attr1: 'value', attr2: 123, attr3: true };
     const span = new Span(
@@ -380,7 +381,7 @@ describe('Span', () => {
     assert.strictEqual(span.name, 'my-span');
     assert.strictEqual(span.kind, SpanKind.INTERNAL);
     assert.strictEqual(span.parentSpanId, parentId);
-    assert.strictEqual(span.spanContext.traceId, spanContext.traceId);
+    assert.strictEqual(span.spanContext().traceId, spanContext.traceId);
     assert.deepStrictEqual(span.status, {
       code: SpanStatusCode.UNSET,
     });

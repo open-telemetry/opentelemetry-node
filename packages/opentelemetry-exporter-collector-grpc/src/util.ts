@@ -51,15 +51,17 @@ export function onInit<ExportItem, ServiceRequest>(
       const packageObject: any = grpc.loadPackageDefinition(packageDefinition);
 
       if (collector.getServiceClientType() === ServiceClientType.SPANS) {
-        collector.serviceClient = new packageObject.opentelemetry.proto.collector.trace.v1.TraceService(
-          collector.serverAddress,
-          credentials
-        );
+        collector.serviceClient =
+          new packageObject.opentelemetry.proto.collector.trace.v1.TraceService(
+            collector.url,
+            credentials,
+          );
       } else {
-        collector.serviceClient = new packageObject.opentelemetry.proto.collector.metrics.v1.MetricsService(
-          collector.serverAddress,
-          credentials
-        );
+        collector.serviceClient =
+          new packageObject.opentelemetry.proto.collector.metrics.v1.MetricsService(
+            collector.url,
+            credentials,
+          );
       }
 
       if (collector.grpcQueue.length > 0) {

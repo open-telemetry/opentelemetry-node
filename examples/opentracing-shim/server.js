@@ -37,7 +37,7 @@ async function handleRequest(req, res) {
 
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.write(
-    JSON.stringify({ status: 'OK', traceId: span.context().toTraceId() }),
+    JSON.stringify({ status: 'OK', traceId: span.spanContext().toTraceId() }),
   );
 
   res.end();

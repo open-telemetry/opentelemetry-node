@@ -32,7 +32,8 @@
     "lint:examples": "eslint ./examples/**/*.js",
     "lint:examples:fix": "eslint ./examples/**/*.js --fix",
     "lint:markdown": "./node_modules/.bin/markdownlint $(git ls-files '*.md') -i ./CHANGELOG.md",
-    "lint:markdown:fix": "./node_modules/.bin/markdownlint $(git ls-files '*.md') -i ./CHANGELOG.md --fix"
+    "lint:markdown:fix": "./node_modules/.bin/markdownlint $(git ls-files '*.md') -i ./CHANGELOG.md --fix",
+    "reset": "lerna clean -y && rm -rf node_modules && npm i && npm run compile && npm run lint:fix"
   },
   "repository": "open-telemetry/opentelemetry-js",
   "keywords": [
@@ -47,21 +48,21 @@
   "devDependencies": {
     "@commitlint/cli": "12.1.1",
     "@commitlint/config-conventional": "12.1.1",
-    "@typescript-eslint/eslint-plugin": "4.22.0",
-    "@typescript-eslint/parser": "4.22.0",
+    "@typescript-eslint/eslint-plugin": "4.25.0",
+    "@typescript-eslint/parser": "4.25.0",
     "beautify-benchmark": "0.2.4",
     "benchmark": "2.1.4",
-    "eslint": "7.25.0",
+    "eslint": "7.27.0",
     "eslint-config-airbnb-base": "14.2.1",
     "eslint-plugin-header": "3.1.1",
-    "eslint-plugin-import": "2.22.1",
+    "eslint-plugin-import": "2.23.3",
+    "eslint-plugin-node": "11.1.0",
     "gh-pages": "3.1.0",
-    "gts": "3.1.0",
     "husky": "4.3.8",
     "lerna": "3.22.1",
     "lerna-changelog": "1.0.1",
     "markdownlint-cli": "0.27.1",
-    "typescript": "4.2.4",
+    "typescript": "4.3.2",
     "update-ts-references": "2.3.0"
   },
   "husky": {

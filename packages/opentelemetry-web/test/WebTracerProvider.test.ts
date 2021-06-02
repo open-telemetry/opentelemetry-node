@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { context, getSpan, setSpan, ContextManager } from '@opentelemetry/api';
+import { context, ContextManager, trace } from '@opentelemetry/api';
 import { ZoneContextManager } from '@opentelemetry/context-zone';
 import { B3Propagator } from '@opentelemetry/propagator-b3';
 import { Resource } from '@opentelemetry/resources';
@@ -91,9 +91,9 @@ describe('WebTracerProvider', () => {
 
         const rootSpan = webTracerWithZone.startSpan('rootSpan');
 
-        context.with(setSpan(context.active(), rootSpan), () => {
+        context.with(trace.setSpan(context.active(), rootSpan), () => {
           assert.ok(
-            getSpan(context.active()) === rootSpan,
+            trace.getSpan(context.active()) === rootSpan,
             'Current span is rootSpan'
           );
           const concurrentSpan1 = webTracerWithZone.startSpan(
@@ -103,19 +103,19 @@ describe('WebTracerProvider', () => {
             'concurrentSpan2'
           );
 
-          context.with(setSpan(context.active(), concurrentSpan1), () => {
+          context.with(trace.setSpan(context.active(), concurrentSpan1), () => {
             setTimeout(() => {
               assert.ok(
-                getSpan(context.active()) === concurrentSpan1,
+                trace.getSpan(context.active()) === concurrentSpan1,
                 'Current span is concurrentSpan1'
               );
             }, 10);
           });
 
-          context.with(setSpan(context.active(), concurrentSpan2), () => {
+          context.with(trace.setSpan(context.active(), concurrentSpan2), () => {
             setTimeout(() => {
               assert.ok(
-                getSpan(context.active()) === concurrentSpan2,
+                trace.getSpan(context.active()) === concurrentSpan2,
                 'Current span is concurrentSpan2'
               );
               done();

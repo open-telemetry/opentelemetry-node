@@ -38,7 +38,7 @@ describe('API', () => {
     });
 
     class TestMeterProvider extends NoopMeterProvider {
-      getMeter() {
+      override getMeter() {
         return dummyMeter;
       }
     }

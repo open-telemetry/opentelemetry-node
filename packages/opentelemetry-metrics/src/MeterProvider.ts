@@ -18,6 +18,7 @@ import * as api from '@opentelemetry/api-metrics';
 import { Resource } from '@opentelemetry/resources';
 import { Meter } from '.';
 import { DEFAULT_CONFIG, MeterConfig } from './types';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const merge = require('lodash.merge');
 
 /**
@@ -32,8 +33,8 @@ export class MeterProvider implements api.MeterProvider {
 
   constructor(config: MeterConfig = {}) {
     const mergedConfig = merge({}, DEFAULT_CONFIG, config);
-    this.resource =
-      mergedConfig.resource ?? Resource.createTelemetrySDKResource();
+    this.resource = mergedConfig.resource || Resource.empty();
+    this.resource = Resource.default().merge(this.resource);
     this._config = Object.assign({}, mergedConfig, {
       resource: this.resource,
     });

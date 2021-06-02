@@ -54,7 +54,6 @@ describe('CollectorTraceExporter - web', () => {
     beforeEach(() => {
       collectorExporterConfig = {
         hostname: 'foo',
-        serviceName: 'bar',
         attributes: {},
         url: 'http://foo.bar.com',
       };

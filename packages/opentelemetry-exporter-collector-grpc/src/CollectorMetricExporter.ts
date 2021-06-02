@@ -22,8 +22,8 @@ import { MetricRecord, MetricExporter } from '@opentelemetry/metrics';
 import { CollectorExporterConfigNode, ServiceClientType } from './types';
 import { CollectorExporterNodeBase } from './CollectorExporterNodeBase';
 import { getEnv } from '@opentelemetry/core';
+import { validateAndNormalizeUrl } from './util';
 
-const DEFAULT_SERVICE_NAME = 'collector-metric-exporter';
 const DEFAULT_COLLECTOR_URL = 'localhost:4317';
 
 /**
@@ -50,16 +50,12 @@ export class CollectorMetricExporter
 
   getDefaultUrl(config: CollectorExporterConfigNode) {
     return typeof config.url === 'string'
-      ? config.url
+      ? validateAndNormalizeUrl(config.url)
       : getEnv().OTEL_EXPORTER_OTLP_METRICS_ENDPOINT.length > 0
-      ? getEnv().OTEL_EXPORTER_OTLP_METRICS_ENDPOINT
+      ? validateAndNormalizeUrl(getEnv().OTEL_EXPORTER_OTLP_METRICS_ENDPOINT)
       : getEnv().OTEL_EXPORTER_OTLP_ENDPOINT.length > 0
-      ? getEnv().OTEL_EXPORTER_OTLP_ENDPOINT
+      ? validateAndNormalizeUrl(getEnv().OTEL_EXPORTER_OTLP_ENDPOINT)
       : DEFAULT_COLLECTOR_URL;
-  }
-
-  getDefaultServiceName(config: CollectorExporterConfigNode): string {
-    return config.serviceName || DEFAULT_SERVICE_NAME;
   }
 
   getServiceClientType() {

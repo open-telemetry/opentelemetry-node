@@ -39,8 +39,8 @@ export const assertSpan = (
   kind: SpanKind,
   validations: { name: string; status: grpc.status | grpcJs.status }
 ) => {
-  assert.strictEqual(span.spanContext.traceId.length, 32);
-  assert.strictEqual(span.spanContext.spanId.length, 16);
+  assert.strictEqual(span.spanContext().traceId.length, 32);
+  assert.strictEqual(span.spanContext().spanId.length, 16);
   assert.strictEqual(span.kind, kind);
 
   assert.ok(span.endTime);
@@ -52,7 +52,7 @@ export const assertSpan = (
   assert.ok(hrTimeToMilliseconds(span.endTime) > 0);
 
   if (span.kind === SpanKind.SERVER) {
-    assert.ok(span.spanContext);
+    assert.ok(span.spanContext());
   }
 
   // validations
@@ -68,8 +68,8 @@ export const assertPropagation = (
   incomingSpan: ReadableSpan,
   outgoingSpan: ReadableSpan
 ) => {
-  const targetSpanContext = incomingSpan.spanContext;
-  const sourceSpanContext = outgoingSpan.spanContext;
+  const targetSpanContext = incomingSpan.spanContext();
+  const sourceSpanContext = outgoingSpan.spanContext();
   assert.strictEqual(targetSpanContext.traceId, sourceSpanContext.traceId);
   assert.strictEqual(incomingSpan.parentSpanId, sourceSpanContext.spanId);
   assert.strictEqual(

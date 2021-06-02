@@ -18,7 +18,6 @@
  * Options for Jaeger configuration
  */
 export interface ExporterConfig {
-  serviceName: string;
   tags?: Tag[];
   host?: string; // default: 'localhost'
   port?: number; // default: 6832
@@ -37,6 +36,7 @@ export interface ExporterConfig {
 // Below require is needed as jaeger-client types does not expose the thrift,
 // udp_sender, util etc. modules.
 
+/* eslint-disable @typescript-eslint/no-var-requires */
 export const UDPSender = require('jaeger-client/dist/src/reporters/udp_sender')
   .default;
 export const Utils = require('jaeger-client/dist/src/util').default;
@@ -44,6 +44,7 @@ export const ThriftUtils = require('jaeger-client/dist/src/thrift').default;
 
 export const HTTPSender = require('jaeger-client/dist/src/reporters/http_sender')
   .default;
+/* eslint-enable @typescript-eslint/no-var-requires */
 
 export type TagValue = string | number | boolean;
 

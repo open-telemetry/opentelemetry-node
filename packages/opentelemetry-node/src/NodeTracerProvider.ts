@@ -36,7 +36,7 @@ import { JaegerPropagator } from '@opentelemetry/propagator-jaeger';
  * @param config Configuration object for SDK registration
  */
 export class NodeTracerProvider extends BasicTracerProvider {
-  protected static readonly _registeredPropagators = new Map<
+  protected static override readonly _registeredPropagators = new Map<
     string,
     PROPAGATOR_FACTORY
   >([
@@ -56,7 +56,7 @@ export class NodeTracerProvider extends BasicTracerProvider {
     super(config);
   }
 
-  register(config: SDKRegistrationConfig = {}) {
+  override register(config: SDKRegistrationConfig = {}) {
     if (config.contextManager === undefined) {
       const ContextManager = semver.gte(process.version, '14.8.0')
         ? AsyncLocalStorageContextManager
@@ -68,7 +68,7 @@ export class NodeTracerProvider extends BasicTracerProvider {
     super.register(config);
   }
 
-  protected _getPropagator(name: string): TextMapPropagator | undefined {
+  protected override  _getPropagator(name: string): TextMapPropagator | undefined {
     return (
       super._getPropagator(name) ||
       NodeTracerProvider._registeredPropagators.get(name)?.()

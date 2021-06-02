@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-import { context, suppressInstrumentation } from '@opentelemetry/api';
+import { context } from '@opentelemetry/api';
 import {
   ExportResultCode,
-  globalErrorHandler,
-  unrefTimer,
   getEnv,
+  globalErrorHandler,
+  suppressTracing,
+  unrefTimer,
 } from '@opentelemetry/core';
 import { Span } from '../Span';
 import { SpanProcessor } from '../SpanProcessor';
@@ -144,7 +145,7 @@ export class BatchSpanProcessor implements SpanProcessor {
         reject(new Error('Timeout'));
       }, this._exportTimeoutMillis);
       // prevent downstream exporter calls from generating spans
-      context.with(suppressInstrumentation(context.active()), () => {
+      context.with(suppressTracing(context.active()), () => {
         // Reset the finished spans buffer here because the next invocations of the _flush method
         // could pass the same finished spans to the exporter if the buffer is cleared
         // outside of the execution of this callback.

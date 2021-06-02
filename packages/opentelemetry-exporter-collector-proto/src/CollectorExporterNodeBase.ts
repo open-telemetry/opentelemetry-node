@@ -57,7 +57,7 @@ export abstract class CollectorExporterNodeBase<
     this._sendingPromises.push(promise);
   }
 
-  onInit(config: CollectorExporterNodeConfigBase): void {
+  override onInit(config: CollectorExporterNodeConfigBase): void {
     this._isShutdown = false;
     // defer to next tick and lazy load to avoid loading protobufjs too early
     // and making this impossible to be instrumented
@@ -68,7 +68,7 @@ export abstract class CollectorExporterNodeBase<
     });
   }
 
-  send(
+  override send(
     objects: ExportItem[],
     onSuccess: () => void,
     onError: (error: collectorTypes.CollectorExporterError) => void

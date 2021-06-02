@@ -90,7 +90,6 @@ describe('CollectorTraceExporter - node with proto over http', () => {
           foo: 'bar',
         },
         hostname: 'foo',
-        serviceName: 'bar',
         attributes: {},
         url: 'http://foo.bar.com',
         keepAlive: true,

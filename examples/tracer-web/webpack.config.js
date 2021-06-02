@@ -8,6 +8,7 @@ const common = {
   mode: 'development',
   entry: {
     metrics: 'examples/metrics/index.js',
+    test: 'examples/test/test.ts',
     fetch: 'examples/fetch/index.js',
     'xml-http-request': 'examples/xml-http-request/index.js',
     zipkin: 'examples/zipkin/index.js',

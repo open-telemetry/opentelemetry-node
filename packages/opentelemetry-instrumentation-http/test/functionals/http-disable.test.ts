@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NoopTracerProvider, NOOP_TRACER } from '@opentelemetry/api';
 import * as assert from 'assert';
 import { HttpInstrumentation } from '../../src/http';
 import { AddressInfo } from 'net';
@@ -27,14 +26,24 @@ instrumentation.enable();
 instrumentation.disable();
 
 import * as http from 'http';
+import { trace, TracerProvider, INVALID_SPAN_CONTEXT } from '@opentelemetry/api';
+
 
 describe('HttpInstrumentation', () => {
   let server: http.Server;
   let serverPort = 0;
 
   describe('disable()', () => {
-    const provider = new NoopTracerProvider();
+    let provider: TracerProvider;
+    let startSpanStub: sinon.SinonStub;
+  
     before(() => {
+      provider = {
+        getTracer: () => {
+          startSpanStub = sinon.stub().returns(trace.wrapSpanContext(INVALID_SPAN_CONTEXT));
+          return { startSpan: startSpanStub } as any;
+        }
+      };
       nock.cleanAll();
       nock.enableNetConnect();
       instrumentation.enable();
@@ -49,10 +58,6 @@ describe('HttpInstrumentation', () => {
       server.once('listening', () => {
         serverPort = (server.address() as AddressInfo).port;
       });
-    });
-
-    beforeEach(() => {
-      sinon.spy(NOOP_TRACER, 'startSpan');
     });
 
     afterEach(() => {
@@ -71,11 +76,8 @@ describe('HttpInstrumentation', () => {
 
         const options = { host: 'localhost', path: testPath, port: serverPort };
 
-        await httpRequest.get(options).then(result => {
-          assert.strictEqual(
-            (NOOP_TRACER.startSpan as sinon.SinonSpy).called,
-            false
-          );
+        await httpRequest.get(options).then(() => {
+          sinon.assert.notCalled(startSpanStub);
         });
       });
     });

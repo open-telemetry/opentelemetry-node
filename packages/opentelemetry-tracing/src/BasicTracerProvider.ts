@@ -34,12 +34,20 @@ import { DEFAULT_CONFIG } from './config';
 import { MultiSpanProcessor } from './MultiSpanProcessor';
 import { NoopSpanProcessor } from './export/NoopSpanProcessor';
 import { SDKRegistrationConfig, TracerConfig } from './types';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const merge = require('lodash.merge');
 import { SpanExporter } from './export/SpanExporter';
 import { BatchSpanProcessor } from './export/BatchSpanProcessor';
 
 export type PROPAGATOR_FACTORY = () => TextMapPropagator;
 export type EXPORTER_FACTORY = () => SpanExporter;
+
+export enum ForceFlushState {
+  'resolved',
+  'timeout',
+  'error',
+  'unresolved',
+}
 
 /**
  * This class represents a basic tracer provider which platform libraries can extend
@@ -67,8 +75,8 @@ export class BasicTracerProvider implements TracerProvider {
 
   constructor(config: TracerConfig = {}) {
     const mergedConfig = merge({}, DEFAULT_CONFIG, config);
-    this.resource =
-      mergedConfig.resource ?? Resource.createTelemetrySDKResource();
+    this.resource = mergedConfig.resource ?? Resource.empty();
+    this.resource = Resource.default().merge(this.resource);
     this._config = Object.assign({}, mergedConfig, {
       resource: this.resource,
     });
@@ -138,6 +146,55 @@ export class BasicTracerProvider implements TracerProvider {
     if (config.propagator) {
       propagation.setGlobalPropagator(config.propagator);
     }
+  }
+
+  forceFlush(): Promise<void> {
+    const timeout = this._config.forceFlushTimeoutMillis;
+    const promises = this._registeredSpanProcessors.map(
+      (spanProcessor: SpanProcessor) => {
+        return new Promise(resolve => {
+          let state: ForceFlushState;
+          const timeoutInterval = setTimeout(() => {
+            resolve(
+              new Error(
+                `Span processor did not completed within timeout period of ${timeout} ms`
+              )
+            );
+            state = ForceFlushState.timeout;
+          }, timeout);
+
+          spanProcessor
+            .forceFlush()
+            .then(() => {
+              clearTimeout(timeoutInterval);
+              if (state !== ForceFlushState.timeout) {
+                state = ForceFlushState.resolved;
+                resolve(state);
+              }
+            })
+            .catch(error => {
+              clearTimeout(timeoutInterval);
+              state = ForceFlushState.error;
+              resolve(error);
+            });
+        });
+      }
+    );
+
+    return new Promise<void>((resolve, reject) => {
+      Promise.all(promises)
+        .then(results => {
+          const errors = results.filter(
+            result => result !== ForceFlushState.resolved
+          );
+          if (errors.length > 0) {
+            reject(errors);
+          } else {
+            resolve();
+          }
+        })
+        .catch(error => reject([error]));
+    });
   }
 
   shutdown() {

@@ -58,7 +58,7 @@ export class TestTracingSpanExporter extends InMemorySpanExporter {
     );
   }
 
-  export(
+  override export(
     spans: ReadableSpan[],
     resultCallback: (result: ExportResult) => void
   ): void {
@@ -71,13 +71,13 @@ export class TestTracingSpanExporter extends InMemorySpanExporter {
     super.export(spans, resultCallback);
   }
 
-  shutdown(): Promise<void> {
+  override shutdown(): Promise<void> {
     return super.shutdown().then(() => {
       this._exporterCreatedSpans = [];
     });
   }
 
-  reset() {
+  override reset() {
     super.reset();
     this._exporterCreatedSpans = [];
   }

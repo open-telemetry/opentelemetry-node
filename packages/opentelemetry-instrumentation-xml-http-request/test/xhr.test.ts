@@ -220,7 +220,7 @@ describe('xhr', () => {
           );
 
           rootSpan = webTracerWithZone.startSpan('root');
-          api.context.with(api.setSpan(api.context.active(), rootSpan), () => {
+          api.context.with(api.trace.setSpan(api.context.active(), rootSpan), () => {
             getData(
               new XMLHttpRequest(),
               fileUrl,
@@ -270,7 +270,7 @@ describe('xhr', () => {
           const span: tracing.ReadableSpan = exportSpy.args[1][0][0];
           assert.strictEqual(
             span.parentSpanId,
-            rootSpan.context().spanId,
+            rootSpan.spanContext().spanId,
             'parent span is not root span'
           );
         });
@@ -408,7 +408,7 @@ describe('xhr', () => {
           const parentSpan: tracing.ReadableSpan = exportSpy.args[1][0][0];
           assert.strictEqual(
             span.parentSpanId,
-            parentSpan.spanContext.spanId,
+            parentSpan.spanContext().spanId,
             'parent span is not root span'
           );
         });
@@ -504,17 +504,17 @@ describe('xhr', () => {
             const span: api.Span = exportSpy.args[0][0][0];
             assert.strictEqual(
               requests[0].requestHeaders[X_B3_TRACE_ID],
-              span.context().traceId,
+              span.spanContext().traceId,
               `trace header '${X_B3_TRACE_ID}' not set`
             );
             assert.strictEqual(
               requests[0].requestHeaders[X_B3_SPAN_ID],
-              span.context().spanId,
+              span.spanContext().spanId,
               `trace header '${X_B3_SPAN_ID}' not set`
             );
             assert.strictEqual(
               requests[0].requestHeaders[X_B3_SAMPLED],
-              String(span.context().traceFlags),
+              String(span.spanContext().traceFlags),
               `trace header '${X_B3_SAMPLED}' not set`
             );
           });
@@ -537,17 +537,17 @@ describe('xhr', () => {
               const span: api.Span = exportSpy.args[1][0][0];
               assert.strictEqual(
                 requests[0].requestHeaders[X_B3_TRACE_ID],
-                span.context().traceId,
+                span.spanContext().traceId,
                 `trace header '${X_B3_TRACE_ID}' not set`
               );
               assert.strictEqual(
                 requests[0].requestHeaders[X_B3_SPAN_ID],
-                span.context().spanId,
+                span.spanContext().spanId,
                 `trace header '${X_B3_SPAN_ID}' not set`
               );
               assert.strictEqual(
                 requests[0].requestHeaders[X_B3_SAMPLED],
-                String(span.context().traceFlags),
+                String(span.spanContext().traceFlags),
                 `trace header '${X_B3_SAMPLED}' not set`
               );
             });
@@ -646,7 +646,7 @@ describe('xhr', () => {
             );
             const reusableReq = new XMLHttpRequest();
             api.context.with(
-              api.setSpan(api.context.active(), rootSpan),
+              api.trace.setSpan(api.context.active(), rootSpan),
               () => {
                 getData(
                   reusableReq,
@@ -663,7 +663,7 @@ describe('xhr', () => {
             );
 
             api.context.with(
-              api.setSpan(api.context.active(), rootSpan),
+              api.trace.setSpan(api.context.active(), rootSpan),
               () => {
                 getData(
                   reusableReq,
@@ -793,7 +793,7 @@ describe('xhr', () => {
         });
 
         function timedOutRequest(done: any) {
-          api.context.with(api.setSpan(api.context.active(), rootSpan), () => {
+          api.context.with(api.trace.setSpan(api.context.active(), rootSpan), () => {
             void getData(
               new XMLHttpRequest(),
               url,
@@ -810,7 +810,7 @@ describe('xhr', () => {
         }
 
         function abortedRequest(done: any) {
-          api.context.with(api.setSpan(api.context.active(), rootSpan), () => {
+          api.context.with(api.trace.setSpan(api.context.active(), rootSpan), () => {
             void getData(new XMLHttpRequest(), url, () => {}, testAsync).then(
               () => {
                 fakeNow = 0;
@@ -825,7 +825,7 @@ describe('xhr', () => {
         }
 
         function erroredRequest(done: any) {
-          api.context.with(api.setSpan(api.context.active(), rootSpan), () => {
+          api.context.with(api.trace.setSpan(api.context.active(), rootSpan), () => {
             void getData(
               new XMLHttpRequest(),
               url,
@@ -848,7 +848,7 @@ describe('xhr', () => {
         }
 
         function networkErrorRequest(done: any) {
-          api.context.with(api.setSpan(api.context.active(), rootSpan), () => {
+          api.context.with(api.trace.setSpan(api.context.active(), rootSpan), () => {
             void getData(new XMLHttpRequest(), url, () => {}, testAsync).then(
               () => {
                 fakeNow = 0;

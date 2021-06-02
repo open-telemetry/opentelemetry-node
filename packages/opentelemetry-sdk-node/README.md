@@ -2,7 +2,7 @@
 
 [![NPM Published Version][npm-img]][npm-url]
 [![dependencies][dependencies-image]][dependencies-url]
-[![devDependencies][devDependencies-image]][devDependencies-url]
+[![devDependencies][devdependencies-image]][devdependencies-url]
 [![Apache License][license-image]][license-image]
 
 This package provides the full OpenTelemetry SDK for Node.js including tracing and metrics.
@@ -34,13 +34,16 @@ $ npm install @opentelemetry/auto-instrumentations-node
 
 Before any other module in your application is loaded, you must initialize the SDK.
 If you fail to initialize the SDK or initialize it too late, no-op implementations will be provided to any library which acquires a tracer or meter from the API.
+
 This example uses Jaeger and Prometheus, but exporters exist for [other tracing backends][other-tracing-backends].
 
 ```javascript
 const opentelemetry = require("@opentelemetry/sdk-node");
 const { JaegerExporter } = require("@opentelemetry/exporter-jaeger");
 const { PrometheusExporter } = require("@opentelemetry/exporter-prometheus");
-const { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");
+const {
+  getNodeAutoInstrumentations,
+} = require("@opentelemetry/auto-instrumentations-node");
 
 const jaegerExporter = new JaegerExporter({
   serviceName: 'my-service',
@@ -59,22 +62,21 @@ const sdk = new opentelemetry.NodeSDK({
 
 // You can optionally detect resources asynchronously from the environment.
 // Detected resources are merged with the resources provided in the SDK configuration.
-sdk
-  .start()
-  .then(() => {
-    // Resources have been detected and SDK is started
-  })
+sdk.start().then(() => {
+  // Resources have been detected and SDK is started
+});
 
 // You can also use the shutdown method to gracefully shut down the SDK before process shutdown
 // or on some operating system signal.
 const process = require("process");
 process.on("SIGTERM", () => {
-  sdk.shutdown()
+  sdk
+    .shutdown()
     .then(
       () => console.log("SDK shut down successfully"),
-      (err) => console.log("Error shutting down SDK", err),
+      (err) => console.log("Error shutting down SDK", err)
     )
-    .finally(() => process.exit(0))
+    .finally(() => process.exit(0));
 });
 ```
 
@@ -126,7 +128,7 @@ Configure a custom sampler. By default all traces will be sampled.
 
 Configure a trace exporter. If an exporter OR span processor is not configured, the tracing SDK will not be initialized and registered. If an exporter is configured, it will be used with a [BatchSpanProcessor](../opentelemetry-tracing/src/export/BatchSpanProcessor.ts).
 
-### traceParams
+### spanLimits
 
 Configure tracing parameters. These are the same trace parameters used to [configure a tracer](../opentelemetry-tracing/src/types.ts#L71).
 
@@ -145,9 +147,8 @@ Apache 2.0 - See [LICENSE][license-url] for more information.
 [license-image]: https://img.shields.io/badge/license-Apache_2.0-green.svg?style=flat
 [dependencies-image]: https://status.david-dm.org/gh/open-telemetry/opentelemetry-js.svg?path=packages%2Fopentelemetry-sdk-node
 [dependencies-url]: https://david-dm.org/open-telemetry/opentelemetry-js?path=packages%2Fopentelemetry-sdk-node
-[devDependencies-image]: https://status.david-dm.org/gh/open-telemetry/opentelemetry-js.svg?path=packages%2Fopentelemetry-sdk-node&type=dev
-[devDependencies-url]: https://david-dm.org/open-telemetry/opentelemetry-js?path=packages%2Fopentelemetry-sdk-node&type=dev
+[devdependencies-image]: https://status.david-dm.org/gh/open-telemetry/opentelemetry-js.svg?path=packages%2Fopentelemetry-sdk-node&type=dev
+[devdependencies-url]: https://david-dm.org/open-telemetry/opentelemetry-js?path=packages%2Fopentelemetry-sdk-node&type=dev
 [npm-url]: https://www.npmjs.com/package/@opentelemetry/sdk-node
 [npm-img]: https://badge.fury.io/js/%40opentelemetry%2Fsdk-node.svg
-
 [other-tracing-backends]: https://github.com/open-telemetry/opentelemetry-js#trace-exporters

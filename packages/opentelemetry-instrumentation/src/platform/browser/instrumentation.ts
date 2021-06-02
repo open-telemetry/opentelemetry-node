@@ -24,8 +24,8 @@ export abstract class InstrumentationBase
   extends InstrumentationAbstract
   implements types.Instrumentation {
   constructor(
-    readonly instrumentationName: string,
-    readonly instrumentationVersion: string,
+    instrumentationName: string,
+    instrumentationVersion: string,
     config: types.InstrumentationConfig = {}
   ) {
     super(instrumentationName, instrumentationVersion, config);

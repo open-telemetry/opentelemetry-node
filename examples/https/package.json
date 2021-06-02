@@ -29,7 +29,7 @@
     "url": "https://github.com/open-telemetry/opentelemetry-js/issues"
   },
   "dependencies": {
-    "@opentelemetry/api": "^1.0.0-rc.0",
+    "@opentelemetry/api": "^0.20.0",
     "@opentelemetry/exporter-jaeger": "0.19.0",
     "@opentelemetry/exporter-zipkin": "0.19.0",
     "@opentelemetry/instrumentation": "0.19.0",

@@ -43,10 +43,10 @@ export function toZipkinSpan(
   statusDescriptionTagName: string
 ): zipkinTypes.Span {
   const zipkinSpan: zipkinTypes.Span = {
-    traceId: span.spanContext.traceId,
+    traceId: span.spanContext().traceId,
     parentId: span.parentSpanId,
     name: span.name,
-    id: span.spanContext.spanId,
+    id: span.spanContext().spanId,
     kind: ZIPKIN_SPAN_KIND_MAPPING[span.kind],
     timestamp: hrTimeToMicroseconds(span.startTime),
     duration: hrTimeToMicroseconds(span.duration),

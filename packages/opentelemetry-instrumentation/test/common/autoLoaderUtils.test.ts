@@ -27,9 +27,9 @@ class FooInstrumentation extends InstrumentationBase {
     return [];
   }
 
-  enable() {}
+  override enable() {}
 
-  disable() {}
+  override disable() {}
 }
 
 // const fooInstrumentation = new FooInstrumentation();

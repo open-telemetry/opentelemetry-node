@@ -17,11 +17,9 @@
 import {
   Baggage,
   BaggageEntry,
-  createBaggage,
   defaultTextMapGetter,
   defaultTextMapSetter,
-  getBaggage,
-  setBaggage,
+  propagation,
 } from '@opentelemetry/api';
 import { ROOT_CONTEXT } from '@opentelemetry/api';
 import * as assert from 'assert';
@@ -39,14 +37,14 @@ describe('HttpBaggagePropagator', () => {
 
   describe('.inject()', () => {
     it('should set baggage header', () => {
-      const baggage = createBaggage({
+      const baggage = propagation.createBaggage({
         key1: { value: 'd4cda95b652f4a1592b449d5929fda1b' },
         key3: { value: 'c88815a7-0fa9-4d95-a1f1-cdccce3c5c2a' },
         'with/slash': { value: 'with spaces' },
       });
 
       httpBaggagePropagator.inject(
-        setBaggage(ROOT_CONTEXT, baggage),
+        propagation.setBaggage(ROOT_CONTEXT, baggage),
         carrier,
         defaultTextMapSetter
       );
@@ -57,13 +55,13 @@ describe('HttpBaggagePropagator', () => {
     });
 
     it('should skip long key-value pairs', () => {
-      const baggage = createBaggage({
+      const baggage = propagation.createBaggage({
         key1: { value: 'd4cda95b' },
         key3: { value: 'c88815a7' },
       });
 
       httpBaggagePropagator.inject(
-        setBaggage(ROOT_CONTEXT, baggage),
+        propagation.setBaggage(ROOT_CONTEXT, baggage),
         carrier,
         defaultTextMapSetter
       );
@@ -78,13 +76,13 @@ describe('HttpBaggagePropagator', () => {
       const shortKey = Array(95).fill('k').join('');
       const value = Array(4000).fill('v').join('');
 
-      let baggage = createBaggage({
+      let baggage = propagation.createBaggage({
         aa: { value: 'shortvalue' },
         [shortKey]: { value: value },
       });
 
       httpBaggagePropagator.inject(
-        setBaggage(ROOT_CONTEXT, baggage),
+        propagation.setBaggage(ROOT_CONTEXT, baggage),
         carrier,
         defaultTextMapSetter
       );
@@ -93,14 +91,14 @@ describe('HttpBaggagePropagator', () => {
       assert.ok(typeof header === 'string');
       assert.deepStrictEqual(header, `aa=shortvalue,${shortKey}=${value}`);
 
-      baggage = createBaggage({
+      baggage = propagation.createBaggage({
         aa: { value: 'shortvalue' },
         [longKey]: { value: value },
       });
 
       carrier = {};
       httpBaggagePropagator.inject(
-        setBaggage(ROOT_CONTEXT, baggage),
+        propagation.setBaggage(ROOT_CONTEXT, baggage),
         carrier,
         defaultTextMapSetter
       );
@@ -115,14 +113,14 @@ describe('HttpBaggagePropagator', () => {
       const longKey1 = Array(49).fill('1').join('');
       const longValue = Array(4000).fill('v').join('');
 
-      let baggage = createBaggage({
+      let baggage = propagation.createBaggage({
         [longKey0]: { value: longValue },
         [longKey1]: { value: longValue },
         aa: { value: Array(88).fill('v').join('') },
       });
 
       httpBaggagePropagator.inject(
-        setBaggage(ROOT_CONTEXT, baggage),
+        propagation.setBaggage(ROOT_CONTEXT, baggage),
         carrier,
         defaultTextMapSetter
       );
@@ -132,7 +130,7 @@ describe('HttpBaggagePropagator', () => {
       assert.deepStrictEqual(header.length, 8192);
       assert.deepStrictEqual(header.split(',').length, 3);
 
-      baggage = createBaggage({
+      baggage = propagation.createBaggage({
         [longKey0]: { value: longValue },
         [longKey1]: { value: longValue },
         aa: { value: Array(89).fill('v').join('') },
@@ -140,7 +138,7 @@ describe('HttpBaggagePropagator', () => {
 
       carrier = {};
       httpBaggagePropagator.inject(
-        setBaggage(ROOT_CONTEXT, baggage),
+        propagation.setBaggage(ROOT_CONTEXT, baggage),
         carrier,
         defaultTextMapSetter
       );
@@ -160,10 +158,10 @@ describe('HttpBaggagePropagator', () => {
           entries[`${i}`] = { value: 'v' };
         });
 
-      const baggage = createBaggage(entries);
+      const baggage = propagation.createBaggage(entries);
 
       httpBaggagePropagator.inject(
-        setBaggage(ROOT_CONTEXT, baggage),
+        propagation.setBaggage(ROOT_CONTEXT, baggage),
         carrier,
         defaultTextMapSetter
       );
@@ -178,7 +176,7 @@ describe('HttpBaggagePropagator', () => {
     it('should extract context of a sampled span from carrier', () => {
       carrier[BAGGAGE_HEADER] =
         'key1=d4cda95b,key3=c88815a7, keyn   = valn, keym =valm';
-      const extractedBaggage = getBaggage(
+      const extractedBaggage = propagation.getBaggage(
         httpBaggagePropagator.extract(
           ROOT_CONTEXT,
           carrier,
@@ -186,7 +184,7 @@ describe('HttpBaggagePropagator', () => {
         )
       );
 
-      const expected = createBaggage({
+      const expected = propagation.createBaggage({
         key1: { value: 'd4cda95b' },
         key3: { value: 'c88815a7' },
         keyn: { value: 'valn' },
@@ -205,7 +203,7 @@ describe('HttpBaggagePropagator', () => {
 
   it('returns undefined if header is missing', () => {
     assert.deepStrictEqual(
-      getBaggage(
+      propagation.getBaggage(
         httpBaggagePropagator.extract(
           ROOT_CONTEXT,
           carrier,
@@ -218,7 +216,7 @@ describe('HttpBaggagePropagator', () => {
 
   it('returns keys with their properties', () => {
     carrier[BAGGAGE_HEADER] = 'key1=d4cda95b,key3=c88815a7;prop1=value1';
-    const bag = getBaggage(
+    const bag = propagation.getBaggage(
       httpBaggagePropagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
     );
 
@@ -260,7 +258,7 @@ describe('HttpBaggagePropagator', () => {
       },
       mixInvalidAndValidKeys: {
         header: 'key1==value,key2=value2',
-        baggage: createBaggage({
+        baggage: propagation.createBaggage({
           key2: {
             value: 'value2',
           },
@@ -270,7 +268,7 @@ describe('HttpBaggagePropagator', () => {
     Object.getOwnPropertyNames(testCases).forEach(testCase => {
       carrier[BAGGAGE_HEADER] = testCases[testCase].header;
 
-      const extractedSpanContext = getBaggage(
+      const extractedSpanContext = propagation.getBaggage(
         httpBaggagePropagator.extract(
           ROOT_CONTEXT,
           carrier,

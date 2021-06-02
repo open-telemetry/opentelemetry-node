@@ -1,19 +1,25 @@
-version: "2"
+version: "3.8"
 services:
 
   # Collector
-  collector:
-    image: otelcol:latest
+  otel-collector:
+    image: otel/opentelemetry-collector:0.27.0
     command: ["--config=/conf/collector-config.yaml", "--log-level=DEBUG"]
     volumes:
       - ./collector-config.yaml:/conf/collector-config.yaml
     ports:
-      - "55678:55678"
+      - "9464:9464"
+      - "4317:4317"
+      - "55681:55681"
     depends_on:
-      - zipkin-all-in-one
+      - jaeger-all-in-one
 
-  # Zipkin
-  zipkin-all-in-one:
-    image: openzipkin/zipkin:latest
+  # Jaeger
+  jaeger-all-in-one:
+    image: jaegertracing/all-in-one:1.22.0
     ports:
-      - "9411:9411"
+      - "16686:16686"
+      - "14268:14268"
+      - "14250"
+
+

@@ -114,7 +114,7 @@ export class FetchInstrumentation extends InstrumentationBase<
       {
         startTime: corsPreFlightRequest[web.PerformanceTimingNames.FETCH_START],
       },
-      api.setSpan(api.context.active(), span)
+      api.trace.setSpan(api.context.active(), span)
     );
     web.addSpanNetworkEvents(childSpan, corsPreFlightRequest);
     childSpan.end(
@@ -314,6 +314,27 @@ export class FetchInstrumentation extends InstrumentationBase<
         }
         const spanData = plugin._prepareSpanData(url);
 
+        function endSpanOnError(span: api.Span, error: FetchError) {
+          plugin._applyAttributesAfterFetch(span, options, error);
+          plugin._endSpan(span, spanData, {
+            status: error.status || 0,
+            statusText: error.message,
+            url,
+          });
+        }
+
+        function endSpanOnSuccess(span: api.Span, response: Response) {
+          plugin._applyAttributesAfterFetch(span, options, response);
+          if (response.status >= 200 && response.status < 400) {
+            plugin._endSpan(span, spanData, response);
+          } else {
+            plugin._endSpan(span, spanData, {
+              status: response.status,
+              statusText: response.statusText,
+              url,
+            });
+          }
+        }
         function onSuccess(
           span: api.Span,
           resolve: (
@@ -322,15 +343,28 @@ export class FetchInstrumentation extends InstrumentationBase<
           response: Response
         ) {
           try {
-            plugin._applyAttributesAfterFetch(span, options, response);
-            if (response.status >= 200 && response.status < 400) {
-              plugin._endSpan(span, spanData, response);
+            const resClone = response.clone();
+            const body = resClone.body;
+            if (body) {
+              const reader = body.getReader();
+              const read = (): void => {
+                reader.read().then(
+                  ({ done }) => {
+                    if (done) {
+                      endSpanOnSuccess(span, response);
+                    } else {
+                      read();
+                    }
+                  },
+                  error => {
+                    endSpanOnError(span, error);
+                  }
+                );
+              };
+              read();
             } else {
-              plugin._endSpan(span, spanData, {
-                status: response.status,
-                statusText: response.statusText,
-                url,
-              });
+              // some older browsers don't have .body implemented
+              endSpanOnSuccess(span, response);
             }
           } finally {
             resolve(response);
@@ -343,12 +377,7 @@ export class FetchInstrumentation extends InstrumentationBase<
           error: FetchError
         ) {
           try {
-            plugin._applyAttributesAfterFetch(span, options, error);
-            plugin._endSpan(span, spanData, {
-              status: error.status || 0,
-              statusText: error.message,
-              url,
-            });
+            endSpanOnError(span, error);
           } finally {
             reject(error);
           }
@@ -356,7 +385,7 @@ export class FetchInstrumentation extends InstrumentationBase<
 
         return new Promise((resolve, reject) => {
           return api.context.with(
-            api.setSpan(api.context.active(), createdSpan),
+            api.trace.setSpan(api.context.active(), createdSpan),
             () => {
               plugin._addHeaders(options, url);
               plugin._tasksCount++;
@@ -429,7 +458,7 @@ export class FetchInstrumentation extends InstrumentationBase<
   /**
    * implements enable function
    */
-  enable() {
+  override enable() {
     if (isWrapped(window.fetch)) {
       this._unwrap(window, 'fetch');
       api.diag.debug('removing previous patch for constructor');
@@ -440,7 +469,7 @@ export class FetchInstrumentation extends InstrumentationBase<
   /**
    * implements unpatch function
    */
-  disable() {
+  override disable() {
     this._unwrap(window, 'fetch');
     this._usedResources = new WeakSet<PerformanceResourceTiming>();
   }

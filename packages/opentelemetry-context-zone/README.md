@@ -18,7 +18,7 @@ npm install --save @opentelemetry/context-zone
 ## Usage
 
 ```js
-import { context, getSpan, setSpan } from '@opentelemetry/api';
+import { context, trace } from '@opentelemetry/api';
 import { ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/tracing';
 import { WebTracerProvider } from '@opentelemetry/web';
 import { ZoneContextManager } from '@opentelemetry/context-zone';
@@ -33,21 +33,21 @@ provider.register({
 const webTracerWithZone = providerWithZone.getTracer('default');
 const span1 = webTracerWithZone.startSpan('foo1');
 
-context.with(setSpan(context.active(), span1), () => {
-  console.log('Current span is span1', getSpan(context.active()) === span1);
+context.with(trace.setSpan(context.active(), span1), () => {
+  console.log('Current span is span1', trace.getSpan(context.active()) === span1);
   setTimeout(() => {
     const span2 = webTracerWithZone.startSpan('foo2');
-    console.log('Current span is span1', getSpan(context.active()) === span1);
-    context.with(setSpan(context.active(), span2), () => {
-      console.log('Current span is span2', getSpan(context.active()) === span2);
+    console.log('Current span is span1', trace.getSpan(context.active()) === span1);
+    context.with(trace.setSpan(context.active(), span2), () => {
+      console.log('Current span is span2', trace.getSpan(context.active()) === span2);
       setTimeout(() => {
-        console.log('Current span is span2', getSpan(context.active()) === span2);
+        console.log('Current span is span2', trace.getSpan(context.active()) === span2);
       }, 500);
     });
     // there is a timeout which still keeps span2 active
-    console.log('Current span is span2', getSpan(context.active()) === span2);
+    console.log('Current span is span2', trace.getSpan(context.active()) === span2);
   }, 500);
-  console.log('Current span is span1', getSpan(context.active()) === span1);
+  console.log('Current span is span1', trace.getSpan(context.active()) === span1);
 });
 
 ```

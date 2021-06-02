@@ -64,12 +64,12 @@ export class ZipkinExporter implements SpanExporter {
     spans: ReadableSpan[],
     resultCallback: (result: ExportResult) => void
   ) {
-    if (typeof this._serviceName !== 'string') {
-      this._serviceName = String(
+    const serviceName = String(
+      this._serviceName ||
         spans[0].resource.attributes[ResourceAttributes.SERVICE_NAME] ||
-          this.DEFAULT_SERVICE_NAME
-      );
-    }
+        this.DEFAULT_SERVICE_NAME
+    );
+
     diag.debug('Zipkin exporter export');
     if (this._isShutdown) {
       setTimeout(() =>
@@ -81,7 +81,7 @@ export class ZipkinExporter implements SpanExporter {
       return;
     }
     const promise = new Promise<void>(resolve => {
-      this._sendSpans(spans, this._serviceName!, result => {
+      this._sendSpans(spans, serviceName, result => {
         resolve();
         resultCallback(result);
         const index = this._sendingPromises.indexOf(promise);

@@ -16,18 +16,15 @@
 
 import {
   Context,
-  getBaggage,
-  getSpanContext,
-  setBaggage,
-  setSpanContext,
   SpanContext,
-  TraceFlags,
   TextMapGetter,
   TextMapPropagator,
   TextMapSetter,
-  isInstrumentationSuppressed,
-  createBaggage,
+  propagation,
+  trace,
+  TraceFlags,
 } from '@opentelemetry/api';
+import { isTracingSuppressed } from '@opentelemetry/core';
 
 export const UBER_TRACE_ID_HEADER = 'uber-trace-id';
 export const UBER_BAGGAGE_HEADER_PREFIX = 'uberctx';
@@ -59,9 +56,9 @@ export class JaegerPropagator implements TextMapPropagator {
   }
 
   inject(context: Context, carrier: unknown, setter: TextMapSetter) {
-    const spanContext = getSpanContext(context);
-    const baggage = getBaggage(context);
-    if (spanContext && isInstrumentationSuppressed(context) === false) {
+    const spanContext = trace.getSpanContext(context);
+    const baggage = propagation.getBaggage(context);
+    if (spanContext && isTracingSuppressed(context) === false) {
       const traceFlags = `0${(
         spanContext.traceFlags || TraceFlags.NONE
       ).toString(16)}`;
@@ -105,20 +102,20 @@ export class JaegerPropagator implements TextMapPropagator {
     if (typeof uberTraceId === 'string') {
       const spanContext = deserializeSpanContext(uberTraceId);
       if (spanContext) {
-        newContext = setSpanContext(newContext, spanContext);
+        newContext = trace.setSpanContext(newContext, spanContext);
       }
     }
     if (baggageValues.length === 0) return newContext;
 
     // if baggage values are present, inject it into the current baggage
-    let currentBaggage = getBaggage(context) ?? createBaggage();
+    let currentBaggage = propagation.getBaggage(context) ?? propagation.createBaggage();
     for (const baggageEntry of baggageValues) {
       if (baggageEntry.value === undefined) continue;
       currentBaggage = currentBaggage.setEntry(baggageEntry.key, {
         value: decodeURIComponent(baggageEntry.value),
       });
     }
-    newContext = setBaggage(newContext, currentBaggage);
+    newContext = propagation.setBaggage(newContext, currentBaggage);
 
     return newContext;
   }

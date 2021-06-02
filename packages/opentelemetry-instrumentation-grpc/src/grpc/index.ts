@@ -31,11 +31,11 @@ import {
 import { GrpcInstrumentationConfig } from '../types';
 import {
   context,
+  diag,
   propagation,
   SpanOptions,
   SpanKind,
-  setSpan,
-  diag,
+  trace,
 } from '@opentelemetry/api';
 import {
   clientStreamAndUnaryHandler,
@@ -56,14 +56,14 @@ export class GrpcNativeInstrumentation extends InstrumentationBase<
   typeof grpcTypes
 > {
   constructor(
-    protected _config: GrpcInstrumentationConfig & InstrumentationConfig = {},
+    protected override _config: GrpcInstrumentationConfig & InstrumentationConfig = {},
     name: string,
     version: string
   ) {
     super(name, version, _config);
   }
 
-  public setConfig(
+  public override setConfig(
     config: GrpcInstrumentationConfig & InstrumentationConfig = {}
   ) {
     this._config = Object.assign({}, config);
@@ -205,7 +205,7 @@ export class GrpcNativeInstrumentation extends InstrumentationBase<
                       [AttributeNames.GRPC_KIND]: spanOptions.kind,
                     });
 
-                  context.with(setSpan(context.active(), span), () => {
+                  context.with(trace.setSpan(context.active(), span), () => {
                     switch (type) {
                       case 'unary':
                       case 'client_stream':
@@ -299,7 +299,7 @@ export class GrpcNativeInstrumentation extends InstrumentationBase<
         const span = instrumentation.tracer.startSpan(name, {
           kind: SpanKind.CLIENT,
         });
-        return context.with(setSpan(context.active(), span), () =>
+        return context.with(trace.setSpan(context.active(), span), () =>
           makeGrpcClientRemoteCall(
             grpcClient,
             original,

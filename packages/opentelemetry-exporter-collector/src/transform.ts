@@ -174,17 +174,17 @@ export function toCollectorSpan(
 ): opentelemetryProto.trace.v1.Span {
   return {
     traceId: useHex
-      ? span.spanContext.traceId
-      : core.hexToBase64(span.spanContext.traceId),
+      ? span.spanContext().traceId
+      : core.hexToBase64(span.spanContext().traceId),
     spanId: useHex
-      ? span.spanContext.spanId
-      : core.hexToBase64(span.spanContext.spanId),
+      ? span.spanContext().spanId
+      : core.hexToBase64(span.spanContext().spanId),
     parentSpanId: span.parentSpanId
       ? useHex
         ? span.parentSpanId
         : core.hexToBase64(span.parentSpanId)
       : undefined,
-    traceState: toCollectorTraceState(span.spanContext.traceState),
+    traceState: toCollectorTraceState(span.spanContext().traceState),
     name: span.name,
     kind: toCollectorKind(span.kind),
     startTimeUnixNano: core.hrTimeToNanoseconds(span.startTime),
@@ -285,10 +285,7 @@ export function toCollectorExportTraceServiceRequest<
 
   const additionalAttributes = Object.assign(
     {},
-    collectorTraceExporterBase.attributes,
-    {
-      'service.name': collectorTraceExporterBase.serviceName,
-    }
+    collectorTraceExporterBase.attributes
   );
 
   return {

@@ -24,7 +24,6 @@ import { ServiceClientType } from './types';
 import { CollectorExporterNodeBase } from './CollectorExporterNodeBase';
 import { getEnv, baggageUtils } from '@opentelemetry/core';
 
-const DEFAULT_SERVICE_NAME = 'collector-metric-exporter';
 const DEFAULT_COLLECTOR_URL = 'http://localhost:4317/v1/metrics';
 
 /**
@@ -67,10 +66,6 @@ export class CollectorMetricExporter
       : getEnv().OTEL_EXPORTER_OTLP_ENDPOINT.length > 0
       ? getEnv().OTEL_EXPORTER_OTLP_ENDPOINT
       : DEFAULT_COLLECTOR_URL;
-  }
-
-  getDefaultServiceName(config: CollectorExporterNodeConfigBase): string {
-    return config.serviceName || DEFAULT_SERVICE_NAME;
   }
 
   getServiceClientType() {

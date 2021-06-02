@@ -177,10 +177,7 @@ export function toCollectorExportMetricServiceRequest<
   > = groupMetricsByResourceAndLibrary(metrics);
   const additionalAttributes = Object.assign(
     {},
-    collectorExporterBase.attributes,
-    {
-      'service.name': collectorExporterBase.serviceName,
-    }
+    collectorExporterBase.attributes
   );
   return {
     resourceMetrics: toCollectorResourceMetrics(

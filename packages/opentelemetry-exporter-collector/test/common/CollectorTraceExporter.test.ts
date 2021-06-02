@@ -46,9 +46,6 @@ class CollectorTraceExporter extends CollectorExporterBase<
   getDefaultUrl(config: CollectorExporterConfig): string {
     return config.url || '';
   }
-  getDefaultServiceName(config: CollectorExporterConfig): string {
-    return config.serviceName || 'collector-exporter';
-  }
 
   convert(
     spans: ReadableSpan[]
@@ -72,7 +69,6 @@ describe('CollectorTraceExporter - common', () => {
       onInitSpy = sinon.stub(CollectorTraceExporter.prototype, 'onInit');
       collectorExporterConfig = {
         hostname: 'foo',
-        serviceName: 'bar',
         attributes: {},
         url: 'http://foo.bar.com',
       };
@@ -92,22 +88,8 @@ describe('CollectorTraceExporter - common', () => {
         assert.strictEqual(collectorExporter.hostname, 'foo');
       });
 
-      it('should set serviceName', () => {
-        assert.strictEqual(collectorExporter.serviceName, 'bar');
-      });
-
       it('should set url', () => {
         assert.strictEqual(collectorExporter.url, 'http://foo.bar.com');
-      });
-    });
-
-    describe('when config is missing certain params', () => {
-      beforeEach(() => {
-        collectorExporter = new CollectorTraceExporter();
-      });
-
-      it('should set default serviceName', () => {
-        assert.strictEqual(collectorExporter.serviceName, 'collector-exporter');
       });
     });
   });
@@ -221,7 +203,6 @@ describe('CollectorTraceExporter - common', () => {
       );
       collectorExporterConfig = {
         hostname: 'foo',
-        serviceName: 'bar',
         attributes: {},
         url: 'http://foo.bar.com',
       };

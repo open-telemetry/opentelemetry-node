@@ -24,7 +24,7 @@ import {
   ValueRecorder,
   ValueType,
 } from '@opentelemetry/api-metrics';
-import { hexToBase64, InstrumentationLibrary } from '@opentelemetry/core';
+import { hexToBase64, InstrumentationLibrary, VERSION } from '@opentelemetry/core';
 import * as metrics from '@opentelemetry/metrics';
 import { Resource } from '@opentelemetry/resources';
 import { ReadableSpan } from '@opentelemetry/tracing';
@@ -157,10 +157,12 @@ const parentIdHex = '78a8915098864388';
 export const mockedReadableSpan: ReadableSpan = {
   name: 'documentFetch',
   kind: 0,
-  spanContext: {
-    traceId: '1f1008dc8e270e85c40a0d7c3939b278',
-    spanId: '5e107261f64fa53e',
-    traceFlags: TraceFlags.SAMPLED,
+  spanContext: ()=> {
+    return {
+      traceId: '1f1008dc8e270e85c40a0d7c3939b278',
+      spanId: '5e107261f64fa53e',
+      traceFlags: TraceFlags.SAMPLED,
+    }
   },
   parentSpanId: '78a8915098864388',
   startTime: [1574120165, 429803070],
@@ -173,6 +175,7 @@ export const mockedReadableSpan: ReadableSpan = {
       context: {
         traceId: '1f1008dc8e270e85c40a0d7c3939b278',
         spanId: '78a8915098864388',
+        traceFlags: TraceFlags.SAMPLED,
       },
       attributes: { component: 'document-load' },
     },
@@ -200,11 +203,12 @@ export const mockedReadableSpan: ReadableSpan = {
     },
   ],
   duration: [0, 8885000],
-  resource: new Resource({
-    service: 'ui',
-    version: 1,
-    cost: 112.12,
-  }),
+  resource: Resource.default()
+    .merge(new Resource({
+      service: 'ui',
+      version: 1,
+      cost: 112.12,
+    })),
   instrumentationLibrary: { name: 'default', version: '0.0.1' },
 };
 
@@ -228,10 +232,12 @@ export const basicTrace: ReadableSpan[] = [
   {
     name: 'span1',
     kind: 0,
-    spanContext: {
-      traceId: '1f1008dc8e270e85c40a0d7c3939b278',
-      spanId: '5e107261f64fa53e',
-      traceFlags: TraceFlags.SAMPLED,
+    spanContext: () => {
+      return {
+        traceId: '1f1008dc8e270e85c40a0d7c3939b278',
+        spanId: '5e107261f64fa53e',
+        traceFlags: TraceFlags.SAMPLED,
+      };
     },
     parentSpanId: '78a8915098864388',
     startTime: [1574120165, 429803070],
@@ -248,10 +254,12 @@ export const basicTrace: ReadableSpan[] = [
   {
     name: 'span2',
     kind: 0,
-    spanContext: {
-      traceId: '1f1008dc8e270e85c40a0d7c3939b278',
-      spanId: 'f64fa53e5e107261',
-      traceFlags: TraceFlags.SAMPLED,
+    spanContext: () => {
+      return {
+        traceId: '1f1008dc8e270e85c40a0d7c3939b278',
+        spanId: 'f64fa53e5e107261',
+        traceFlags: TraceFlags.SAMPLED,
+      };
     },
     parentSpanId: '78a8915098864388',
     startTime: [1575120165, 439803070],
@@ -268,10 +276,12 @@ export const basicTrace: ReadableSpan[] = [
   {
     name: 'span3',
     kind: 0,
-    spanContext: {
-      traceId: '1f1008dc8e270e85c40a0d7c3939b278',
-      spanId: '07261f64fa53e5e1',
-      traceFlags: TraceFlags.SAMPLED,
+    spanContext: () => {
+      return {
+        traceId: '1f1008dc8e270e85c40a0d7c3939b278',
+        spanId: '07261f64fa53e5e1',
+        traceFlags: TraceFlags.SAMPLED,
+      };
     },
     parentSpanId: 'a891578098864388',
     startTime: [1575120165, 439803070],
@@ -523,35 +533,22 @@ export function ensureSpanIsCorrect(
 export function ensureWebResourceIsCorrect(
   resource: collectorTypes.opentelemetryProto.resource.v1.Resource
 ) {
-  assert.deepStrictEqual(resource, {
-    attributes: [
-      {
-        key: 'service.name',
-        value: {
-          stringValue: 'bar',
-        },
-      },
-      {
-        key: 'service',
-        value: {
-          stringValue: 'ui',
-        },
-      },
-      {
-        key: 'version',
-        value: {
-          intValue: 1,
-        },
-      },
-      {
-        key: 'cost',
-        value: {
-          doubleValue: 112.12,
-        },
-      },
-    ],
-    droppedAttributesCount: 0,
-  });
+  assert.strictEqual(resource.attributes.length, 7);
+  assert.strictEqual(resource.attributes[0].key, 'service.name');
+  assert.strictEqual(resource.attributes[0].value.stringValue, 'unknown_service');
+  assert.strictEqual(resource.attributes[1].key, 'telemetry.sdk.language');
+  assert.strictEqual(resource.attributes[1].value.stringValue, 'webjs');
+  assert.strictEqual(resource.attributes[2].key, 'telemetry.sdk.name');
+  assert.strictEqual(resource.attributes[2].value.stringValue, 'opentelemetry');
+  assert.strictEqual(resource.attributes[3].key, 'telemetry.sdk.version');
+  assert.strictEqual(resource.attributes[3].value.stringValue, VERSION);
+  assert.strictEqual(resource.attributes[4].key, 'service');
+  assert.strictEqual(resource.attributes[4].value.stringValue, 'ui');
+  assert.strictEqual(resource.attributes[5].key, 'version');
+  assert.strictEqual(resource.attributes[5].value.intValue, 1);
+  assert.strictEqual(resource.attributes[6].key, 'cost');
+  assert.strictEqual(resource.attributes[6].value.doubleValue, 112.12);
+  assert.strictEqual(resource.droppedAttributesCount, 0);
 }
 
 export function ensureCounterIsCorrect(

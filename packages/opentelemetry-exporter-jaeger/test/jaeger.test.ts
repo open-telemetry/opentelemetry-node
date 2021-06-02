@@ -23,25 +23,67 @@ import { ReadableSpan } from '@opentelemetry/tracing';
 import { TraceFlags } from '@opentelemetry/api';
 import { Resource } from '@opentelemetry/resources';
 import * as nock from 'nock';
+import { ResourceAttributes } from '@opentelemetry/semantic-conventions';
 
 describe('JaegerExporter', () => {
+  const readableSpan: ReadableSpan = {
+    name: 'my-span1',
+    kind: api.SpanKind.CLIENT,
+    spanContext: () => {
+      return {
+        traceId: 'd4cda95b652f4a1592b449d5929fda1b',
+        spanId: '6e0c63257de34c92',
+        traceFlags: TraceFlags.NONE,
+      };
+    },
+    startTime: [1566156729, 709],
+    endTime: [1566156731, 709],
+    ended: true,
+    status: {
+      code: api.SpanStatusCode.ERROR,
+    },
+    attributes: {},
+    links: [],
+    events: [],
+    duration: [32, 800000000],
+    resource: new Resource({
+      [ResourceAttributes.SERVICE_NAME]: 'opentelemetry'
+    }),
+    instrumentationLibrary: {
+      name: 'default',
+      version: '0.0.1',
+    },
+  };
   describe('constructor', () => {
     afterEach(() => {
       delete process.env.OTEL_EXPORTER_JAEGER_AGENT_HOST;
     });
 
     it('should construct an exporter', () => {
-      const exporter = new JaegerExporter({ serviceName: 'opentelemetry' });
+      const exporter = new JaegerExporter();
       assert.ok(typeof exporter.export === 'function');
       assert.ok(typeof exporter.shutdown === 'function');
-      const process: ThriftProcess = exporter['_sender']._process;
-      assert.strictEqual(process.serviceName, 'opentelemetry');
-      assert.strictEqual(process.tags.length, 0);
+    });
+
+    it('should get service name from the the service name resource attribute of the first exported span', done => {
+      const mockedEndpoint = 'http://testendpoint';
+      const scope =nock(mockedEndpoint)
+        .post('/')
+        .reply(202)
+        
+      const exporter = new JaegerExporter({
+        endpoint: mockedEndpoint,
+      });
+      exporter.export([readableSpan], result => {
+        assert.strictEqual(result.code, ExportResultCode.SUCCESS);
+        assert.strictEqual(exporter['_sender']._batch.process.serviceName, 'opentelemetry');
+        scope.done();
+        done();
+      });
     });
 
     it('should construct an exporter with host, port, logger and tags', () => {
       const exporter = new JaegerExporter({
-        serviceName: 'opentelemetry',
         host: 'remotehost',
         port: 8080,
         tags: [{ key: 'opentelemetry-exporter-jaeger', value: '0.1.0' }],
@@ -49,7 +91,12 @@ describe('JaegerExporter', () => {
       assert.ok(typeof exporter.export === 'function');
       assert.ok(typeof exporter.shutdown === 'function');
 
-      const process: ThriftProcess = exporter['_sender']._process;
+      const process: ThriftProcess = exporter['_getSender']({
+        tags: [{
+          key: "service.name",
+          vStr: "opentelemetry"
+        }]
+      } as any)._process;
       assert.strictEqual(exporter['_sender']._host, 'remotehost');
       assert.strictEqual(process.serviceName, 'opentelemetry');
       assert.strictEqual(process.tags.length, 1);
@@ -59,32 +106,44 @@ describe('JaegerExporter', () => {
     });
 
     it('should default to localhost if no host is configured', () => {
-      const exporter = new JaegerExporter({
-        serviceName: 'opentelemetry',
-      });
-      assert.strictEqual(exporter['_sender']._host, 'localhost');
+      const exporter = new JaegerExporter();
+      const sender = exporter['_getSender']({
+        tags: [{
+          key: "service.name",
+          vStr: "opentelemetry"
+        }]
+      } as any);
+      assert.strictEqual(sender._host, 'localhost');
     });
 
     it('should respect jaeger host env variable', () => {
       process.env.OTEL_EXPORTER_JAEGER_AGENT_HOST = 'env-set-host';
-      const exporter = new JaegerExporter({
-        serviceName: 'test-service',
-      });
-      assert.strictEqual(exporter['_sender']._host, 'env-set-host');
+      const exporter = new JaegerExporter();
+      const sender = exporter['_getSender']({
+        tags: [{
+          key: "service.name",
+          vStr: "opentelemetry"
+        }]
+      } as any);
+      assert.strictEqual(sender._host, 'env-set-host');
     });
 
     it('should prioritize host option over env variable', () => {
       process.env.OTEL_EXPORTER_JAEGER_AGENT_HOST = 'env-set-host';
       const exporter = new JaegerExporter({
-        serviceName: 'test-service',
         host: 'option-set-host',
       });
-      assert.strictEqual(exporter['_sender']._host, 'option-set-host');
+      const sender = exporter['_getSender']({
+        tags: [{
+          key: "service.name",
+          vStr: "opentelemetry"
+        }]
+      } as any);
+      assert.strictEqual(sender._host, 'option-set-host');
     });
 
     it('should construct an exporter with flushTimeout', () => {
       const exporter = new JaegerExporter({
-        serviceName: 'opentelemetry',
         flushTimeout: 5000,
       });
       assert.ok(typeof exporter.export === 'function');
@@ -94,9 +153,7 @@ describe('JaegerExporter', () => {
     });
 
     it('should construct an exporter without flushTimeout', () => {
-      const exporter = new JaegerExporter({
-        serviceName: 'opentelemetry',
-      });
+      const exporter = new JaegerExporter();
       assert.ok(typeof exporter.export === 'function');
       assert.ok(typeof exporter.shutdown === 'function');
 
@@ -105,37 +162,10 @@ describe('JaegerExporter', () => {
   });
 
   describe('export', () => {
-    const readableSpan: ReadableSpan = {
-      name: 'my-span1',
-      kind: api.SpanKind.CLIENT,
-      spanContext: {
-        traceId: 'd4cda95b652f4a1592b449d5929fda1b',
-        spanId: '6e0c63257de34c92',
-        traceFlags: TraceFlags.NONE,
-      },
-      startTime: [1566156729, 709],
-      endTime: [1566156731, 709],
-      ended: true,
-      status: {
-        code: api.SpanStatusCode.ERROR,
-      },
-      attributes: {},
-      links: [],
-      events: [],
-      duration: [32, 800000000],
-      resource: Resource.empty(),
-      instrumentationLibrary: {
-        name: 'default',
-        version: '0.0.1',
-      },
-    };
-
     let exporter: JaegerExporter;
 
     beforeEach(() => {
-      exporter = new JaegerExporter({
-        serviceName: 'opentelemetry',
-      });
+      exporter = new JaegerExporter();
     });
 
     afterEach(() => {
@@ -154,7 +184,7 @@ describe('JaegerExporter', () => {
       });
     });
 
-    it('should use httpSender if config.endpoint is setten', done => {
+    it('should use httpSender if config.endpoint is set', done => {
       const mockedEndpoint = 'http://testendpoint';
       nock(mockedEndpoint)
         .post('/')
@@ -164,14 +194,14 @@ describe('JaegerExporter', () => {
             'application/x-thrift'
           );
           assert.strictEqual(this.req.headers.host, 'testendpoint');
-          done();
         });
       const exporter = new JaegerExporter({
-        serviceName: 'opentelemetry',
         endpoint: mockedEndpoint,
       });
-      assert.strictEqual(exporter['_sender'].constructor.name, 'HTTPSender');
-      exporter.export([readableSpan], () => {});
+      exporter.export([readableSpan], () => {
+        assert.strictEqual(exporter['_sender'].constructor.name, 'HTTPSender');
+        done();
+      });
     });
 
     it('should return failed export result on error', () => {
@@ -182,7 +212,6 @@ describe('JaegerExporter', () => {
         .post('/')
         .replyWithError(expectedError);
       const exporter = new JaegerExporter({
-        serviceName: 'opentelemetry',
         endpoint: mockedEndpoint,
       });
 

@@ -17,13 +17,12 @@
 import {
   defaultTextMapGetter,
   defaultTextMapSetter,
-  getSpanContext,
-  setSpanContext,
   SpanContext,
-  suppressInstrumentation,
+  trace,
   TraceFlags,
 } from '@opentelemetry/api';
 import { ROOT_CONTEXT } from '@opentelemetry/api';
+import { suppressTracing } from '@opentelemetry/core';
 import * as assert from 'assert';
 import { B3MultiPropagator } from '../src/B3MultiPropagator';
 import {
@@ -52,7 +51,7 @@ describe('B3MultiPropagator', () => {
       };
 
       b3Propagator.inject(
-        setSpanContext(ROOT_CONTEXT, spanContext),
+        trace.setSpanContext(ROOT_CONTEXT, spanContext),
         carrier,
         defaultTextMapSetter
       );
@@ -88,7 +87,7 @@ describe('B3MultiPropagator', () => {
       };
 
       b3Propagator.inject(
-        setSpanContext(ROOT_CONTEXT, spanContext),
+        trace.setSpanContext(ROOT_CONTEXT, spanContext),
         carrier,
         defaultTextMapSetter
       );
@@ -110,7 +109,7 @@ describe('B3MultiPropagator', () => {
       const contextWithDebug = ROOT_CONTEXT.setValue(B3_DEBUG_FLAG_KEY, '1');
 
       b3Propagator.inject(
-        setSpanContext(contextWithDebug, spanContext),
+        trace.setSpanContext(contextWithDebug, spanContext),
         carrier,
         defaultTextMapSetter
       );
@@ -130,7 +129,7 @@ describe('B3MultiPropagator', () => {
         traceFlags: TraceFlags.NONE,
       };
       b3Propagator.inject(
-        setSpanContext(ROOT_CONTEXT, emptySpanContext),
+        trace.setSpanContext(ROOT_CONTEXT, emptySpanContext),
         carrier,
         defaultTextMapSetter
       );
@@ -147,7 +146,7 @@ describe('B3MultiPropagator', () => {
         traceFlags: TraceFlags.SAMPLED,
       };
       b3Propagator.inject(
-        suppressInstrumentation(setSpanContext(ROOT_CONTEXT, spanContext)),
+        suppressTracing(trace.setSpanContext(ROOT_CONTEXT, spanContext)),
         carrier,
         defaultTextMapSetter
       );
@@ -167,7 +166,7 @@ describe('B3MultiPropagator', () => {
         carrier,
         defaultTextMapGetter
       );
-      const extractedSpanContext = getSpanContext(context);
+      const extractedSpanContext = trace.getSpanContext(context);
       assert.deepStrictEqual(extractedSpanContext, {
         spanId: 'b7ad6b7169203331',
         traceId: '0af7651916cd43dd8448eb211c80319c',
@@ -188,7 +187,7 @@ describe('B3MultiPropagator', () => {
             carrier,
             defaultTextMapGetter
           );
-          const extractedSpanContext = getSpanContext(context);
+          const extractedSpanContext = trace.getSpanContext(context);
 
           assert.deepStrictEqual(extractedSpanContext, {
             spanId: 'b7ad6b7169203331',
@@ -210,7 +209,7 @@ describe('B3MultiPropagator', () => {
             carrier,
             defaultTextMapGetter
           );
-          const extractedSpanContext = getSpanContext(context);
+          const extractedSpanContext = trace.getSpanContext(context);
 
           assert.deepStrictEqual(extractedSpanContext, {
             spanId: 'b7ad6b7169203331',
@@ -232,7 +231,7 @@ describe('B3MultiPropagator', () => {
             carrier,
             defaultTextMapGetter
           );
-          const extractedSpanContext = getSpanContext(context);
+          const extractedSpanContext = trace.getSpanContext(context);
 
           assert.deepStrictEqual(extractedSpanContext, {
             spanId: 'b7ad6b7169203331',
@@ -256,7 +255,7 @@ describe('B3MultiPropagator', () => {
             carrier,
             defaultTextMapGetter
           );
-          const extractedSpanContext = getSpanContext(context);
+          const extractedSpanContext = trace.getSpanContext(context);
 
           assert.deepStrictEqual(extractedSpanContext, {
             spanId: 'b7ad6b7169203331',
@@ -281,7 +280,7 @@ describe('B3MultiPropagator', () => {
             carrier,
             defaultTextMapGetter
           );
-          const extractedSpanContext = getSpanContext(context);
+          const extractedSpanContext = trace.getSpanContext(context);
 
           assert.deepStrictEqual(extractedSpanContext, {
             spanId: 'b7ad6b7169203331',
@@ -304,7 +303,7 @@ describe('B3MultiPropagator', () => {
             carrier,
             defaultTextMapGetter
           );
-          const extractedSpanContext = getSpanContext(context);
+          const extractedSpanContext = trace.getSpanContext(context);
 
           assert.deepStrictEqual(extractedSpanContext, {
             spanId: 'b7ad6b7169203331',
@@ -327,7 +326,7 @@ describe('B3MultiPropagator', () => {
             carrier,
             defaultTextMapGetter
           );
-          const extractedSpanContext = getSpanContext(context);
+          const extractedSpanContext = trace.getSpanContext(context);
 
           assert.deepStrictEqual(extractedSpanContext, {
             spanId: 'b7ad6b7169203331',
@@ -350,7 +349,7 @@ describe('B3MultiPropagator', () => {
             carrier,
             defaultTextMapGetter
           );
-          const extractedSpanContext = getSpanContext(context);
+          const extractedSpanContext = trace.getSpanContext(context);
 
           assert.deepStrictEqual(extractedSpanContext, {
             spanId: 'b7ad6b7169203331',
@@ -368,7 +367,7 @@ describe('B3MultiPropagator', () => {
         it('should return undefined', () => {
           carrier[X_B3_TRACE_ID] = undefined;
           carrier[X_B3_SPAN_ID] = 'b7ad6b7169203331';
-          const context = getSpanContext(
+          const context = trace.getSpanContext(
             b3Propagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
           );
           assert.deepStrictEqual(context, undefined);
@@ -379,7 +378,7 @@ describe('B3MultiPropagator', () => {
         it('should return undefined', () => {
           carrier[X_B3_TRACE_ID] = '0af7651916cd43dd8448eb211c80319c';
           carrier[X_B3_SPAN_ID] = undefined;
-          const context = getSpanContext(
+          const context = trace.getSpanContext(
             b3Propagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
           );
           assert.deepStrictEqual(context, undefined);
@@ -391,7 +390,7 @@ describe('B3MultiPropagator', () => {
           carrier[X_B3_TRACE_ID] = '0af7651916cd43dd8448eb211c80319c';
           carrier[X_B3_SPAN_ID] = 'b7ad6b7169203331';
           carrier[X_B3_SAMPLED] = '2';
-          const context = getSpanContext(
+          const context = trace.getSpanContext(
             b3Propagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
           );
           assert.deepStrictEqual(context, undefined);
@@ -400,7 +399,7 @@ describe('B3MultiPropagator', () => {
 
       describe('AND b3 header is missing', () => {
         it('should return undefined', () => {
-          const context = getSpanContext(
+          const context = trace.getSpanContext(
             b3Propagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
           );
           assert.deepStrictEqual(context, undefined);
@@ -411,7 +410,7 @@ describe('B3MultiPropagator', () => {
         it('should return undefined', () => {
           carrier[X_B3_TRACE_ID] = 'invalid!';
           carrier[X_B3_SPAN_ID] = 'b7ad6b7169203331';
-          const context = getSpanContext(
+          const context = trace.getSpanContext(
             b3Propagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
           );
           assert.deepStrictEqual(context, undefined);
@@ -428,7 +427,7 @@ describe('B3MultiPropagator', () => {
         carrier,
         defaultTextMapGetter
       );
-      const extractedSpanContext = getSpanContext(context);
+      const extractedSpanContext = trace.getSpanContext(context);
       assert.deepStrictEqual(extractedSpanContext, {
         spanId: 'b7ad6b7169203331',
         traceId: '0af7651916cd43dd8448eb211c80319c',
@@ -477,7 +476,7 @@ describe('B3MultiPropagator', () => {
 
       Object.getOwnPropertyNames(testCases).forEach(testCase => {
         carrier[X_B3_TRACE_ID] = testCases[testCase];
-        const extractedSpanContext = getSpanContext(
+        const extractedSpanContext = trace.getSpanContext(
           b3Propagator.extract(ROOT_CONTEXT, carrier, defaultTextMapGetter)
         );
         assert.deepStrictEqual(extractedSpanContext, undefined, testCase);
@@ -513,7 +512,7 @@ describe('B3MultiPropagator', () => {
         carrier,
         defaultTextMapGetter
       );
-      const extractedSpanContext = getSpanContext(context);
+      const extractedSpanContext = trace.getSpanContext(context);
 
       assert.deepStrictEqual(extractedSpanContext, {
         spanId: 'b7ad6b7169203331',
