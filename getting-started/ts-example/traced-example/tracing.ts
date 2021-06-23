@@ -1,9 +1,10 @@
 import { NodeTracerProvider } from '@opentelemetry/node';
-const { Resource } = require('@opentelemetry/resources');
-const { ResourceAttributes } = require('@opentelemetry/semantic-conventions');
 
 import { SimpleSpanProcessor } from '@opentelemetry/tracing';
 import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
+
+const { Resource } = require('@opentelemetry/resources');
+const { ResourceAttributes } = require('@opentelemetry/semantic-conventions');
 // For Jaeger, use the following line instead:
 // import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
 
@@ -35,6 +36,5 @@ registerInstrumentations({
     new HttpInstrumentation(),
   ],
 });
-
 
 console.log('tracing initialized');
