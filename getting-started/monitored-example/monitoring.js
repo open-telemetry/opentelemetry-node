@@ -1,3 +1,5 @@
+'use strict';
+
 const { MeterProvider } = require('@opentelemetry/metrics');
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus');
 

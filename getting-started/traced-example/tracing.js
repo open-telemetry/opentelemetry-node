@@ -1,3 +1,5 @@
+'use strict';
+
 const { NodeTracerProvider } = require('@opentelemetry/node');
 const { SimpleSpanProcessor } = require('@opentelemetry/tracing');
 const { Resource } = require('@opentelemetry/resources');

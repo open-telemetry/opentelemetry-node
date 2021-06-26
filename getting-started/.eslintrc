@@ -4,14 +4,13 @@
   },
   "extends": "airbnb-base",
   "parserOptions": {
-    "sourceType": "module"
+    "sourceType": "script"
   },
   "rules": {
-    "strict": ["error", "global"],
     "no-use-before-define": ["error", "nofunc"],
     "no-console": "off",
     "import/no-unresolved": "off",
-    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
-  },
-  "ignorePatterns": "**/*_pb.js"
+    "no-unused-vars": ["error"],
+    "strict": ["error", "global"]
+  }
 }
