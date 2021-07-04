@@ -56,7 +56,7 @@
     "codecov": "3.8.2",
     "got": "9.6.0",
     "mocha": "7.2.0",
-    "nock": "12.0.3",
+    "nock": "13.1.1",
     "nyc": "15.1.0",
     "request": "2.88.2",
     "request-promise-native": "1.0.9",
