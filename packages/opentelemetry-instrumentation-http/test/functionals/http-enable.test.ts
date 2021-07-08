@@ -18,7 +18,9 @@ import {
   context,
   propagation,
   Span as ISpan,
-  SpanKind, trace,
+  SpanKind, 
+  trace,
+  SpanAttributes,
 } from '@opentelemetry/api';
 import { NodeTracerProvider } from '@opentelemetry/node';
 import {
@@ -39,7 +41,7 @@ import { DummyPropagation } from '../utils/DummyPropagation';
 import { httpRequest } from '../utils/httpRequest';
 import { ContextManager } from '@opentelemetry/api';
 import { AsyncHooksContextManager } from '@opentelemetry/context-async-hooks';
-import type { ClientRequest, IncomingMessage, ServerResponse } from 'http';
+import type { ClientRequest, IncomingMessage, ServerResponse, RequestOptions } from 'http';
 import { isWrapped } from '@opentelemetry/instrumentation';
 import { getRPCMetadata, RPCType } from '@opentelemetry/core';
 
@@ -93,6 +95,18 @@ export const responseHookFunction = (
   response: IncomingMessage | ServerResponse
 ): void => {
   span.setAttribute('custom response hook attribute', 'response');
+};
+
+export const startIncomingSpanHookFunction = (
+  request: IncomingMessage
+): SpanAttributes => {
+  return {guid: request.headers?.guid}
+};
+
+export const startOutgoingSpanHookFunction = (
+  request: RequestOptions
+): SpanAttributes => {
+  return {guid: request.headers?.guid}
 };
 
 describe('HttpInstrumentation', () => {
@@ -201,6 +215,8 @@ describe('HttpInstrumentation', () => {
           applyCustomAttributesOnSpan: customAttributeFunction,
           requestHook: requestHookFunction,
           responseHook: responseHookFunction,
+          startIncomingSpanHook: startIncomingSpanHookFunction,
+          startOutgoingSpanHook: startOutgoingSpanHookFunction,
           serverName,
         });
         instrumentation.enable();
@@ -672,7 +688,8 @@ describe('HttpInstrumentation', () => {
 
       it('custom attributes should show up on client and server spans', async () => {
         await httpRequest.get(
-          `${protocol}://${hostname}:${serverPort}${pathname}`
+          `${protocol}://${hostname}:${serverPort}${pathname}`,
+          {headers: {guid: 'user_guid'}}
         );
         const spans = memoryExporter.getFinishedSpans();
         const [incomingSpan, outgoingSpan] = spans;
@@ -686,6 +703,14 @@ describe('HttpInstrumentation', () => {
           'response'
         );
         assert.strictEqual(
+          incomingSpan.attributes['custom response hook attribute'],
+          'response'
+        );
+        assert.strictEqual(
+          incomingSpan.attributes['guid'],
+          'user_guid'
+        );
+        assert.strictEqual(
           incomingSpan.attributes['span kind'],
           SpanKind.CLIENT
         );
@@ -697,6 +722,10 @@ describe('HttpInstrumentation', () => {
         assert.strictEqual(
           outgoingSpan.attributes['custom response hook attribute'],
           'response'
+        );
+        assert.strictEqual(
+          outgoingSpan.attributes['guid'],
+          'user_guid'
         );
         assert.strictEqual(
           outgoingSpan.attributes['span kind'],
