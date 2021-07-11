@@ -122,7 +122,7 @@
       "path": "packages/opentelemetry-resources"
     },
     {
-      "path": "packages/opentelemetry-sdk-node"
+      "path": "packages/opentelemetry-sdk-node-all"
     },
     {
       "path": "packages/opentelemetry-semantic-conventions"
