@@ -27,11 +27,11 @@ function doWork() {
 As you have learned in the previous [Getting Started](../getting_started/) guide you need a TracerProvider and an Exporter. Install the dependencies and add them to head of your application code to get started:
 
 ```shell
-npm install @opentelemetry/tracing
+npm install @opentelemetry/sdk-base-tracing
 ```
 
 ```javascript
-const { BasicTracerProvider, ConsoleSpanExporter, SimpleSpanProcessor } = require('@opentelemetry/tracing');
+const { BasicTracerProvider, ConsoleSpanExporter, SimpleSpanProcessor } = require('@opentelemetry/sdk-base-tracing');
 
 const provider = new BasicTracerProvider();
 

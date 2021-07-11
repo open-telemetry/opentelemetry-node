@@ -8,7 +8,7 @@
 This module provides automatic instrumentation for [`grpc`](https://grpc.github.io/grpc/node/) and [`@grpc/grpc-js`](https://grpc.io/blog/grpc-js-1.0/). Currently, version [`1.x`](https://www.npmjs.com/package/grpc?activeTab=versions) of `grpc` and version [`1.x`](https://www.npmjs.com/package/@grpc/grpc-js?activeTab=versions) of `@grpc/grpc-js` is supported.
 
 For automatic instrumentation see the
-[@opentelemetry/node](https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-node) package.
+[@opentelemetry/sdk-node-tracing](https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-node-tracing) package.
 
 ## Installation
 
@@ -23,7 +23,7 @@ OpenTelemetry gRPC Instrumentation allows the user to automatically collect trac
 To load a specific instrumentation (**gRPC** in this case), specify it in the Node Tracer's configuration.
 
 ```javascript
-const { NodeTracerProvider } = require('@opentelemetry/node');
+const { NodeTracerProvider } = require('@opentelemetry/sdk-node-tracing');
 const { GrpcInstrumentation } = require('@opentelemetry/instrumentation-grpc');
 const { registerInstrumentations } = require('@opentelemetry/instrumentation');
 

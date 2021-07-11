@@ -19,7 +19,7 @@ import { JaegerExporter } from '../src';
 import { ExportResult, ExportResultCode } from '@opentelemetry/core';
 import * as api from '@opentelemetry/api';
 import { ThriftProcess } from '../src/types';
-import { ReadableSpan } from '@opentelemetry/tracing';
+import { ReadableSpan } from '@opentelemetry/sdk-base-tracing';
 import { TraceFlags } from '@opentelemetry/api';
 import { Resource } from '@opentelemetry/resources';
 import * as nock from 'nock';

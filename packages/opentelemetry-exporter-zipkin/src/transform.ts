@@ -15,7 +15,7 @@
  */
 
 import * as api from '@opentelemetry/api';
-import { ReadableSpan, TimedEvent } from '@opentelemetry/tracing';
+import { ReadableSpan, TimedEvent } from '@opentelemetry/sdk-base-tracing';
 import { hrTimeToMicroseconds } from '@opentelemetry/core';
 import * as zipkinTypes from './types';
 import { Resource } from '@opentelemetry/resources';

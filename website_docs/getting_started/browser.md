@@ -40,11 +40,11 @@ Copy the following file into an empty directory and call it `index.html`.
 
 ## Installation
 
-To create traces in the browser, you will need `@opentelemetry/web`, and the instrumentation `@opentelemetry/instrumentation-document-load`:
+To create traces in the browser, you will need `@opentelemetry/sdk-web-tracing`, and the instrumentation `@opentelemetry/instrumentation-document-load`:
 
 ```shell
 npm init -y
-npm install --save @opentelemetry/web @opentelemetry/instrumentation-document-load @opentelemetry/context-zone
+npm install --save @opentelemetry/sdk-web-tracing @opentelemetry/instrumentation-document-load @opentelemetry/context-zone
 ```
 
 ## Initialization and Configuration
@@ -62,7 +62,7 @@ We will add some code that will trace the document load timings and output those
 Add the following code to the `document-load.js` to create a tracer provider, which brings the instrumentaion to trace document load:
 
 ```javascript
-import { WebTracerProvider } from '@opentelemetry/web';
+import { WebTracerProvider } from '@opentelemetry/sdk-web-tracing';
 import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-document-load';
 import { ZoneContextManager } from '@opentelemetry/context-zone';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
@@ -99,8 +99,8 @@ There will be no output of traces yet, for this we need to add an exporter
 To export traces, modify `document-load.js` so that it matches the following code snippet:
 
 ```javascript
-import { ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/tracing';
-import { WebTracerProvider } from '@opentelemetry/web';
+import { ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/sdk-base-tracing';
+import { WebTracerProvider } from '@opentelemetry/sdk-web-tracing';
 import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-document-load';
 import { ZoneContextManager } from '@opentelemetry/context-zone';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';

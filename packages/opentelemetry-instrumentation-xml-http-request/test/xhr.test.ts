@@ -24,13 +24,13 @@ import {
   X_B3_TRACE_ID,
 } from '@opentelemetry/propagator-b3';
 import { ZoneContextManager } from '@opentelemetry/context-zone';
-import * as tracing from '@opentelemetry/tracing';
+import * as tracing from '@opentelemetry/sdk-base-tracing';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 import {
   PerformanceTimingNames as PTN,
   WebTracerProvider,
   parseUrl,
-} from '@opentelemetry/web';
+} from '@opentelemetry/sdk-web-tracing';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import { EventNames } from '../src/enums/EventNames';

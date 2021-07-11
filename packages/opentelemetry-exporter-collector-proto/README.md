@@ -21,7 +21,7 @@ In order to set the service name, use the `service.name` resource attribute as p
 ## Traces in Node - PROTO over http
 
 ```js
-const { BasicTracerProvider, SimpleSpanProcessor } = require('@opentelemetry/tracing');
+const { BasicTracerProvider, SimpleSpanProcessor } = require('@opentelemetry/sdk-base-tracing');
 const { CollectorTraceExporter } =  require('@opentelemetry/exporter-collector-proto');
 
 const collectorOptions = {
@@ -42,7 +42,7 @@ provider.register();
 ## Metrics in Node - PROTO over http
 
 ```js
-const { MeterProvider } = require('@opentelemetry/metrics');
+const { MeterProvider } = require('@opentelemetry/sdk-base-metrics');
 const { CollectorMetricExporter } =  require('@opentelemetry/exporter-collector-proto');
 const collectorOptions = {
   url: '<opentelemetry-collector-url>', // url is optional and can be omitted - default is http://localhost:55681/v1/metrics

@@ -20,7 +20,7 @@ import {
   globalErrorHandler,
   ExportResultCode,
 } from '@opentelemetry/core';
-import { MetricExporter, MetricRecord } from '@opentelemetry/metrics';
+import { MetricExporter, MetricRecord } from '@opentelemetry/sdk-base-metrics';
 import { createServer, IncomingMessage, Server, ServerResponse } from 'http';
 import * as url from 'url';
 import { ExporterConfig } from './export/types';

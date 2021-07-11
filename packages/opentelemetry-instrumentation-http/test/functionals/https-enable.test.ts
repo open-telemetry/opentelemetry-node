@@ -28,7 +28,7 @@ import {
   BasicTracerProvider,
   InMemorySpanExporter,
   SimpleSpanProcessor,
-} from '@opentelemetry/tracing';
+} from '@opentelemetry/sdk-base-tracing';
 import {
   NetTransportValues,
   SemanticAttributes,

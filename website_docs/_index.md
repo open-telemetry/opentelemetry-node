@@ -24,4 +24,4 @@ You can find release information [here](https://github.com/open-telemetry/opente
 - [OpenTelemetry for JavaScript on GitHub](https://github.com/open-telemetry/opentelemetry-js)
 - [Getting Started](https://github.com/open-telemetry/opentelemetry-js/blob/main/getting-started/README.md)
 - [API Documentation](https://open-telemetry.github.io/opentelemetry-js)
-- [Getting In Touch (Gitter)](https://gitter.im/open-telemetry/opentelemetry-node)
+- [Getting In Touch (Gitter)](https://gitter.im/open-telemetry/opentelemetry-sdk-node-tracing)

@@ -23,8 +23,8 @@ In order to set the service name, use the `service.name` resource attribute as p
 The CollectorTraceExporter in Web expects the endpoint to end in `/v1/traces`.
 
 ```js
-import { BatchSpanProcessor } from '@opentelemetry/tracing';
-import { WebTracerProvider } from '@opentelemetry/web';
+import { BatchSpanProcessor } from '@opentelemetry/sdk-base-tracing';
+import { WebTracerProvider } from '@opentelemetry/sdk-web-tracing';
 import { CollectorTraceExporter } from '@opentelemetry/exporter-collector';
 
 const collectorOptions = {
@@ -55,7 +55,7 @@ provider.register();
 The CollectorMetricExporter in Web expects the endpoint to end in `/v1/metrics`.
 
 ```js
-import { MeterProvider } from '@opentelemetry/metrics';
+import { MeterProvider } from '@opentelemetry/sdk-base-metrics';
 import { CollectorMetricExporter } from '@opentelemetry/exporter-collector';
 const collectorOptions = {
   url: '<opentelemetry-collector-url>', // url is optional and can be omitted - default is http://localhost:55681/v1/metrics
@@ -79,7 +79,7 @@ counter.add(10, { 'key': 'value' });
 ## Traces in Node - JSON over http
 
 ```js
-const { BasicTracerProvider, BatchSpanProcessor } = require('@opentelemetry/tracing');
+const { BasicTracerProvider, BatchSpanProcessor } = require('@opentelemetry/sdk-base-tracing');
 const { CollectorTraceExporter } =  require('@opentelemetry/exporter-collector');
 
 const collectorOptions = {
@@ -106,7 +106,7 @@ provider.register();
 ## Metrics in Node
 
 ```js
-const { MeterProvider } = require('@opentelemetry/metrics');
+const { MeterProvider } = require('@opentelemetry/sdk-base-metrics');
 const { CollectorMetricExporter } =  require('@opentelemetry/exporter-collector');
 const collectorOptions = {
   url: '<opentelemetry-collector-url>', // url is optional and can be omitted - default is http://localhost:55681/v1/metrics

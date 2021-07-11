@@ -12,7 +12,7 @@ This TypeScript guide will walk you through the setup and configuration process 
   - [Collect Metrics Using OpenTelemetry](#collect-metrics-using-opentelemetry)
     - [Set up a Metrics Backend](#set-up-a-metrics-backend)
     - [Monitor Your NodeJS Application](#monitor-your-nodejs-application)
-      - [Install the required OpenTelemetry metrics libraries](#install-the-required-opentelemetry-metrics-libraries)
+      - [Install the required OpenTelemetry metrics libraries](#install-the-required-opentelemetry-sdk-base-metrics-libraries)
       - [Initialize a meter and collect metrics](#initialize-a-meter-and-collect-metrics)
       - [Initialize and register a metrics exporter](#initialize-and-register-a-metrics-exporter)
 
@@ -54,12 +54,12 @@ This guide uses the example application provided in the [example directory](exam
 
 ([link to JavaScript version](../README.md#install-the-required-opentelemetry-libraries))
 
-To create traces on NodeJS, you will need `@opentelemetry/node`, `@opentelemetry/core`, and any plugins required by your application such as gRPC, or HTTP. If you are using the example application, you will need to install `@opentelemetry/plugin-http`.
+To create traces on NodeJS, you will need `@opentelemetry/sdk-node-tracing`, `@opentelemetry/core`, and any plugins required by your application such as gRPC, or HTTP. If you are using the example application, you will need to install `@opentelemetry/plugin-http`.
 
 ```sh
 $ npm install \
   @opentelemetry/core \
-  @opentelemetry/node \
+  @opentelemetry/sdk-node-tracing \
   @opentelemetry/instrumentation \
   @opentelemetry/instrumentation-http \
   @opentelemetry/instrumentation-express
@@ -75,7 +75,7 @@ Create a file named `tracing.ts` and add the following code:
 
 ```typescript
 import { LogLevel } from '@opentelemetry/core';
-import { NodeTracerProvider } from '@opentelemetry/node';
+import { NodeTracerProvider } from '@opentelemetry/sdk-node-tracing';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
@@ -110,7 +110,7 @@ To export traces, we will need a few more dependencies. Install them with the fo
 
 ```sh
 $ npm install \
-  @opentelemetry/tracing \
+  @opentelemetry/sdk-base-tracing \
   @opentelemetry/exporter-zipkin
 
 $ # for jaeger you would run this command:
@@ -121,9 +121,9 @@ After these dependencies are installed, we will need to initialize and register 
 
 ```typescript
 import { LogLevel } from '@opentelemetry/core';
-import { NodeTracerProvider } from '@opentelemetry/node';
+import { NodeTracerProvider } from '@opentelemetry/sdk-node-tracing';
 
-import { SimpleSpanProcessor } from '@opentelemetry/tracing';
+import { SimpleSpanProcessor } from '@opentelemetry/sdk-base-tracing';
 import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
 // For Jaeger, use the following line instead:
 // import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
@@ -247,12 +247,12 @@ An example application which can be used with this guide can be found at in the 
 
 #### Install the required OpenTelemetry metrics libraries
 
-([link to JavaScript version](../README.md#install-the-required-opentelemetry-metrics-libraries))
+([link to JavaScript version](../README.md#install-the-required-opentelemetry-sdk-base-metrics-libraries))
 
-To create metrics on NodeJS, you will need `@opentelemetry/metrics`.
+To create metrics on NodeJS, you will need `@opentelemetry/sdk-base-metrics`.
 
 ```sh
-npm install @opentelemetry/metrics
+npm install @opentelemetry/sdk-base-metrics
 ```
 
 #### Initialize a meter and collect metrics
@@ -264,7 +264,7 @@ In order to create and monitor metrics, we will need a `Meter`. In OpenTelemetry
 Create a file named `monitoring.ts` and add the following code:
 
 ```typescript
-import { MeterProvider } from '@opentelemetry/metrics';
+import { MeterProvider } from '@opentelemetry/sdk-base-metrics';
 
 const meter = new MeterProvider().getMeter('your-meter-name');
 ```
@@ -272,7 +272,7 @@ const meter = new MeterProvider().getMeter('your-meter-name');
 Now, you can require this file from your application code and use the `Meter` to create and manage metrics. The simplest of these metrics is a counter. Let's create and export from our `monitoring.ts` file a middleware function that express can use to count all requests by route. Modify the `monitoring.ts` file so that it looks like this:
 
 ```typescript
-import { MeterProvider } from '@opentelemetry/metrics';
+import { MeterProvider } from '@opentelemetry/sdk-base-metrics';
 import { Request, Response, NextFunction } from 'express';
 
 const meter = new MeterProvider().getMeter('your-meter-name');
@@ -323,7 +323,7 @@ Next, modify your `monitoring.ts` file to look like this:
 
 ```typescript
 import { Request, Response, NextFunction } from 'express';
-import { MeterProvider } from '@opentelemetry/metrics';
+import { MeterProvider } from '@opentelemetry/sdk-base-metrics';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 
 const prometheusPort = PrometheusExporter.DEFAULT_OPTIONS.port;

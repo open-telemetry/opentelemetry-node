@@ -25,9 +25,9 @@ import {
   ValueType,
 } from '@opentelemetry/api-metrics';
 import { hexToBase64, InstrumentationLibrary, VERSION } from '@opentelemetry/core';
-import * as metrics from '@opentelemetry/metrics';
+import * as metrics from '@opentelemetry/sdk-base-metrics';
 import { Resource } from '@opentelemetry/resources';
-import { ReadableSpan } from '@opentelemetry/tracing';
+import { ReadableSpan } from '@opentelemetry/sdk-base-tracing';
 import * as assert from 'assert';
 import * as collectorTypes from '../src/types';
 import { opentelemetryProto } from '../src/types';

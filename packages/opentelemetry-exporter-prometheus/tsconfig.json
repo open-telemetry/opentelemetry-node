@@ -16,7 +16,7 @@
       "path": "../opentelemetry-core"
     },
     {
-      "path": "../opentelemetry-metrics"
+      "path": "../opentelemetry-sdk-base-metrics"
     }
   ]
 }

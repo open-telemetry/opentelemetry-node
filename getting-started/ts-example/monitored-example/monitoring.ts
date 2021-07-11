@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { MeterProvider } from '@opentelemetry/metrics';
+import { MeterProvider } from '@opentelemetry/sdk-base-metrics';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 
 const prometheusPort = PrometheusExporter.DEFAULT_OPTIONS.port;

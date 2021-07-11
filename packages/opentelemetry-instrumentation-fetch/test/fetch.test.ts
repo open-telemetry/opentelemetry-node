@@ -28,11 +28,11 @@ import {
   X_B3_SAMPLED,
 } from '@opentelemetry/propagator-b3';
 import { ZoneContextManager } from '@opentelemetry/context-zone';
-import * as tracing from '@opentelemetry/tracing';
+import * as tracing from '@opentelemetry/sdk-base-tracing';
 import {
   PerformanceTimingNames as PTN,
   WebTracerProvider,
-} from '@opentelemetry/web';
+} from '@opentelemetry/sdk-web-tracing';
 import * as assert from 'assert';
 import * as sinon from 'sinon';
 import {

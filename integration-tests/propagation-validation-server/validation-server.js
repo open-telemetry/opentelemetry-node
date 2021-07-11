@@ -1,6 +1,6 @@
 const axios = require("axios");
 const { HttpTraceContextPropagator } = require("@opentelemetry/core");
-const { BasicTracerProvider } = require("@opentelemetry/tracing");
+const { BasicTracerProvider } = require("@opentelemetry/sdk-base-tracing");
 const { context, propagation, trace, ROOT_CONTEXT } = require("@opentelemetry/api");
 const {
   AsyncHooksContextManager,

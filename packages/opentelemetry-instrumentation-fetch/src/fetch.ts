@@ -22,7 +22,7 @@ import {
   safeExecuteInTheMiddle,
 } from '@opentelemetry/instrumentation';
 import * as core from '@opentelemetry/core';
-import * as web from '@opentelemetry/web';
+import * as web from '@opentelemetry/sdk-web-tracing';
 import { AttributeNames } from './enums/AttributeNames';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 import { FetchError, FetchResponse, SpanData } from './types';

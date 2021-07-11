@@ -43,8 +43,8 @@
   "devDependencies": {
     "@opentelemetry/api": "^1.0.1",
     "@opentelemetry/context-async-hooks": "0.23.0",
-    "@opentelemetry/node": "0.23.0",
-    "@opentelemetry/tracing": "0.23.0",
+    "@opentelemetry/sdk-node-tracing": "0.23.0",
+    "@opentelemetry/sdk-base-tracing": "0.23.0",
     "@types/got": "9.6.12",
     "@types/mocha": "8.2.3",
     "@types/node": "14.17.5",

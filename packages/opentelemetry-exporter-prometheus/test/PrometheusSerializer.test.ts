@@ -22,7 +22,7 @@ import {
   ValueRecorderMetric,
   UpDownCounterMetric,
   ValueObserverMetric,
-} from '@opentelemetry/metrics';
+} from '@opentelemetry/sdk-base-metrics';
 import { diag, DiagLogLevel } from '@opentelemetry/api';
 import * as assert from 'assert';
 import { Labels } from '@opentelemetry/api-metrics';

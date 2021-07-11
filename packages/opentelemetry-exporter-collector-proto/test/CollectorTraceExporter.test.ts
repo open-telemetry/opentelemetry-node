@@ -20,7 +20,7 @@ import {
   CollectorExporterNodeConfigBase,
   collectorTypes,
 } from '@opentelemetry/exporter-collector';
-import { ReadableSpan } from '@opentelemetry/tracing';
+import { ReadableSpan } from '@opentelemetry/sdk-base-tracing';
 import * as assert from 'assert';
 import * as http from 'http';
 import * as sinon from 'sinon';

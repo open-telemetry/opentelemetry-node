@@ -18,7 +18,7 @@ import { SpanKind, SpanStatusCode } from '@opentelemetry/api';
 import * as assert from 'assert';
 import type * as grpc from 'grpc';
 import type * as grpcJs from '@grpc/grpc-js';
-import { ReadableSpan } from '@opentelemetry/tracing';
+import { ReadableSpan } from '@opentelemetry/sdk-base-tracing';
 import {
   hrTimeToMilliseconds,
   hrTimeToMicroseconds,

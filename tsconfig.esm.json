@@ -30,7 +30,7 @@
       "path": "packages/opentelemetry-instrumentation/tsconfig.esm.json"
     },
     {
-      "path": "packages/opentelemetry-metrics/tsconfig.esm.json"
+      "path": "packages/opentelemetry-sdk-base-metrics/tsconfig.esm.json"
     },
     {
       "path": "packages/opentelemetry-propagator-b3/tsconfig.esm.json"
@@ -45,10 +45,10 @@
       "path": "packages/opentelemetry-semantic-conventions/tsconfig.esm.json"
     },
     {
-      "path": "packages/opentelemetry-tracing/tsconfig.esm.json"
+      "path": "packages/opentelemetry-sdk-base-tracing/tsconfig.esm.json"
     },
     {
-      "path": "packages/opentelemetry-web/tsconfig.esm.json"
+      "path": "packages/opentelemetry-sdk-web-tracing/tsconfig.esm.json"
     }
   ]
 }

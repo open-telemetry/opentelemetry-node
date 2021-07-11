@@ -15,7 +15,7 @@
  */
 
 import { Link, SpanStatusCode, SpanKind } from '@opentelemetry/api';
-import { ReadableSpan } from '@opentelemetry/tracing';
+import { ReadableSpan } from '@opentelemetry/sdk-base-tracing';
 import {
   hrTimeToMilliseconds,
   hrTimeToMicroseconds,

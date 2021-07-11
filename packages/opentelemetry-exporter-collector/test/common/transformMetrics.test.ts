@@ -27,7 +27,7 @@ import {
   BoundValueRecorder,
   Metric,
   SumAggregator,
-} from '@opentelemetry/metrics';
+} from '@opentelemetry/sdk-base-metrics';
 import { Resource } from '@opentelemetry/resources';
 import * as assert from 'assert';
 import * as transform from '../../src/transformMetrics';

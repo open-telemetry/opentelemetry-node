@@ -15,7 +15,7 @@
  */
 
 import { TraceFlags, SpanStatusCode } from '@opentelemetry/api';
-import { ReadableSpan } from '@opentelemetry/tracing';
+import { ReadableSpan } from '@opentelemetry/sdk-base-tracing';
 import { Resource } from '@opentelemetry/resources';
 import * as assert from 'assert';
 import { Span } from '../src/types';

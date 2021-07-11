@@ -16,7 +16,7 @@
 
 import { diag } from '@opentelemetry/api';
 import { ExportResult, ExportResultCode, getEnv } from '@opentelemetry/core';
-import { ReadableSpan, SpanExporter } from '@opentelemetry/tracing';
+import { ReadableSpan, SpanExporter } from '@opentelemetry/sdk-base-tracing';
 import { Socket } from 'dgram';
 import { ResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { spanToThrift } from './transform';

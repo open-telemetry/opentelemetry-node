@@ -18,7 +18,7 @@ import {
   collectorTypes,
   toCollectorExportMetricServiceRequest,
 } from '@opentelemetry/exporter-collector';
-import { MetricRecord, MetricExporter } from '@opentelemetry/metrics';
+import { MetricRecord, MetricExporter } from '@opentelemetry/sdk-base-metrics';
 import { CollectorExporterConfigNode, ServiceClientType } from './types';
 import { CollectorExporterNodeBase } from './CollectorExporterNodeBase';
 import { baggageUtils, getEnv } from '@opentelemetry/core';

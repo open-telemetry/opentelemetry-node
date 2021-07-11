@@ -15,7 +15,7 @@
  */
 import { isValidSpanId, SpanKind, SpanStatus } from '@opentelemetry/api';
 import { hrTimeToNanoseconds } from '@opentelemetry/core';
-import { ReadableSpan } from '@opentelemetry/tracing';
+import { ReadableSpan } from '@opentelemetry/sdk-base-tracing';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 import * as assert from 'assert';
 import * as http from 'http';

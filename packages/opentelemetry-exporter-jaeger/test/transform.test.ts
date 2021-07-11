@@ -16,7 +16,7 @@
 
 import * as assert from 'assert';
 import { spanToThrift } from '../src/transform';
-import { ReadableSpan } from '@opentelemetry/tracing';
+import { ReadableSpan } from '@opentelemetry/sdk-base-tracing';
 import { Resource } from '@opentelemetry/resources';
 import * as api from '@opentelemetry/api';
 import { ThriftUtils, Utils, ThriftReferenceType } from '../src/types';

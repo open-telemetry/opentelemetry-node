@@ -1,5 +1,5 @@
 import {NodeSDK, api} from '@opentelemetry/sdk-node';
-import {ConsoleSpanExporter} from '@opentelemetry/tracing';
+import {ConsoleSpanExporter} from '@opentelemetry/sdk-base-tracing';
 
 const sdk = new NodeSDK({
   traceExporter: new ConsoleSpanExporter(),

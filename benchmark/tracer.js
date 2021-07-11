@@ -2,7 +2,7 @@
 
 const benchmark = require('./benchmark');
 const opentelemetry = require('../packages/opentelemetry-api');
-const { BasicTracerProvider, BatchSpanProcessor, InMemorySpanExporter, SimpleSpanProcessor } = require('../packages/opentelemetry-tracing');
+const { BasicTracerProvider, BatchSpanProcessor, InMemorySpanExporter, SimpleSpanProcessor } = require('../packages/opentelemetry-sdk-base-tracing');
 
 // Clear any previous global logger
 opentelemetry.diag.setLogger();

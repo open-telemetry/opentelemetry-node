@@ -1,0 +1,43 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "build"
+  },
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts"
+  ],
+  "references": [
+    {
+      "path": "../opentelemetry-api-metrics"
+    },
+    {
+      "path": "../opentelemetry-context-async-hooks"
+    },
+    {
+      "path": "../opentelemetry-core"
+    },
+    {
+      "path": "../opentelemetry-instrumentation"
+    },
+    {
+      "path": "../opentelemetry-sdk-base-metrics"
+    },
+    {
+      "path": "../opentelemetry-sdk-node-tracing"
+    },
+    {
+      "path": "../opentelemetry-resource-detector-aws"
+    },
+    {
+      "path": "../opentelemetry-resource-detector-gcp"
+    },
+    {
+      "path": "../opentelemetry-resources"
+    },
+    {
+      "path": "../opentelemetry-sdk-base-tracing"
+    }
+  ]
+}

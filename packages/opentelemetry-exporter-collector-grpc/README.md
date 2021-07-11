@@ -23,7 +23,7 @@ In order to set the service name, use the `service.name` resource attribute as p
 The CollectorTraceExporter in Node expects the URL to only be the hostname. It will not work with `/v1/traces`.
 
 ```js
-const { BasicTracerProvider, SimpleSpanProcessor } = require('@opentelemetry/tracing');
+const { BasicTracerProvider, SimpleSpanProcessor } = require('@opentelemetry/sdk-base-tracing');
 const { CollectorTraceExporter } =  require('@opentelemetry/exporter-collector-grpc');
 
 const collectorOptions = {
@@ -47,7 +47,7 @@ By default, plaintext connection is used. In order to use TLS in Node.js, provid
 const fs = require('fs');
 const grpc = require('@grpc/grpc-js');
 
-const { BasicTracerProvider, SimpleSpanProcessor } = require('@opentelemetry/tracing');
+const { BasicTracerProvider, SimpleSpanProcessor } = require('@opentelemetry/sdk-base-tracing');
 const { CollectorTraceExporter } =  require('@opentelemetry/exporter-collector-grpc');
 
 const collectorOptions = {
@@ -83,7 +83,7 @@ The exporter can be configured to send custom metadata with each request as in t
 ```js
 const grpc = require('@grpc/grpc-js');
 
-const { BasicTracerProvider, SimpleSpanProcessor } = require('@opentelemetry/tracing');
+const { BasicTracerProvider, SimpleSpanProcessor } = require('@opentelemetry/sdk-base-tracing');
 const { CollectorTraceExporter } =  require('@opentelemetry/exporter-collector-grpc');
 
 const metadata = new grpc.Metadata();
@@ -113,7 +113,7 @@ Note, that this will only work if TLS is also configured on the server.
 The CollectorTraceExporter in Node expects the URL to only be the hostname. It will not work with `/v1/metrics`. All options that work with trace also work with metrics.
 
 ```js
-const { MeterProvider } = require('@opentelemetry/metrics');
+const { MeterProvider } = require('@opentelemetry/sdk-base-metrics');
 const { CollectorMetricExporter } =  require('@opentelemetry/exporter-collector-grpc');
 const collectorOptions = {
   // url is optional and can be omitted - default is grpc://localhost:4317

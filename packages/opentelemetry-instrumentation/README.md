@@ -165,7 +165,7 @@ It also supersedes PluginLoader for node. The old configurations usually looks l
 ### NODE - old way using TracerProvider - not available anymore
 
 ```javascript
-const { NodeTracerProvider } = require('@opentelemetry/node');
+const { NodeTracerProvider } = require('@opentelemetry/sdk-node-tracing');
 const { B3Propagator } = require('@opentelemetry/propagator-b3');
 const provider = new NodeTracerProvider({
   plugins: {
@@ -180,7 +180,7 @@ provider.register({
 ### WEB - old way using TracerProvider - not available anymore
 
 ```javascript
-const { WebTracerProvider } = require('@opentelemetry/web');
+const { WebTracerProvider } = require('@opentelemetry/sdk-web-tracing');
 const { UserInteractionPlugin } = require('@opentelemetry/plugin-user-interaction');
 const { XMLHttpRequestInstrumentation } = require('@opentelemetry/instrumentation-xml-http-request');
 const { B3Propagator } = require('@opentelemetry/propagator-b3');
@@ -209,7 +209,7 @@ All plugins will be bound to TracerProvider as well as instrumentations
 const { B3Propagator } = require('@opentelemetry/propagator-b3');
 const { registerInstrumentations } = require('@opentelemetry/instrumentation');
 const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
-const { NodeTracerProvider } = require('@opentelemetry/node');
+const { NodeTracerProvider } = require('@opentelemetry/sdk-node-tracing');
 
 const tracerProvider = new NodeTracerProvider();
 
@@ -233,7 +233,7 @@ registerInstrumentations({
 const { B3Propagator } = require('@opentelemetry/propagator-b3');
 const { registerInstrumentations } = require('@opentelemetry/instrumentation');
 const { XMLHttpRequestInstrumentation } = require('@opentelemetry/instrumentation-xml-http-request');
-const { WebTracerProvider } = require('@opentelemetry/web');
+const { WebTracerProvider } = require('@opentelemetry/sdk-web-tracing');
 
 const tracerProvider = new WebTracerProvider();
 

@@ -16,7 +16,7 @@
 
 import { diag } from '@opentelemetry/api';
 import { ExportResult, ExportResultCode, getEnv } from '@opentelemetry/core';
-import { SpanExporter, ReadableSpan } from '@opentelemetry/tracing';
+import { SpanExporter, ReadableSpan } from '@opentelemetry/sdk-base-tracing';
 import { prepareSend } from './platform/index';
 import * as zipkinTypes from './types';
 import {

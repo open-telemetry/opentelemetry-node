@@ -20,11 +20,11 @@ import {
   Span as ISpan,
   SpanKind, trace,
 } from '@opentelemetry/api';
-import { NodeTracerProvider } from '@opentelemetry/node';
+import { NodeTracerProvider } from '@opentelemetry/sdk-node-tracing';
 import {
   InMemorySpanExporter,
   SimpleSpanProcessor,
-} from '@opentelemetry/tracing';
+} from '@opentelemetry/sdk-base-tracing';
 import {
   NetTransportValues,
   SemanticAttributes,

@@ -22,7 +22,7 @@ import {
 } from '@opentelemetry/api-metrics';
 import { diag } from '@opentelemetry/api';
 import { collectorTypes } from '@opentelemetry/exporter-collector';
-import * as metrics from '@opentelemetry/metrics';
+import * as metrics from '@opentelemetry/sdk-base-metrics';
 import * as assert from 'assert';
 import * as fs from 'fs';
 import * as grpc from '@grpc/grpc-js';

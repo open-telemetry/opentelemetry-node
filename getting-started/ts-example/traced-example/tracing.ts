@@ -1,8 +1,8 @@
-import { NodeTracerProvider } from '@opentelemetry/node';
+import { NodeTracerProvider } from '@opentelemetry/sdk-node-tracing';
 const { Resource } = require('@opentelemetry/resources');
 const { ResourceAttributes } = require('@opentelemetry/semantic-conventions');
 
-import { SimpleSpanProcessor } from '@opentelemetry/tracing';
+import { SimpleSpanProcessor } from '@opentelemetry/sdk-base-tracing';
 import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
 // For Jaeger, use the following line instead:
 // import { JaegerExporter } from '@opentelemetry/exporter-jaeger';

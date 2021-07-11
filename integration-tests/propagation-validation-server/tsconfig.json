@@ -13,7 +13,7 @@
       "path": "../../packages/opentelemetry-core"
     },
     {
-      "path": "../../packages/opentelemetry-tracing"
+      "path": "../../packages/opentelemetry-sdk-base-tracing"
     }
   ]
 }

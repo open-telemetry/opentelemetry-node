@@ -1,6 +1,6 @@
 # Overview
 
-This example shows how to use [@opentelemetry/tracing](https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-tracing) to instrument a simple Node.js application - e.g. a batch job.
+This example shows how to use [@opentelemetry/sdk-base-tracing](https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-base-tracing) to instrument a simple Node.js application - e.g. a batch job.
 
 Our example will export spans data simultaneously on `Console` and [Jaeger](https://www.jaegertracing.io), however you can run your code anywhere and can use any exporter that OpenTelemetry supports.
 
@@ -35,7 +35,7 @@ Click on the trace to view its details.
 ## Useful links
 
 - For more information on OpenTelemetry, visit: <https://opentelemetry.io/>
-- For more information on tracing, visit: <https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-tracing>
+- For more information on tracing, visit: <https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-base-tracing>
 
 ## LICENSE
 
