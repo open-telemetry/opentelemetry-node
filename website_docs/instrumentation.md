@@ -67,25 +67,22 @@ for (let i = 0; i < 10; i += 1) {
 }
 // Be sure to end the span.
 parentSpan.end();
-
-// flush and close the connection.
-exporter.shutdown();
 ```
 
 Run your application and you will see traces being exported to the console:
 
 ```json
 {
-  traceId: '833bac85797c7ace581235446c4c769a',
-  parentId: undefined,
-  name: 'main',
-  id: '5c82d9e39d58229e',
-  kind: 0,
-  timestamp: 1603790966012813,
-  duration: 13295,
-  attributes: {},
-  status: { code: 0 },
-  events: []
+  "traceId": "833bac85797c7ace581235446c4c769a",
+  "parentId": undefined,
+  "name": "main",
+  "id": "5c82d9e39d58229e",
+  "kind": 0,
+  "timestamp": 1603790966012813,
+  "duration": 13295,
+  "attributes": {},
+  "status": { "code": 0 },
+  "events": []
 }
 ```
 
@@ -136,17 +133,31 @@ function doWork(parent) {
 
 ### Semantic Attributes
 
-There are semantic conventions for spans representing operations in well-known protocols like HTTP or database calls. Semantic conventions for these spans are defined in the specification at [Trace Semantic Conventions](https://github.com/open-telemetry/opentelemetry-specification/tree/main/specification/trace/semantic_conventions). In the simple example of this guide the source code attributes can be used:
+There are semantic conventions for spans representing operations in well-known protocols like HTTP or database calls. Semantic conventions for these spans are defined in the specification at [Trace Semantic Conventions](https://github.com/open-telemetry/opentelemetry-specification/tree/main/specification/trace/semantic_conventions). In the simple example of this guide the source code attributes can be used.
+
+First add the semantic conventions as a dependency to your application:
+
+```shell
+npm install --save @opentelemetry/semantic-conventions
+```
+
+Add the following to the top of your application file:
+
+```javascript
+const { SemanticAttributes } = require('@opentelemetry/semantic-conventions');
+```
+
+Finally, you can update your file to include semantic attributes:
 
 ```javascript
 function doWork(parent) {
   const span = tracer.startSpan('doWork', {
-    parent, attributes: { 'code.function' : 'doWork' }
+    parent, attributes: { SemanticAttributes.CODE_FUNCTION : 'doWork' }
   });
   for (let i = 0; i <= Math.floor(Math.random() * 40000000); i += 1) {
     // empty
   }
-  span.setAttribute('code.filepath', __filename);
+  span.setAttribute(SemanticAttributes.CODE_FILEPATH, __filename);
   span.end();
 }
 ```

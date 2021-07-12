@@ -99,7 +99,7 @@ Create a file with a name like `tracing.js` which will contain your tracing setu
 // Require dependencies
 const { NodeTracerProvider } = require("@opentelemetry/node");
 const { SimpleSpanProcessor, ConsoleSpanExporter } = require("@opentelemetry/tracing");
-const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
+const { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node');
 const { registerInstrumentations } = require('@opentelemetry/instrumentation');
 
 // Create a tracer provider
@@ -124,9 +124,15 @@ registerInstrumentations({
 
 ### Run Application
 
+First, install the dependencies as described above. Here you need to add the following:
+
+```shell
+npm install --save @opentelemetry/node @opentelemetry/auto-instrumentations-node
+```
+
 Now you can run your application as you normally would, but you can use the `--require` flag to load the tracing code before the application code.
 
-```sh
+```shell
 $ node --require './tracing.js' app.js
 Listening for requests on http://localhost:8080
 ```
@@ -138,80 +144,80 @@ Now, when you open <http://localhost:8080> in your web browser, you should see t
 
 ```json
 {
-  traceId: '3f1fe6256ea46d19ec3ca97b3409ad6d',
-  parentId: 'f0b7b340dd6e08a7',
-  name: 'middleware - query',
-  id: '41a27f331c7bfed3',
-  kind: 0,
-  timestamp: 1624982589722992,
-  duration: 417,
-  attributes: {
-    'http.route': '/',
-    'express.name': 'query',
-    'express.type': 'middleware'
+  "traceId": "3f1fe6256ea46d19ec3ca97b3409ad6d",
+  "parentId": "f0b7b340dd6e08a7",
+  "name": "middleware - query",
+  "id": "41a27f331c7bfed3",
+  "kind": 0,
+  "timestamp": 1624982589722992,
+  "duration": 417,
+  "attributes": {
+    "http.route": "/",
+    "express.name": "query",
+    "express.type": "middleware"
   },
-  status: { code: 0 },
-  events: []
+  "status": { "code": 0 },
+  "events": []
 }
 {
-  traceId: '3f1fe6256ea46d19ec3ca97b3409ad6d',
-  parentId: 'f0b7b340dd6e08a7',
-  name: 'middleware - expressInit',
-  id: 'e0ed537a699f652a',
-  kind: 0,
-  timestamp: 1624982589725778,
-  duration: 673,
-  attributes: {
-    'http.route': '/',
-    'express.name': 'expressInit',
-    'express.type': 'middleware'
+  "traceId": "3f1fe6256ea46d19ec3ca97b3409ad6d",
+  "parentId": "f0b7b340dd6e08a7",
+  "name": "middleware - expressInit",
+  "id": "e0ed537a699f652a",
+  "kind": 0,
+  "timestamp": 1624982589725778,
+  "duration": 673,
+  "attributes": {
+    "http.route": "/",
+    "express.name": "expressInit",
+    "express.type": "middleware"
   },
-  status: { code: 0 },
-  events: []
+  "status": { code: 0 },
+  "events": []
 }
 {
-  traceId: '3f1fe6256ea46d19ec3ca97b3409ad6d',
-  parentId: 'f0b7b340dd6e08a7',
-  name: 'request handler - /',
-  id: '8614a81e1847b7ef',
-  kind: 0,
-  timestamp: 1624982589726941,
-  duration: 21,
-  attributes: {
-    'http.route': '/',
-    'express.name': '/',
-    'express.type': 'request_handler'
+  "traceId": "3f1fe6256ea46d19ec3ca97b3409ad6d",
+  "parentId": "f0b7b340dd6e08a7",
+  "name": "request handler - /",
+  "id": "8614a81e1847b7ef",
+  "kind": 0,
+  "timestamp": 1624982589726941,
+  "duration": 21,
+  "attributes": {
+    "http.route": "/",
+    "express.name": "/",
+    "express.type": "request_handler"
   },
-  status: { code: 0 },
-  events: []
+  "status": { code: 0 },
+  "events": []
 }
 {
-  traceId: '3f1fe6256ea46d19ec3ca97b3409ad6d',
-  parentId: undefined,
-  name: 'GET /',
-  id: 'f0b7b340dd6e08a7',
-  kind: 1,
-  timestamp: 1624982589720260,
-  duration: 11380,
-  attributes: {
-    'http.url': 'http://localhost:8080/',
-    'http.host': 'localhost:8080',
-    'net.host.name': 'localhost',
-    'http.method': 'GET',
-    'http.route': '',
-    'http.target': '/',
-    'http.user_agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36',
-    'http.flavor': '1.1',
-    'net.transport': 'ip_tcp',
-    'net.host.ip': '::1',
-    'net.host.port': 8080,
-    'net.peer.ip': '::1',
-    'net.peer.port': 61520,
-    'http.status_code': 304,
-    'http.status_text': 'NOT MODIFIED'
+  "traceId": "3f1fe6256ea46d19ec3ca97b3409ad6d",
+  "parentId": undefined,
+  "name": "GET /",
+  "id": "f0b7b340dd6e08a7",
+  "kind": 1,
+  "timestamp": 1624982589720260,
+  "duration": 11380,
+  "attributes": {
+    "http.url": "http://localhost:8080/",
+    "http.host": "localhost:8080",
+    "net.host.name": "localhost",
+    "http.method": "GET",
+    "http.route": "",
+    "http.target": "/",
+    "http.user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
+    "http.flavor": "1.1",
+    "net.transport": "ip_tcp",
+    "net.host.ip": "::1",
+    "net.host.port": 8080,
+    "net.peer.ip": "::1",
+    "net.peer.port": 61520,
+    "http.status_code": 304,
+    "http.status_text": "NOT MODIFIED"
   },
-  status: { code: 1 },
-  events: []
+  "status": { "code": 1 },
+  "events": []
 }
 ```
 
