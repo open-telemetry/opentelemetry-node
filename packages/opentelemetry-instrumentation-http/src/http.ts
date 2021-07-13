@@ -24,7 +24,6 @@ import {
   SpanStatus,
   SpanStatusCode,
   trace,
-  SpanAttributes,
 } from '@opentelemetry/api';
 import { suppressTracing } from '@opentelemetry/core';
 import type * as http from 'http';
@@ -397,17 +396,15 @@ export class HttpInstrumentation extends InstrumentationBase<Http> {
 
       const headers = request.headers;
 
-      let hookAttributes: SpanAttributes | undefined;
-      if (instrumentation._getConfig().startIncomingSpanHook) {
-        hookAttributes = instrumentation._callStartIncomingSpanHook(request);
-      }
-
       const spanOptions: SpanOptions = {
         kind: SpanKind.SERVER,
         attributes: utils.getIncomingRequestAttributes(request, {
           component: component,
           serverName: instrumentation._getConfig().serverName,
-          hookAttributes: hookAttributes,
+          hookAttributes: instrumentation._callStartSpanHook(
+            request,
+            instrumentation._getConfig().startIncomingSpanHook
+          ),
         }),
       };
 
@@ -541,15 +538,13 @@ export class HttpInstrumentation extends InstrumentationBase<Http> {
         return original.apply(this, [optionsParsed, ...args]);
       }
 
-      let hookAttributes: SpanAttributes | undefined;
-      if (instrumentation._getConfig().startOutgoingSpanHook) {
-        hookAttributes = instrumentation._callStartOutgoingSpanHook(optionsParsed);
-      }
-
       const operationName = `${component.toUpperCase()} ${method}`;
       const spanOptions: SpanOptions = {
         kind: SpanKind.CLIENT,
-        attributes: hookAttributes,
+        attributes: instrumentation._callStartSpanHook(
+          optionsParsed,
+          instrumentation._getConfig().startOutgoingSpanHook
+        ),
       };
       const span = instrumentation._startHttpSpan(operationName, spanOptions);
 
@@ -653,19 +648,16 @@ export class HttpInstrumentation extends InstrumentationBase<Http> {
     );
   }
 
-  private _callStartIncomingSpanHook(request: http.IncomingMessage): SpanAttributes {
-    return safeExecuteInTheMiddle(
-      () => this._getConfig().startIncomingSpanHook!(request),
-      () => { },
-      true
-    );
-  }
-
-  private _callStartOutgoingSpanHook(request: http.RequestOptions): SpanAttributes {
-    return safeExecuteInTheMiddle(
-      () => this._getConfig().startOutgoingSpanHook!(request),
-      () => {},
-      true
-    );
+  private _callStartSpanHook(
+    request: http.IncomingMessage | http.RequestOptions,
+    hookFunc: Function | undefined,
+    ) {
+    if(typeof hookFunc === 'function'){
+      return safeExecuteInTheMiddle(
+        () => hookFunc(request),
+        () => { },
+        true
+      );
+    }
   }
 }
