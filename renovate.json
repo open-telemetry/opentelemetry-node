@@ -12,7 +12,7 @@
     },
     {
       "matchPaths": ["backwards-compatibility/**"],
-      "matchPackageNames": ["@types/node"],
+      "ignoreDeps": ["@types/node"],
       "enabled": false
     }
   ],
