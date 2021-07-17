@@ -26,7 +26,7 @@ Format:
 Example of usage:
 
 ```javascript
-const { NodeTracerProvider } = require('@opentelemetry/node');
+const { NodeTracerProvider } = require('@opentelemetry/sdk-node-tracing');
 const { JaegerPropagator } = require('@opentelemetry/propagator-jaeger');
 
 const provider = new NodeTracerProvider();

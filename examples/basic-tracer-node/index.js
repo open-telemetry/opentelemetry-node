@@ -3,7 +3,7 @@
 const opentelemetry = require('@opentelemetry/api');
 const { Resource } = require('@opentelemetry/resources');
 const { ResourceAttributes } = require('@opentelemetry/semantic-conventions');
-const { BasicTracerProvider, ConsoleSpanExporter, SimpleSpanProcessor } = require('@opentelemetry/tracing');
+const { BasicTracerProvider, ConsoleSpanExporter, SimpleSpanProcessor } = require('@opentelemetry/sdk-base-tracing');
 const { JaegerExporter } = require('@opentelemetry/exporter-jaeger');
 
 const provider = new BasicTracerProvider({

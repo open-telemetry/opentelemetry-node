@@ -16,8 +16,8 @@
 import { Span } from '@opentelemetry/api';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
-import { ReadableSpan, SpanProcessor } from '@opentelemetry/tracing';
-import { WebTracerProvider } from '@opentelemetry/web';
+import { ReadableSpan, SpanProcessor } from '@opentelemetry/sdk-base-tracing';
+import { WebTracerProvider } from '@opentelemetry/sdk-web-tracing';
 import { XMLHttpRequestInstrumentation } from '../src';
 import assert = require('assert');
 

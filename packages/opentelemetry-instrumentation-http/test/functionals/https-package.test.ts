@@ -16,11 +16,11 @@
 
 import { context, SpanKind, propagation, Span } from '@opentelemetry/api';
 import { AsyncHooksContextManager } from '@opentelemetry/context-async-hooks';
-import { NodeTracerProvider } from '@opentelemetry/node';
+import { NodeTracerProvider } from '@opentelemetry/sdk-node-tracing';
 import {
   InMemorySpanExporter,
   SimpleSpanProcessor,
-} from '@opentelemetry/tracing';
+} from '@opentelemetry/sdk-base-tracing';
 import * as assert from 'assert';
 import * as path from 'path';
 import * as url from 'url';

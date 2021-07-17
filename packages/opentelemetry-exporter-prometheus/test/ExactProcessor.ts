@@ -18,7 +18,7 @@ import {
   MetricDescriptor,
   MetricRecord,
   Processor,
-} from '@opentelemetry/metrics';
+} from '@opentelemetry/sdk-base-metrics';
 
 type Constructor<T, R extends Aggregator> = new (...args: T[]) => R;
 

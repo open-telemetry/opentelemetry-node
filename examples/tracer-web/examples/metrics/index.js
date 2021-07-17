@@ -2,7 +2,7 @@
 
 const { DiagConsoleLogger, DiagLogLevel, diag } = require('@opentelemetry/api');
 const { CollectorMetricExporter } = require('@opentelemetry/exporter-collector');
-const { MeterProvider } = require('@opentelemetry/metrics');
+const { MeterProvider } = require('@opentelemetry/sdk-base-metrics');
 const { Resource } = require('@opentelemetry/resources');
 const { ResourceAttributes } = require('@opentelemetry/semantic-conventions');
 

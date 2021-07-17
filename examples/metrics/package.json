@@ -2,7 +2,7 @@
   "name": "example-metrics",
   "private": true,
   "version": "0.23.0",
-  "description": "Example of using @opentelemetry/metrics",
+  "description": "Example of using @opentelemetry/sdk-base-metrics",
   "main": "index.js",
   "scripts": {
     "start:observer": "node metrics/observer.js"
@@ -28,7 +28,7 @@
   "dependencies": {
     "@opentelemetry/core": "0.23.0",
     "@opentelemetry/exporter-prometheus": "0.23.0",
-    "@opentelemetry/metrics": "0.23.0"
+    "@opentelemetry/sdk-base-metrics": "0.23.0"
   },
   "homepage": "https://github.com/open-telemetry/opentelemetry-js#readme"
 }

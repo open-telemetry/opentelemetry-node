@@ -17,7 +17,7 @@ import {
   MetricRecord,
   MetricDescriptor,
   AggregatorKind,
-} from '@opentelemetry/metrics';
+} from '@opentelemetry/sdk-base-metrics';
 import { PrometheusCheckpoint } from './types';
 
 interface BatcherCheckpoint {

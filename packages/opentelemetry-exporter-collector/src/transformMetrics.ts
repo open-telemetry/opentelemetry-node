@@ -22,7 +22,7 @@ import {
   Histogram,
   MetricKind,
   MetricRecord,
-} from '@opentelemetry/metrics';
+} from '@opentelemetry/sdk-base-metrics';
 import { Resource } from '@opentelemetry/resources';
 import { CollectorExporterBase } from './CollectorExporterBase';
 import { toCollectorResource } from './transform';

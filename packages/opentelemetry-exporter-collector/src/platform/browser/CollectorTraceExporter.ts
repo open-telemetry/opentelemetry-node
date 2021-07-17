@@ -16,7 +16,7 @@
 
 import { CollectorExporterConfigBase } from '../../types';
 import { CollectorExporterBrowserBase } from './CollectorExporterBrowserBase';
-import { ReadableSpan, SpanExporter } from '@opentelemetry/tracing';
+import { ReadableSpan, SpanExporter } from '@opentelemetry/sdk-base-tracing';
 import { toCollectorExportTraceServiceRequest } from '../../transform';
 import * as collectorTypes from '../../types';
 import { getEnv, baggageUtils } from '@opentelemetry/core';

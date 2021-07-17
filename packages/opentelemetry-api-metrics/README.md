@@ -21,7 +21,7 @@ To get started you need to install the SDK and instrumentations, create a MeterP
 $ # Install metrics dependencies
 $ npm install \
     @opentelemetry/api-metrics \
-    @opentelemetry/metrics \
+    @opentelemetry/sdk-base-metrics \
     @opentelemetry/exporter-prometheus # add exporters as needed
 ```
 
@@ -37,7 +37,7 @@ To collect traces and metrics, you will have to tell the SDK where to export tel
 
 ```javascript
 const api = require("@opentelemetry/api-metrics");
-const { MeterProvider } = require("@opentelemetry/metrics");
+const { MeterProvider } = require("@opentelemetry/sdk-base-metrics");
 const { PrometheusExporter } = require("@opentelemetry/exporter-prometheus");
 
 const meterProvider = new MeterProvider({
@@ -102,9 +102,9 @@ Apache 2.0 - See [LICENSE][license-url] for more information.
 [propagation-api-docs]: https://open-telemetry.github.io/opentelemetry-js/classes/propagationapi.html
 [context-api-docs]: https://open-telemetry.github.io/opentelemetry-js/classes/contextapi.html
 
-[web]: https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-web
-[tracing]: https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-tracing
-[node]: https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-node
-[metrics]: https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-metrics
+[web]: https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-web-tracing
+[tracing]: https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-base-tracing
+[node]: https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-node-tracing
+[metrics]: https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-base-metrics
 
 [other-tracing-backends]: https://github.com/open-telemetry/opentelemetry-js#trace-exporters

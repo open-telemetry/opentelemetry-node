@@ -1,6 +1,6 @@
 # Overview
 
-This example shows how to use [@opentelemetry/web](https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-web) with different plugins and setup to instrument your JavaScript code running in the browser.
+This example shows how to use [@opentelemetry/sdk-web-tracing](https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-web-tracing) with different plugins and setup to instrument your JavaScript code running in the browser.
 
 ## Installation
 
@@ -34,7 +34,7 @@ To see the results, open the browser at <http://localhost:8090/fetch/> and make 
 ## Useful links
 
 - For more information on OpenTelemetry, visit: <https://opentelemetry.io/>
-- For more information on web tracing, visit: <https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-web>
+- For more information on web tracing, visit: <https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-web-tracing>
 
 ## LICENSE
 

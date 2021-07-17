@@ -16,7 +16,7 @@
 
 import { diag } from '@opentelemetry/api';
 import * as core from '@opentelemetry/core';
-import { ReadableSpan } from '@opentelemetry/tracing';
+import { ReadableSpan } from '@opentelemetry/sdk-base-tracing';
 import * as http from 'http';
 import * as assert from 'assert';
 import * as sinon from 'sinon';

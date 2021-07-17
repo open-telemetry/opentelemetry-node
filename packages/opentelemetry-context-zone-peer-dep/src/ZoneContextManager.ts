@@ -24,7 +24,7 @@ const ZONE_CONTEXT_KEY = 'OT_ZONE_CONTEXT';
 /**
  * ZoneContextManager
  * This module provides an easy functionality for tracing action between asynchronous operations in web.
- * It was not possible with standard [StackContextManager]{@link https://github.com/open-telemetry/opentelemetry-js/blob/main/packages/opentelemetry-web/src/StackContextManager.ts}.
+ * It was not possible with standard [StackContextManager]{@link https://github.com/open-telemetry/opentelemetry-js/blob/main/packages/opentelemetry-sdk-web-tracing/src/StackContextManager.ts}.
  * It heavily depends on [zone.js]{@link https://www.npmjs.com/package/zone.js}.
  * It stores the information about context in zone. Each Context will have always new Zone;
  * It also supports binding a certain Span to a target that has "addEventListener" and "removeEventListener".

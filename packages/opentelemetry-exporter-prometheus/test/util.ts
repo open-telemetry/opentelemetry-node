@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Point, Sum } from '@opentelemetry/metrics';
+import { Point, Sum } from '@opentelemetry/sdk-base-metrics';
 import { HrTime } from '@opentelemetry/api';
 
 export const mockedHrTime: HrTime = [1586347902, 211_000_000];

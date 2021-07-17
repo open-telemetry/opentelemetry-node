@@ -1,6 +1,6 @@
 # Processor API Guide
 
-[The processor](https://github.com/open-telemetry/opentelemetry-js/blob/main/packages/opentelemetry-metrics/src/export/Processor.ts?rgh-link-date=2020-05-25T18%3A43%3A57Z) has two responsibilities: choosing which aggregator to choose for a metric instrument and store the last record for each metric ready to be exported.
+[The processor](https://github.com/open-telemetry/opentelemetry-js/blob/main/packages/opentelemetry-sdk-base-metrics/src/export/Processor.ts?rgh-link-date=2020-05-25T18%3A43%3A57Z) has two responsibilities: choosing which aggregator to choose for a metric instrument and store the last record for each metric ready to be exported.
 
 ## Selecting a specific aggregator for metrics
 
@@ -9,7 +9,7 @@ Sometimes you may want to use a specific aggregator for one of your metric, expo
 Here is what an aggregator that does that would look like:
 
 ```ts
-import { Aggregator } from '@opentelemetry/metrics';
+import { Aggregator } from '@opentelemetry/sdk-base-metrics';
 import { hrTime } from '@opentelemetry/core';
 
 export class AverageAggregator implements Aggregator {
@@ -52,7 +52,7 @@ import {
   CounterSumAggregator,
   ObserverAggregator,
   MeasureExactAggregator,
-} from '@opentelemetry/metrics';
+} from '@opentelemetry/sdk-base-metrics';
 
 export class CustomProcessor extends UngroupedProcessor {
   aggregatorFor (metricDescriptor: MetricDescriptor) {
@@ -84,7 +84,7 @@ import {
   MeasureExactAggregator,
   MeterProvider,
   Aggregator,
-} from '@opentelemetry/metrics';
+} from '@opentelemetry/sdk-base-metrics';
 import { hrTime } from '@opentelemetry/core';
 
 export class AverageAggregator implements Aggregator {

@@ -9,10 +9,10 @@
   ],
   "references": [
     {
-      "path": "../../packages/opentelemetry-sdk-node"
+      "path": "../../packages/opentelemetry-sdk-node-all"
     },
     {
-      "path": "../../packages/opentelemetry-tracing"
+      "path": "../../packages/opentelemetry-sdk-base-tracing"
     }
   ]
 }

@@ -2,7 +2,7 @@
   "name": "web-tracer-example",
   "private": true,
   "version": "0.23.0",
-  "description": "Example of using @opentelemetry/web in browser",
+  "description": "Example of using @opentelemetry/sdk-web-tracing in browser",
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server -d --progress --colors --port 8090 --config webpack.config.js --hot --inline --host 0.0.0.0 --content-base examples"
@@ -42,10 +42,10 @@
     "@opentelemetry/instrumentation": "0.23.0",
     "@opentelemetry/instrumentation-fetch": "0.23.0",
     "@opentelemetry/instrumentation-xml-http-request": "0.23.0",
-    "@opentelemetry/metrics": "0.23.0",
+    "@opentelemetry/sdk-base-metrics": "0.23.0",
     "@opentelemetry/propagator-b3": "0.23.0",
-    "@opentelemetry/tracing": "0.23.0",
-    "@opentelemetry/web": "0.23.0"
+    "@opentelemetry/sdk-base-tracing": "0.23.0",
+    "@opentelemetry/sdk-web-tracing": "0.23.0"
   },
   "homepage": "https://github.com/open-telemetry/opentelemetry-js#readme"
 }

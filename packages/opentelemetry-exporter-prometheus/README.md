@@ -5,14 +5,14 @@
 [![devDependencies][devDependencies-image]][devDependencies-url]
 [![Apache License][license-image]][license-image]
 
-The OpenTelemetry Prometheus Metrics Exporter allows the user to send collected [OpenTelemetry Metrics](https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-metrics) to Prometheus.
+The OpenTelemetry Prometheus Metrics Exporter allows the user to send collected [OpenTelemetry Metrics](https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-base-metrics) to Prometheus.
 
 [Prometheus](https://prometheus.io/) is a monitoring system that collects metrics, by scraping exposed endpoints at regular intervals, evaluating rule expressions. It can also trigger alerts if certain conditions are met. For assistance setting up Prometheus, [Click here](https://opencensus.io/codelabs/prometheus/#0) for a guided codelab.
 
 ## Installation
 
 ```bash
-npm install --save @opentelemetry/metrics
+npm install --save @opentelemetry/sdk-base-metrics
 npm install --save @opentelemetry/exporter-prometheus
 ```
 
@@ -22,7 +22,7 @@ Create & register the exporter on your application.
 
 ```js
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus');
-const { MeterProvider }  = require('@opentelemetry/metrics');
+const { MeterProvider }  = require('@opentelemetry/sdk-base-metrics');
 
 // Add your port and startServer to the Prometheus options
 const options = {port: 9464, startServer: true};

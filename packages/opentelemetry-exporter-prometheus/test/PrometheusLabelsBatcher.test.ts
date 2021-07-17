@@ -20,7 +20,7 @@ import {
   AggregatorKind,
   MeterProvider,
   Meter,
-} from '@opentelemetry/metrics';
+} from '@opentelemetry/sdk-base-metrics';
 import { Labels } from '@opentelemetry/api-metrics';
 
 describe('PrometheusBatcher', () => {

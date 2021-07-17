@@ -74,7 +74,7 @@ Samples every trace regardless of upstream sampling decisions.
 > This is used as a default Sampler
 
 ```js
-const { NodeTracerProvider } = require("@opentelemetry/node");
+const { NodeTracerProvider } = require("@opentelemetry/sdk-node-tracing");
 const { AlwaysOnSampler } = require("@opentelemetry/core");
 
 const tracerProvider = new NodeTracerProvider({
@@ -87,7 +87,7 @@ const tracerProvider = new NodeTracerProvider({
 Doesn't sample any trace, regardless of upstream sampling decisions.
 
 ```js
-const { NodeTracerProvider } = require("@opentelemetry/node");
+const { NodeTracerProvider } = require("@opentelemetry/sdk-node-tracing");
 const { AlwaysOffSampler } = require("@opentelemetry/core");
 
 const tracerProvider = new NodeTracerProvider({
@@ -103,7 +103,7 @@ Any trace that would be sampled at a given percentage will also be sampled at an
 The `TraceIDRatioSampler` may be used with the `ParentBasedSampler` to respect the sampled flag of an incoming trace.
 
 ```js
-const { NodeTracerProvider } = require("@opentelemetry/node");
+const { NodeTracerProvider } = require("@opentelemetry/sdk-node-tracing");
 const { TraceIdRatioBasedSampler } = require("@opentelemetry/core");
 
 const tracerProvider = new NodeTracerProvider({
@@ -147,7 +147,7 @@ Optional parameters:
 |present|false|false|`localParentNotSampled()`|
 
 ```js
-const { NodeTracerProvider } = require("@opentelemetry/node");
+const { NodeTracerProvider } = require("@opentelemetry/sdk-node-tracing");
 const { ParentBasedSampler, AlwaysOffSampler, TraceIdRatioBasedSampler } = require("@opentelemetry/core");
 
 const tracerProvider = new NodeTracerProvider({

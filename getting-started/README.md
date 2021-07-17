@@ -12,7 +12,7 @@ This guide walks you through the setup and configuration process for a tracing b
   - [Collect metrics using OpenTelemetry](#collect-metrics-using-opentelemetry)
     - [Set up a metrics backend](#set-up-a-metrics-backend)
     - [Monitor your NodeJS application](#monitor-your-nodejs-application)
-      - [Install the required OpenTelemetry metrics libraries](#install-the-required-opentelemetry-metrics-libraries)
+      - [Install the required OpenTelemetry metrics libraries](#install-the-required-opentelemetry-sdk-base-metrics-libraries)
       - [Initialize a meter and collect metrics](#initialize-a-meter-and-collect-metrics)
       - [Initialize and register a metrics exporter](#initialize-and-register-a-metrics-exporter)
 
@@ -54,12 +54,12 @@ This guide uses the example application provided in the [example directory](exam
 
 ([link to TypeScript version](ts-example/README.md#install-the-required-opentelemetry-libraries))
 
-To create traces on NodeJS, you need `@opentelemetry/node`, `@opentelemetry/core`, and any instrumentation required by your application such as gRPC or HTTP. If you're using the example application, you need to install `@opentelemetry/instrumentation-http` and `@opentelemetry/instrumentation-express`.
+To create traces on NodeJS, you need `@opentelemetry/sdk-node-tracing`, `@opentelemetry/core`, and any instrumentation required by your application such as gRPC or HTTP. If you're using the example application, you need to install `@opentelemetry/instrumentation-http` and `@opentelemetry/instrumentation-express`.
 
 ```sh
 $ npm install \
   @opentelemetry/api \
-  @opentelemetry/node \
+  @opentelemetry/sdk-node-tracing \
   @opentelemetry/instrumentation-http \
   @opentelemetry/instrumentation-express \
   @opentelemetry/instrumentation-grpc
@@ -77,7 +77,7 @@ Create a file named `tracing.js` and add the following code:
 'use strict';
 
 const { diag, DiagConsoleLogger, DiagLogLevel } = require("@opentelemetry/api");
-const { NodeTracerProvider } = require("@opentelemetry/node");
+const { NodeTracerProvider } = require("@opentelemetry/sdk-node-tracing");
 const { registerInstrumentations } = require("@opentelemetry/instrumentation");
 const { HttpInstrumentation } = require("@opentelemetry/instrumentation-http");
 const { GrpcInstrumentation } = require("@opentelemetry/instrumentation-grpc");
@@ -111,7 +111,7 @@ To export traces, you need a few more dependencies. Install them with the follow
 
 ```sh
 $ npm install \
-  @opentelemetry/tracing \
+  @opentelemetry/sdk-base-tracing \
   @opentelemetry/exporter-zipkin
 
 $ # for jaeger you would run this command:
@@ -124,10 +124,10 @@ After you install these dependencies, initialize and register them. Modify `trac
 'use strict';
 
 const { diag, DiagConsoleLogger, DiagLogLevel } = require("@opentelemetry/api");
-const { NodeTracerProvider } = require("@opentelemetry/node");
+const { NodeTracerProvider } = require("@opentelemetry/sdk-node-tracing");
 const { Resource } = require('@opentelemetry/resources');
 const { ResourceAttributes } = require('@opentelemetry/semantic-conventions');
-const { SimpleSpanProcessor } = require("@opentelemetry/tracing");
+const { SimpleSpanProcessor } = require("@opentelemetry/sdk-base-tracing");
 const { ZipkinExporter } = require("@opentelemetry/exporter-zipkin");
 const { registerInstrumentations } = require("@opentelemetry/instrumentation");
 const { HttpInstrumentation } = require("@opentelemetry/instrumentation-http");
@@ -248,13 +248,13 @@ Here's an overview of what you'll be doing:
 
 #### Install the required OpenTelemetry metrics libraries
 
-([link to TypeScript version](ts-example/README.md#install-the-required-opentelemetry-metrics-libraries))
+([link to TypeScript version](ts-example/README.md#install-the-required-opentelemetry-sdk-base-metrics-libraries))
 
-To create metrics on NodeJS, you need `@opentelemetry/metrics`.
+To create metrics on NodeJS, you need `@opentelemetry/sdk-base-metrics`.
 
 ```sh
 $ npm install \
-  @opentelemetry/metrics
+  @opentelemetry/sdk-base-metrics
 ```
 
 #### Initialize a meter and collect metrics
@@ -268,7 +268,7 @@ Create a file named `monitoring.js` and add the following code:
 ```javascript
 'use strict';
 
-const { MeterProvider } = require('@opentelemetry/metrics');
+const { MeterProvider } = require('@opentelemetry/sdk-base-metrics');
 
 const meter = new MeterProvider().getMeter('your-meter-name');
 ```
@@ -278,7 +278,7 @@ Now you can require this file from your application code and use the `Meter` to 
 ```javascript
 'use strict';
 
-const { MeterProvider } = require('@opentelemetry/metrics');
+const { MeterProvider } = require('@opentelemetry/sdk-base-metrics');
 
 const meter = new MeterProvider().getMeter('your-meter-name');
 
@@ -329,7 +329,7 @@ Next, modify your `monitoring.js` file to look like this:
 ```javascript
 "use strict";
 
-const { MeterProvider } = require('@opentelemetry/metrics');
+const { MeterProvider } = require('@opentelemetry/sdk-base-metrics');
 const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus');
 
 const prometheusPort = PrometheusExporter.DEFAULT_OPTIONS.port
