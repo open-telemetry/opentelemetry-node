@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Span } from '@opentelemetry/api';
+import { 
+  Span,
+  SpanAttributes,
+ } from '@opentelemetry/api';
 import type * as http from 'http';
 import type * as https from 'https';
 import {
@@ -22,6 +25,7 @@ import {
   IncomingMessage,
   request,
   ServerResponse,
+  RequestOptions,
 } from 'http';
 import * as url from 'url';
 import { InstrumentationConfig } from '@opentelemetry/instrumentation';
@@ -67,6 +71,14 @@ export interface HttpResponseCustomAttributeFunction {
   (span: Span, response: IncomingMessage | ServerResponse): void;
 }
 
+export interface StartIncomingSpanCustomAttributeFunction {
+  (request: IncomingMessage ): SpanAttributes;
+}
+
+export interface StartOutgoingSpanCustomAttributeFunction {
+  (request: RequestOptions ): SpanAttributes;
+}
+
 /**
  * Options available for the HTTP instrumentation (see [documentation](https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-instrumentation-http#http-instrumentation-options))
  */
@@ -81,6 +93,10 @@ export interface HttpInstrumentationConfig extends InstrumentationConfig {
   requestHook?: HttpRequestCustomAttributeFunction;
   /** Function for adding custom attributes before response is handled */
   responseHook?: HttpResponseCustomAttributeFunction;
+  /** Function for adding custom attributes before a span is started in incomingRequest */
+  startIncomingSpanHook?: StartIncomingSpanCustomAttributeFunction;
+  /** Function for adding custom attributes before a span is started in outgoingRequest */
+  startOutgoingSpanHook?: StartOutgoingSpanCustomAttributeFunction;
   /** The primary server name of the matched virtual host. */
   serverName?: string;
   /** Require parent to create span for outgoing requests */

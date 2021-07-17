@@ -401,6 +401,10 @@ export class HttpInstrumentation extends InstrumentationBase<Http> {
         attributes: utils.getIncomingRequestAttributes(request, {
           component: component,
           serverName: instrumentation._getConfig().serverName,
+          hookAttributes: instrumentation._callStartSpanHook(
+            request,
+            instrumentation._getConfig().startIncomingSpanHook
+          ),
         }),
       };
 
@@ -537,6 +541,10 @@ export class HttpInstrumentation extends InstrumentationBase<Http> {
       const operationName = `${component.toUpperCase()} ${method}`;
       const spanOptions: SpanOptions = {
         kind: SpanKind.CLIENT,
+        attributes: instrumentation._callStartSpanHook(
+          optionsParsed,
+          instrumentation._getConfig().startOutgoingSpanHook
+        ),
       };
       const span = instrumentation._startHttpSpan(operationName, spanOptions);
 
@@ -638,5 +646,18 @@ export class HttpInstrumentation extends InstrumentationBase<Http> {
       () => {},
       true
     );
+  }
+
+  private _callStartSpanHook(
+    request: http.IncomingMessage | http.RequestOptions,
+    hookFunc: Function | undefined,
+    ) {
+    if(typeof hookFunc === 'function'){
+      return safeExecuteInTheMiddle(
+        () => hookFunc(request),
+        () => { },
+        true
+      );
+    }
   }
 }

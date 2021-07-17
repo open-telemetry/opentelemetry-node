@@ -410,11 +410,11 @@ export const getOutgoingRequestAttributesOnResponse = (
 /**
  * Returns incoming request attributes scoped to the request data
  * @param {IncomingMessage} request the request object
- * @param {{ component: string, serverName?: string }} options used to pass data needed to create attributes
+ * @param {{ component: string, serverName?: string, hookAttributes?: SpanAttributes }} options used to pass data needed to create attributes
  */
 export const getIncomingRequestAttributes = (
   request: IncomingMessage,
-  options: { component: string; serverName?: string }
+  options: { component: string; serverName?: string; hookAttributes?: SpanAttributes }
 ): SpanAttributes => {
   const headers = request.headers;
   const userAgent = headers['user-agent'];
@@ -458,7 +458,7 @@ export const getIncomingRequestAttributes = (
   setRequestContentLengthAttribute(request, attributes);
 
   const httpKindAttributes = getAttributesFromHttpKind(httpVersion);
-  return Object.assign(attributes, httpKindAttributes);
+  return Object.assign(attributes, httpKindAttributes, options.hookAttributes);
 };
 
 /**
