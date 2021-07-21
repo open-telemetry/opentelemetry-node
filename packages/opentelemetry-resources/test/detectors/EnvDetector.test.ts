@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { envDetector, Resource } from '../../src';
 import {
   assertK8sResource,
@@ -35,9 +35,9 @@ describe('envDetector()', () => {
     it('should return resource information from environment variable', async () => {
       const resource: Resource = await envDetector.detect();
       assertK8sResource(resource, {
-        [ResourceAttributes.K8S_POD_NAME]: 'pod-xyz-123',
-        [ResourceAttributes.K8S_CLUSTER_NAME]: 'c1',
-        [ResourceAttributes.K8S_NAMESPACE_NAME]: 'default',
+        [SemanticResourceAttributes.K8S_POD_NAME]: 'pod-xyz-123',
+        [SemanticResourceAttributes.K8S_CLUSTER_NAME]: 'c1',
+        [SemanticResourceAttributes.K8S_NAMESPACE_NAME]: 'default',
       });
     });
   });

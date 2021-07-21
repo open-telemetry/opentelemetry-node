@@ -23,7 +23,7 @@ import {
 import { Resource } from '@opentelemetry/resources';
 import { BasicTracerProvider, Span } from '@opentelemetry/tracing';
 import * as assert from 'assert';
-import { ResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import {
   statusCodeTagName,
   statusDescriptionTagName,
@@ -35,13 +35,13 @@ import * as zipkinTypes from '../../src/types';
 const tracer = new BasicTracerProvider({
   resource: Resource.default().merge(
     new Resource({
-      [ResourceAttributes.SERVICE_NAME]: 'zipkin-test',
+      [SemanticResourceAttributes.SERVICE_NAME]: 'zipkin-test',
     })
   ),
 }).getTracer('default');
 
 const language =
-  tracer.resource.attributes[ResourceAttributes.TELEMETRY_SDK_LANGUAGE];
+  tracer.resource.attributes[SemanticResourceAttributes.TELEMETRY_SDK_LANGUAGE];
 
 const parentId = '5c1c63257de34c67';
 const spanContext: api.SpanContext = {
@@ -54,7 +54,7 @@ const DUMMY_RESOURCE = new Resource({
   service: 'ui',
   version: 1,
   cost: 112.12,
-  [ResourceAttributes.SERVICE_NAME]: 'zipkin-test',
+  [SemanticResourceAttributes.SERVICE_NAME]: 'zipkin-test',
 });
 
 describe('transform', () => {
@@ -102,7 +102,7 @@ describe('transform', () => {
           key1: 'value1',
           key2: 'value2',
           [statusCodeTagName]: 'UNSET',
-          [ResourceAttributes.SERVICE_NAME]: 'zipkin-test',
+          [SemanticResourceAttributes.SERVICE_NAME]: 'zipkin-test',
           'telemetry.sdk.language': language,
           'telemetry.sdk.name': 'opentelemetry',
           'telemetry.sdk.version': VERSION,
@@ -141,7 +141,7 @@ describe('transform', () => {
         parentId: undefined,
         tags: {
           [statusCodeTagName]: 'UNSET',
-          [ResourceAttributes.SERVICE_NAME]: 'zipkin-test',
+          [SemanticResourceAttributes.SERVICE_NAME]: 'zipkin-test',
           'telemetry.sdk.language': language,
           'telemetry.sdk.name': 'opentelemetry',
           'telemetry.sdk.version': VERSION,
@@ -190,7 +190,7 @@ describe('transform', () => {
           parentId: undefined,
           tags: {
             [statusCodeTagName]: 'UNSET',
-            [ResourceAttributes.SERVICE_NAME]: 'zipkin-test',
+            [SemanticResourceAttributes.SERVICE_NAME]: 'zipkin-test',
             'telemetry.sdk.language': language,
             'telemetry.sdk.name': 'opentelemetry',
             'telemetry.sdk.version': VERSION,
@@ -231,7 +231,7 @@ describe('transform', () => {
         cost: '112.12',
         service: 'ui',
         version: '1',
-        [ResourceAttributes.SERVICE_NAME]: 'zipkin-test',
+        [SemanticResourceAttributes.SERVICE_NAME]: 'zipkin-test',
       });
     });
     it('should map OpenTelemetry SpanStatus.code to a Zipkin tag', () => {
@@ -258,7 +258,7 @@ describe('transform', () => {
         statusDescriptionTagName,
         Resource.empty().merge(
           new Resource({
-            [ResourceAttributes.SERVICE_NAME]: 'zipkin-test',
+            [SemanticResourceAttributes.SERVICE_NAME]: 'zipkin-test',
           })
         )
       );
@@ -267,7 +267,7 @@ describe('transform', () => {
         key1: 'value1',
         key2: 'value2',
         [statusCodeTagName]: 'ERROR',
-        [ResourceAttributes.SERVICE_NAME]: 'zipkin-test',
+        [SemanticResourceAttributes.SERVICE_NAME]: 'zipkin-test',
       });
     });
     it('should map OpenTelemetry SpanStatus.message to a Zipkin tag', () => {
@@ -295,7 +295,7 @@ describe('transform', () => {
         statusDescriptionTagName,
         Resource.empty().merge(
           new Resource({
-            [ResourceAttributes.SERVICE_NAME]: 'zipkin-test',
+            [SemanticResourceAttributes.SERVICE_NAME]: 'zipkin-test',
           })
         )
       );
@@ -305,7 +305,7 @@ describe('transform', () => {
         key2: 'value2',
         [statusCodeTagName]: 'ERROR',
         [statusDescriptionTagName]: status.message,
-        [ResourceAttributes.SERVICE_NAME]: 'zipkin-test',
+        [SemanticResourceAttributes.SERVICE_NAME]: 'zipkin-test',
       });
     });
   });

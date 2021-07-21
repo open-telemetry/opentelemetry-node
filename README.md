@@ -225,6 +225,10 @@ To request automatic tracing support for a module not on this list, please [file
 
 ## Upgrade guidelines
 
+### 0.23.x to x
+
+- `ResourceAttributes` renamed to `SemanticResourceAttributes` in the `@opentelemetry/semantic-conventions` package
+
 ### 0.20.x to x
 
 ### 0.19.x to 0.20.0

@@ -26,7 +26,7 @@ import {
 import { getEnv } from '@opentelemetry/core';
 import {
   CloudProviderValues,
-  ResourceAttributes as SemanticResourceAttributes,
+  SemanticResourceAttributes,
 } from '@opentelemetry/semantic-conventions';
 
 /**

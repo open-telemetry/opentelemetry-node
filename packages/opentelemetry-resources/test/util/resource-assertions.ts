@@ -17,7 +17,7 @@
 import { SDK_INFO } from '@opentelemetry/core';
 import * as assert from 'assert';
 import { Resource } from '../../src/Resource';
-import { ResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 
 /**
  * Test utility method to validate a cloud resource
@@ -37,22 +37,22 @@ export const assertCloudResource = (
   assertHasOneLabel('CLOUD', resource);
   if (validations.provider)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.CLOUD_PROVIDER],
+      resource.attributes[SemanticResourceAttributes.CLOUD_PROVIDER],
       validations.provider
     );
   if (validations.accountId)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.CLOUD_ACCOUNT_ID],
+      resource.attributes[SemanticResourceAttributes.CLOUD_ACCOUNT_ID],
       validations.accountId
     );
   if (validations.region)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.CLOUD_REGION],
+      resource.attributes[SemanticResourceAttributes.CLOUD_REGION],
       validations.region
     );
   if (validations.zone)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.CLOUD_AVAILABILITY_ZONE],
+      resource.attributes[SemanticResourceAttributes.CLOUD_AVAILABILITY_ZONE],
       validations.zone
     );
 };
@@ -75,22 +75,22 @@ export const assertContainerResource = (
   assertHasOneLabel('CONTAINER', resource);
   if (validations.name)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.CONTAINER_NAME],
+      resource.attributes[SemanticResourceAttributes.CONTAINER_NAME],
       validations.name
     );
   if (validations.id)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.CONTAINER_ID],
+      resource.attributes[SemanticResourceAttributes.CONTAINER_ID],
       validations.id
     );
   if (validations.imageName)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.CONTAINER_IMAGE_NAME],
+      resource.attributes[SemanticResourceAttributes.CONTAINER_IMAGE_NAME],
       validations.imageName
     );
   if (validations.imageTag)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.CONTAINER_IMAGE_TAG],
+      resource.attributes[SemanticResourceAttributes.CONTAINER_IMAGE_TAG],
       validations.imageTag
     );
 };
@@ -116,32 +116,32 @@ export const assertHostResource = (
   assertHasOneLabel('HOST', resource);
   if (validations.id)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.HOST_ID],
+      resource.attributes[SemanticResourceAttributes.HOST_ID],
       validations.id
     );
   if (validations.name)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.HOST_NAME],
+      resource.attributes[SemanticResourceAttributes.HOST_NAME],
       validations.name
     );
   if (validations.hostType)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.HOST_TYPE],
+      resource.attributes[SemanticResourceAttributes.HOST_TYPE],
       validations.hostType
     );
   if (validations.imageName)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.HOST_IMAGE_NAME],
+      resource.attributes[SemanticResourceAttributes.HOST_IMAGE_NAME],
       validations.imageName
     );
   if (validations.imageId)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.HOST_IMAGE_ID],
+      resource.attributes[SemanticResourceAttributes.HOST_IMAGE_ID],
       validations.imageId
     );
   if (validations.imageVersion)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.HOST_IMAGE_VERSION],
+      resource.attributes[SemanticResourceAttributes.HOST_IMAGE_VERSION],
       validations.imageVersion
     );
 };
@@ -164,22 +164,22 @@ export const assertK8sResource = (
   assertHasOneLabel('K8S', resource);
   if (validations.clusterName)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.K8S_CLUSTER_NAME],
+      resource.attributes[SemanticResourceAttributes.K8S_CLUSTER_NAME],
       validations.clusterName
     );
   if (validations.namespaceName)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.K8S_NAMESPACE_NAME],
+      resource.attributes[SemanticResourceAttributes.K8S_NAMESPACE_NAME],
       validations.namespaceName
     );
   if (validations.podName)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.K8S_POD_NAME],
+      resource.attributes[SemanticResourceAttributes.K8S_POD_NAME],
       validations.podName
     );
   if (validations.deploymentName)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.K8S_DEPLOYMENT_NAME],
+      resource.attributes[SemanticResourceAttributes.K8S_DEPLOYMENT_NAME],
       validations.deploymentName
     );
 };
@@ -207,17 +207,17 @@ export const assertTelemetrySDKResource = (
 
   if (validations.name)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.TELEMETRY_SDK_NAME],
+      resource.attributes[SemanticResourceAttributes.TELEMETRY_SDK_NAME],
       validations.name
     );
   if (validations.language)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.TELEMETRY_SDK_LANGUAGE],
+      resource.attributes[SemanticResourceAttributes.TELEMETRY_SDK_LANGUAGE],
       validations.language
     );
   if (validations.version)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.TELEMETRY_SDK_VERSION],
+      resource.attributes[SemanticResourceAttributes.TELEMETRY_SDK_VERSION],
       validations.version
     );
 };
@@ -238,21 +238,21 @@ export const assertServiceResource = (
   }
 ) => {
   assert.strictEqual(
-    resource.attributes[ResourceAttributes.SERVICE_NAME],
+    resource.attributes[SemanticResourceAttributes.SERVICE_NAME],
     validations.name
   );
   assert.strictEqual(
-    resource.attributes[ResourceAttributes.SERVICE_INSTANCE_ID],
+    resource.attributes[SemanticResourceAttributes.SERVICE_INSTANCE_ID],
     validations.instanceId
   );
   if (validations.namespace)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.SERVICE_NAMESPACE],
+      resource.attributes[SemanticResourceAttributes.SERVICE_NAMESPACE],
       validations.namespace
     );
   if (validations.version)
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.SERVICE_VERSION],
+      resource.attributes[SemanticResourceAttributes.SERVICE_VERSION],
       validations.version
     );
 };
@@ -273,24 +273,24 @@ export const assertProcessResource = (
   }
 ) => {
   assert.strictEqual(
-    resource.attributes[ResourceAttributes.PROCESS_PID],
+    resource.attributes[SemanticResourceAttributes.PROCESS_PID],
     validations.pid
   );
   if (validations.name) {
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.PROCESS_EXECUTABLE_NAME],
+      resource.attributes[SemanticResourceAttributes.PROCESS_EXECUTABLE_NAME],
       validations.name
     );
   }
   if (validations.command) {
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.PROCESS_COMMAND],
+      resource.attributes[SemanticResourceAttributes.PROCESS_COMMAND],
       validations.command
     );
   }
   if (validations.commandLine) {
     assert.strictEqual(
-      resource.attributes[ResourceAttributes.PROCESS_COMMAND_LINE],
+      resource.attributes[SemanticResourceAttributes.PROCESS_COMMAND_LINE],
       validations.commandLine
     );
   }
@@ -306,7 +306,7 @@ export const assertEmptyResource = (resource: Resource) => {
 };
 
 const assertHasOneLabel = (prefix: string, resource: Resource): void => {
-  const hasOne = Object.entries(ResourceAttributes).find(([key, value]) => {
+  const hasOne = Object.entries(SemanticResourceAttributes).find(([key, value]) => {
     return (
       key.startsWith(prefix) &&
       Object.prototype.hasOwnProperty.call(resource.attributes, value)
@@ -316,7 +316,7 @@ const assertHasOneLabel = (prefix: string, resource: Resource): void => {
   assert.ok(
     hasOne,
     'Resource must have one of the following attributes: ' +
-      Object.entries(ResourceAttributes)
+      Object.entries(SemanticResourceAttributes)
         .reduce((result, [key, value]) => {
           if (key.startsWith(prefix)) {
             result.push(value);

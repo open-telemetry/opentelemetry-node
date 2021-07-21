@@ -4,7 +4,7 @@ const opentelemetry = require('@opentelemetry/api');
 const { BasicTracerProvider, ConsoleSpanExporter, SimpleSpanProcessor } = require('@opentelemetry/tracing');
 const { CollectorTraceExporter } = require('@opentelemetry/exporter-collector');
 const { Resource } = require('@opentelemetry/resources');
-const { ResourceAttributes } = require('@opentelemetry/semantic-conventions');
+const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions');
 // const { CollectorTraceExporter } = require('@opentelemetry/exporter-collector-grpc');
 // const { CollectorTraceExporter } = require('@opentelemetry/exporter-collector-proto');
 
@@ -21,7 +21,7 @@ const exporter = new CollectorTraceExporter({
 
 const provider = new BasicTracerProvider({
   resource: new Resource({
-    [ResourceAttributes.SERVICE_NAME]: 'basic-service',
+    [SemanticResourceAttributes.SERVICE_NAME]: 'basic-service',
   }),
 });
 provider.addSpanProcessor(new SimpleSpanProcessor(exporter));

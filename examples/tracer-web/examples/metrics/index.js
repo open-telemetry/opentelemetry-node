@@ -4,7 +4,7 @@ const { DiagConsoleLogger, DiagLogLevel, diag } = require('@opentelemetry/api');
 const { CollectorMetricExporter } = require('@opentelemetry/exporter-collector');
 const { MeterProvider } = require('@opentelemetry/metrics');
 const { Resource } = require('@opentelemetry/resources');
-const { ResourceAttributes } = require('@opentelemetry/semantic-conventions');
+const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions');
 
 // Optional and only needed to see the internal diagnostic logging (during development)
 diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
@@ -26,7 +26,7 @@ function startMetrics() {
     exporter: metricExporter,
     interval: 1000,
     resource: new Resource({
-      [ResourceAttributes.SERVICE_NAME]: 'basic-metric-service',
+      [SemanticResourceAttributes.SERVICE_NAME]: 'basic-metric-service',
     }),
   }).getMeter('example-exporter-collector');
 

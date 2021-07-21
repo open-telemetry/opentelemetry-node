@@ -16,7 +16,7 @@
 
 import { diag } from '@opentelemetry/api';
 import { getEnv } from '@opentelemetry/core';
-import { ResourceAttributes as SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import {
   Detector,
   Resource,

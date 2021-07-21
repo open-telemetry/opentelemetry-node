@@ -18,6 +18,13 @@
 export const SemanticAttributes = {
 
   /**
+  * The full invoked ARN as provided on the `Context` passed to the function (`Lambda-Runtime-Invoked-Function-Arn` header on the `/runtime/invocation/next` applicable).
+  *
+  * Note: This may be different from `faas.id` if an alias is involved.
+  */
+  AWS_LAMBDA_INVOKED_ARN: 'aws.lambda.invoked_arn',
+
+  /**
   * An identifier for the database management system (DBMS) product being used. See below for a list of well-known identifiers.
   */
   DB_SYSTEM: 'db.system',
@@ -608,12 +615,16 @@ clear whether the exception will escape.
   RPC_SYSTEM: 'rpc.system',
 
   /**
-  * The full name of the service being called, including its package name, if applicable.
+  * The full (logical) name of the service being called, including its package name, if applicable.
+  *
+  * Note: This is the logical name of the service from the RPC interface perspective, which can be different from the name of any implementing class. The `code.namespace` attribute may be used to store the latter (despite the attribute name, it may include a class name; e.g., class with method actually executing the call on the server side, RPC client stub class on the client side).
   */
   RPC_SERVICE: 'rpc.service',
 
   /**
-  * The name of the method being called, must be equal to the $method part in the span name.
+  * The name of the (logical) method being called, must be equal to the $method part in the span name.
+  *
+  * Note: This is the logical name of the method from the RPC interface perspective, which can be different from the name of any implementing method/function. The `code.function` attribute may be used to store the latter (e.g., method actually executing the call on the server side, RPC client stub method on the client side).
   */
   RPC_METHOD: 'rpc.method',
 
@@ -626,11 +637,6 @@ clear whether the exception will escape.
   * Protocol version as in `jsonrpc` property of request/response. Since JSON-RPC 1.0 does not specify this, the value can be omitted.
   */
   RPC_JSONRPC_VERSION: 'rpc.jsonrpc.version',
-
-  /**
-  * `method` property from request. Unlike `rpc.method`, this may not relate to the actual method being called. Useful for client-side traces since client does not know what will be called on the server.
-  */
-  RPC_JSONRPC_METHOD: 'rpc.jsonrpc.method',
 
   /**
   * `id` property of request or response. Since protocol allows id to be int, string, `null` or missing (for notifications), value is expected to be cast to string for simplicity. Use empty string in case of `null` value. Omit entirely if this is a notification.

@@ -126,7 +126,7 @@ After you install these dependencies, initialize and register them. Modify `trac
 const { diag, DiagConsoleLogger, DiagLogLevel } = require("@opentelemetry/api");
 const { NodeTracerProvider } = require("@opentelemetry/node");
 const { Resource } = require('@opentelemetry/resources');
-const { ResourceAttributes } = require('@opentelemetry/semantic-conventions');
+const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions');
 const { SimpleSpanProcessor } = require("@opentelemetry/tracing");
 const { ZipkinExporter } = require("@opentelemetry/exporter-zipkin");
 const { registerInstrumentations } = require("@opentelemetry/instrumentation");
@@ -135,7 +135,7 @@ const { GrpcInstrumentation } = require("@opentelemetry/instrumentation-grpc");
 
 const provider = new NodeTracerProvider({
   resource: new Resource({
-    [ResourceAttributes.SERVICE_NAME]: "getting-started",
+    [SemanticResourceAttributes.SERVICE_NAME]: "getting-started",
   })
 });
 

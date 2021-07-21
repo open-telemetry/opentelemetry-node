@@ -22,7 +22,7 @@ import {
 import {
   CloudProviderValues,
   CloudPlatformValues,
-  ResourceAttributes,
+  SemanticResourceAttributes,
 } from '@opentelemetry/semantic-conventions';
 import * as http from 'http';
 
@@ -67,14 +67,14 @@ class AwsEc2Detector implements Detector {
     const hostname = await this._fetchHost(token);
 
     return new Resource({
-      [ResourceAttributes.CLOUD_PROVIDER]: CloudProviderValues.AWS,
-      [ResourceAttributes.CLOUD_PLATFORM]: CloudPlatformValues.AWS_EC2,
-      [ResourceAttributes.CLOUD_ACCOUNT_ID]: accountId,
-      [ResourceAttributes.CLOUD_REGION]: region,
-      [ResourceAttributes.CLOUD_AVAILABILITY_ZONE]: availabilityZone,
-      [ResourceAttributes.HOST_ID]: instanceId,
-      [ResourceAttributes.HOST_TYPE]: instanceType,
-      [ResourceAttributes.HOST_NAME]: hostname,
+      [SemanticResourceAttributes.CLOUD_PROVIDER]: CloudProviderValues.AWS,
+      [SemanticResourceAttributes.CLOUD_PLATFORM]: CloudPlatformValues.AWS_EC2,
+      [SemanticResourceAttributes.CLOUD_ACCOUNT_ID]: accountId,
+      [SemanticResourceAttributes.CLOUD_REGION]: region,
+      [SemanticResourceAttributes.CLOUD_AVAILABILITY_ZONE]: availabilityZone,
+      [SemanticResourceAttributes.HOST_ID]: instanceId,
+      [SemanticResourceAttributes.HOST_TYPE]: instanceType,
+      [SemanticResourceAttributes.HOST_NAME]: hostname,
     });
   }
 

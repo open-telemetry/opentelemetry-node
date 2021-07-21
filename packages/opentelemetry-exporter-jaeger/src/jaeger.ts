@@ -18,7 +18,7 @@ import { diag } from '@opentelemetry/api';
 import { ExportResult, ExportResultCode, getEnv } from '@opentelemetry/core';
 import { ReadableSpan, SpanExporter } from '@opentelemetry/tracing';
 import { Socket } from 'dgram';
-import { ResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { spanToThrift } from './transform';
 import * as jaegerTypes from './types';
 
@@ -155,7 +155,7 @@ export class JaegerExporter implements SpanExporter {
       sender._client.unref();
     }
 
-    const serviceNameTag = span.tags.find(t => t.key === ResourceAttributes.SERVICE_NAME)
+    const serviceNameTag = span.tags.find(t => t.key === SemanticResourceAttributes.SERVICE_NAME)
     const serviceName = serviceNameTag?.vStr || "unknown_service";
 
     sender.setProcess({

@@ -23,7 +23,7 @@ import { AlwaysOnSampler, AlwaysOffSampler } from '@opentelemetry/core';
 import { AsyncHooksContextManager } from '@opentelemetry/context-async-hooks';
 import { Span } from '@opentelemetry/tracing';
 import { Resource } from '@opentelemetry/resources';
-import { ResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import * as assert from 'assert';
 import * as path from 'path';
 import { ContextManager, ROOT_CONTEXT } from '@opentelemetry/api';
@@ -145,7 +145,7 @@ describe('NodeTracerProvider', () => {
       assert.ok(span);
       assert.ok(span.resource instanceof Resource);
       assert.equal(
-        span.resource.attributes[ResourceAttributes.TELEMETRY_SDK_LANGUAGE],
+        span.resource.attributes[SemanticResourceAttributes.TELEMETRY_SDK_LANGUAGE],
         'nodejs'
       );
     });

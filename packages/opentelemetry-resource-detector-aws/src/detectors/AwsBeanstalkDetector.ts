@@ -23,7 +23,7 @@ import {
 import {
   CloudProviderValues,
   CloudPlatformValues,
-  ResourceAttributes,
+  SemanticResourceAttributes,
 } from '@opentelemetry/semantic-conventions';
 import * as fs from 'fs';
 import * as util from 'util';
@@ -69,14 +69,14 @@ export class AwsBeanstalkDetector implements Detector {
       const parsedData = JSON.parse(rawData);
 
       return new Resource({
-        [ResourceAttributes.CLOUD_PROVIDER]: CloudProviderValues.AWS,
-        [ResourceAttributes.CLOUD_PLATFORM]:
+        [SemanticResourceAttributes.CLOUD_PROVIDER]: CloudProviderValues.AWS,
+        [SemanticResourceAttributes.CLOUD_PLATFORM]:
           CloudPlatformValues.AWS_ELASTIC_BEANSTALK,
-        [ResourceAttributes.SERVICE_NAME]:
+        [SemanticResourceAttributes.SERVICE_NAME]:
           CloudPlatformValues.AWS_ELASTIC_BEANSTALK,
-        [ResourceAttributes.SERVICE_NAMESPACE]: parsedData.environment_name,
-        [ResourceAttributes.SERVICE_VERSION]: parsedData.version_label,
-        [ResourceAttributes.SERVICE_INSTANCE_ID]: parsedData.deployment_id,
+        [SemanticResourceAttributes.SERVICE_NAMESPACE]: parsedData.environment_name,
+        [SemanticResourceAttributes.SERVICE_VERSION]: parsedData.version_label,
+        [SemanticResourceAttributes.SERVICE_INSTANCE_ID]: parsedData.deployment_id,
       });
     } catch (e) {
       diag.debug(`AwsBeanstalkDetector failed: ${e.message}`);

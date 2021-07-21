@@ -1,6 +1,6 @@
 import { NodeTracerProvider } from '@opentelemetry/node';
 const { Resource } = require('@opentelemetry/resources');
-const { ResourceAttributes } = require('@opentelemetry/semantic-conventions');
+const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions');
 
 import { SimpleSpanProcessor } from '@opentelemetry/tracing';
 import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
@@ -13,7 +13,7 @@ const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
 
 const provider: NodeTracerProvider = new NodeTracerProvider({
   resource: new Resource({
-    [ResourceAttributes.SERVICE_NAME]: 'getting-started',
+    [SemanticResourceAttributes.SERVICE_NAME]: 'getting-started',
   }),
 });
 provider.addSpanProcessor(

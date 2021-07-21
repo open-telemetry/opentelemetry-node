@@ -131,11 +131,12 @@ import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 
 const provider: NodeTracerProvider = new NodeTracerProvider({
   logLevel: LogLevel.ERROR,
   resource: new Resource({
-    [ResourceAttributes.SERVICE_NAME]: 'getting-started',
+    [SemanticResourceAttributes.SERVICE_NAME]: 'getting-started',
   }),
 });
 
