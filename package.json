@@ -29,6 +29,8 @@
     "lint:fix": "lerna run lint:fix",
     "lint:fix:changed": "lerna run --concurrency 1 --stream lint:fix --since HEAD --exclude-dependents",
     "lint:examples": "eslint ./examples/**/*.js",
+    "lint:getting-started": "eslint ./getting-started/**/*.{js,ts}",
+    "lint:getting-started:fix": "eslint ./getting-started/**/*.{js,ts} --fix",
     "lint:examples:fix": "eslint ./examples/**/*.js --fix",
     "lint:markdown": "./node_modules/.bin/markdownlint $(git ls-files '*.md') -i ./CHANGELOG.md",
     "lint:markdown:fix": "./node_modules/.bin/markdownlint $(git ls-files '*.md') -i ./CHANGELOG.md --fix",
