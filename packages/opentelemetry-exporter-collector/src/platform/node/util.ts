@@ -16,10 +16,15 @@
 import * as url from 'url';
 import * as http from 'http';
 import * as https from 'https';
+import * as zlib from 'zlib';
+import { Readable } from 'stream';
 import * as collectorTypes from '../../types';
 import { CollectorExporterNodeBase } from './CollectorExporterNodeBase';
 import { CollectorExporterNodeConfigBase } from '.';
 import { diag } from '@opentelemetry/api';
+import { CompressionAlgorithm } from './types';
+
+const gzip = zlib.createGzip();
 
 /**
  * Sends data using http
@@ -71,11 +76,35 @@ export function sendWithHttp<ExportItem, ServiceRequest>(
     });
   });
 
+
   req.on('error', (error: Error) => {
     onError(error);
   });
-  req.write(data);
-  req.end();
+
+  switch (collector.compression) {
+    case CompressionAlgorithm.GZIP: {
+      req.setHeader('Content-Encoding', 'gzip');
+      const dataStream = readableFromBuffer(data);
+      dataStream.on('error', onError)
+        .pipe(gzip).on('error', onError)
+        .pipe(req);
+
+      break;
+    }
+    default:
+      req.write(data);
+      req.end();
+
+      break;
+  }
+}
+
+function readableFromBuffer(buff: string | Buffer): Readable {
+  const readable = new Readable();
+  readable.push(buff);
+  readable.push(null);
+
+  return readable;
 }
 
 export function createHttpAgent(

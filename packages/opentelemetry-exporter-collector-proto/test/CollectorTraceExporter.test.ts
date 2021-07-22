@@ -19,11 +19,14 @@ import { ExportResultCode } from '@opentelemetry/core';
 import {
   CollectorExporterNodeConfigBase,
   collectorTypes,
+  CompressionAlgorithm,
 } from '@opentelemetry/exporter-collector';
 import { ReadableSpan } from '@opentelemetry/tracing';
 import * as assert from 'assert';
 import * as http from 'http';
 import * as sinon from 'sinon';
+import { Stream } from 'stream';
+import * as zlib from 'zlib';
 import { CollectorTraceExporter } from '../src';
 import { getExportRequestProto } from '../src/util';
 import {
@@ -34,9 +37,9 @@ import {
 } from './helper';
 
 const fakeRequest = {
-  end: function () {},
-  on: function () {},
-  write: function () {},
+  end: function () { },
+  on: function () { },
+  write: function () { },
 };
 
 describe('CollectorTraceExporter - node with proto over http', () => {
@@ -104,7 +107,7 @@ describe('CollectorTraceExporter - node with proto over http', () => {
     });
 
     it('should open the connection', done => {
-      collectorExporter.export(spans, () => {});
+      collectorExporter.export(spans, () => { });
 
       sinon.stub(http, 'request').callsFake((options: any) => {
         assert.strictEqual(options.hostname, 'foo.bar.com');
@@ -116,7 +119,7 @@ describe('CollectorTraceExporter - node with proto over http', () => {
     });
 
     it('should set custom headers', done => {
-      collectorExporter.export(spans, () => {});
+      collectorExporter.export(spans, () => { });
 
       sinon.stub(http, 'request').callsFake((options: any) => {
         assert.strictEqual(options.headers['foo'], 'bar');
@@ -126,7 +129,7 @@ describe('CollectorTraceExporter - node with proto over http', () => {
     });
 
     it('should have keep alive and keepAliveMsecs option set', done => {
-      collectorExporter.export(spans, () => {});
+      collectorExporter.export(spans, () => { });
 
       sinon.stub(http, 'request').callsFake((options: any) => {
         assert.strictEqual(options.agent.keepAlive, true);
@@ -137,27 +140,31 @@ describe('CollectorTraceExporter - node with proto over http', () => {
     });
 
     it('should successfully send the spans', done => {
-      collectorExporter.export(spans, () => {});
+      const fakeRequest = new Stream.PassThrough();
+      sinon.stub(http, 'request').returns(fakeRequest as any);
 
-      sinon.stub(http, 'request').returns({
-        end: () => {},
-        on: () => {},
-        write: (...args: any[]) => {
-          const ExportTraceServiceRequestProto = getExportRequestProto();
-          const data = ExportTraceServiceRequestProto?.decode(args[0]);
-          const json = data?.toJSON() as collectorTypes.opentelemetryProto.collector.trace.v1.ExportTraceServiceRequest;
-          const span1 =
-            json.resourceSpans[0].instrumentationLibrarySpans[0].spans[0];
-          assert.ok(typeof span1 !== 'undefined', "span doesn't exist");
-          if (span1) {
-            ensureProtoSpanIsCorrect(span1);
-          }
+      let buff = Buffer.from('');
+      fakeRequest.on('end', () => {
+        const ExportTraceServiceRequestProto = getExportRequestProto();
+        const data = ExportTraceServiceRequestProto?.decode(buff);
+        const json = data?.toJSON() as collectorTypes.opentelemetryProto.collector.trace.v1.ExportTraceServiceRequest;
+        const span1 =
+          json.resourceSpans[0].instrumentationLibrarySpans[0].spans[0];
+        assert.ok(typeof span1 !== 'undefined', "span doesn't exist");
+        if (span1) {
+          ensureProtoSpanIsCorrect(span1);
+        }
 
-          ensureExportTraceServiceRequestIsSet(json);
+        ensureExportTraceServiceRequestIsSet(json);
 
-          done();
-        },
-      } as any);
+        done();
+      });
+
+      fakeRequest.on('data', chunk => {
+        buff = Buffer.concat([buff, chunk]);
+      });
+
+      collectorExporter.export(spans, () => { });
     });
 
     it('should log the successful message', done => {
@@ -193,6 +200,59 @@ describe('CollectorTraceExporter - node with proto over http', () => {
 
         return fakeRequest as any;
       });
+    });
+  });
+  describe('export - with compression', () => {
+    beforeEach(() => {
+      collectorExporterConfig = {
+        headers: {
+          foo: 'bar',
+        },
+        hostname: 'foo',
+        attributes: {},
+        url: 'http://foo.bar.com',
+        keepAlive: true,
+        compression: CompressionAlgorithm.GZIP,
+        httpAgentOptions: { keepAliveMsecs: 2000 },
+      };
+      collectorExporter = new CollectorTraceExporter(collectorExporterConfig);
+      spans = [];
+      spans.push(Object.assign({}, mockedReadableSpan));
+    });
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('should successfully send the spans', done => {
+      const fakeRequest = new Stream.PassThrough();
+      sinon.stub(http, 'request').returns(fakeRequest as any);
+      const spySetHeader = sinon.spy();
+      (fakeRequest as any).setHeader = spySetHeader;
+
+      let buff = Buffer.from('');
+      fakeRequest.on('end', () => {
+        const unzippedBuff = zlib.gunzipSync(buff);
+        const ExportTraceServiceRequestProto = getExportRequestProto();
+        const data = ExportTraceServiceRequestProto?.decode(unzippedBuff);
+        const json = data?.toJSON() as collectorTypes.opentelemetryProto.collector.trace.v1.ExportTraceServiceRequest;
+        const span1 =
+          json.resourceSpans[0].instrumentationLibrarySpans[0].spans[0];
+        assert.ok(typeof span1 !== 'undefined', "span doesn't exist");
+        if (span1) {
+          ensureProtoSpanIsCorrect(span1);
+        }
+
+        ensureExportTraceServiceRequestIsSet(json);
+        assert.ok(spySetHeader.calledWith('Content-Encoding', 'gzip'));
+
+        done();
+      });
+
+      fakeRequest.on('data', chunk => {
+        buff = Buffer.concat([buff, chunk]);
+      });
+
+      collectorExporter.export(spans, () => { });
     });
   });
 });

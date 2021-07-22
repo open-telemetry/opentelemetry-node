@@ -18,6 +18,7 @@ import {
   collectorTypes,
   sendWithHttp,
   CollectorExporterNodeConfigBase,
+  CompressionAlgorithm,
 } from '@opentelemetry/exporter-collector';
 import * as path from 'path';
 
@@ -63,6 +64,7 @@ export function onInit<ExportItem, ServiceRequest>(
 export function send<ExportItem, ServiceRequest>(
   collector: CollectorExporterNodeBase<ExportItem, ServiceRequest>,
   objects: ExportItem[],
+  compression: CompressionAlgorithm,
   onSuccess: () => void,
   onError: (error: collectorTypes.CollectorExporterError) => void
 ): void {

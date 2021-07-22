@@ -18,7 +18,7 @@ import type * as http from 'http';
 import type * as https from 'https';
 
 import { CollectorExporterBase } from '../../CollectorExporterBase';
-import { CollectorExporterNodeConfigBase } from './types';
+import { CollectorExporterNodeConfigBase, CompressionAlgorithm } from './types';
 import * as collectorTypes from '../../types';
 import { parseHeaders } from '../../util';
 import { createHttpAgent, sendWithHttp } from './util';
@@ -39,6 +39,7 @@ export abstract class CollectorExporterNodeBase<
   DEFAULT_HEADERS: Record<string, string> = {};
   headers: Record<string, string>;
   agent: http.Agent | https.Agent | undefined;
+  compression: CompressionAlgorithm;
 
   constructor(config: CollectorExporterNodeConfigBase = {}) {
     super(config);
@@ -51,6 +52,7 @@ export abstract class CollectorExporterNodeBase<
       baggageUtils.parseKeyPairsIntoRecord(getEnv().OTEL_EXPORTER_OTLP_HEADERS)
     );
     this.agent = createHttpAgent(config);
+    this.compression = config.compression || CompressionAlgorithm.NONE;
   }
 
   onInit(_config: CollectorExporterNodeConfigBase): void {

@@ -24,5 +24,11 @@ import { CollectorExporterConfigBase } from '../../types';
 export interface CollectorExporterNodeConfigBase
   extends CollectorExporterConfigBase {
   keepAlive?: boolean;
+  compression?: CompressionAlgorithm;
   httpAgentOptions?: http.AgentOptions | https.AgentOptions;
+}
+
+export enum CompressionAlgorithm {
+  NONE = 'none',
+  GZIP = 'gzip'
 }

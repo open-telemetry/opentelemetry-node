@@ -19,8 +19,15 @@ import {
   CollectorExporterNodeBase as CollectorExporterBaseMain,
   collectorTypes,
   CollectorExporterNodeConfigBase,
+  CompressionAlgorithm,
 } from '@opentelemetry/exporter-collector';
 import { ServiceClientType } from './types';
+
+type SendFn = <ExportItem, ServiceRequest>(collector: CollectorExporterNodeBase<ExportItem, ServiceRequest>,
+  objects: ExportItem[],
+  compression: CompressionAlgorithm,
+  onSuccess: () => void,
+  onError: (error: collectorTypes.CollectorExporterError) => void) => void;
 
 /**
  * Collector Metric Exporter abstract base class
@@ -29,7 +36,11 @@ export abstract class CollectorExporterNodeBase<
   ExportItem,
   ServiceRequest
 > extends CollectorExporterBaseMain<ExportItem, ServiceRequest> {
-  private _send!: Function;
+  private _send!: SendFn;
+
+  constructor(config: CollectorExporterNodeConfigBase = {}) {
+    super(config)
+  }
 
   private _sendPromise(
     objects: ExportItem[],
@@ -51,7 +62,7 @@ export abstract class CollectorExporterNodeBase<
         this._sendingPromises.splice(index, 1);
       };
 
-      this._send(this, objects, _onSuccess, _onError);
+      this._send(this, objects, this.compression, _onSuccess, _onError);
     });
 
     this._sendingPromises.push(promise);
