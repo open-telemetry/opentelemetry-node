@@ -93,10 +93,11 @@ describe('CollectorMetricExporter - web', () => {
       it('should successfully send metrics using sendBeacon', done => {
         collectorExporter.export(metrics, () => {});
 
-        setTimeout(() => {
+        setTimeout(async () => {
           const args = stubBeacon.args[0];
           const url = args[0];
-          const body = args[1];
+          const blob:Blob = args[1];
+          const body = await blob.text();
           const json = JSON.parse(
             body
           ) as collectorTypes.opentelemetryProto.collector.metrics.v1.ExportMetricsServiceRequest;

@@ -28,7 +28,7 @@ export function sendWithBeacon(
   onSuccess: () => void,
   onError: (error: collectorTypes.CollectorExporterError) => void
 ) {
-  if (navigator.sendBeacon(url, body)) {
+  if (navigator.sendBeacon(url, new Blob([body], { type: "application/json" }))) {
     diag.debug('sendBeacon - can send', body);
     onSuccess();
   } else {
