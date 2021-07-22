@@ -18,6 +18,11 @@ import { ContextManager, Context } from '@opentelemetry/api';
 import { EventEmitter } from 'events';
 
 type Func<T> = (...args: unknown[]) => T;
+type UnknownFunc = Func<unknown>;
+type UnknownFuncReturns<T extends (...args: unknown[]) => unknown> = (...args: unknown[]) => ReturnType<T>;
+
+const isUnknownFunc = (fn: unknown): fn is UnknownFunc => typeof fn === 'function';
+const isGenericFunc = <T>(fn: (...args: never[]) => T): fn is Func<T> => typeof fn === 'function';
 
 /**
  * Store a map for each event of all original listeners and their "patched"
@@ -62,13 +67,13 @@ export abstract class AbstractAsyncHooksContextManager
       return this._bindEventEmitter(context, target);
     }
 
-    if (typeof target === 'function') {
+    if (isUnknownFunc(target)) {
       return this._bindFunction(context, target);
     }
     return target;
   }
 
-  private _bindFunction<T extends Function>(context: Context, target: T): T {
+  private _bindFunction<T extends UnknownFunc>(context: Context, target: T): T {
     const manager = this;
     const contextWrapper = function (this: never, ...args: unknown[]) {
       return manager.with(context, () => target.apply(this, args));
@@ -104,21 +109,24 @@ export abstract class AbstractAsyncHooksContextManager
 
     // patch methods that add a listener to propagate context
     ADD_LISTENER_METHODS.forEach(methodName => {
-      if (ee[methodName] === undefined) return;
-      ee[methodName] = this._patchAddListener(ee, ee[methodName], context);
+      const method = ee[methodName];
+      if (isGenericFunc(method)) {
+        ee[methodName] = this._patchAddListener(ee, method, context);
+      }
     });
     // patch methods that remove a listener
-    if (typeof ee.removeListener === 'function') {
-      ee.removeListener = this._patchRemoveListener(ee, ee.removeListener);
+    const { removeListener, off, removeAllListeners } = ee
+    if (isGenericFunc(removeListener)) {
+      ee.removeListener = this._patchRemoveListener(ee, removeListener);
     }
-    if (typeof ee.off === 'function') {
-      ee.off = this._patchRemoveListener(ee, ee.off);
+    if (isGenericFunc(off)) {
+      ee.off = this._patchRemoveListener(ee, off);
     }
     // patch method that remove all listeners
-    if (typeof ee.removeAllListeners === 'function') {
+    if (isGenericFunc(removeAllListeners)) {
       ee.removeAllListeners = this._patchRemoveAllListeners(
         ee,
-        ee.removeAllListeners
+        removeAllListeners
       );
     }
     return ee;
@@ -130,7 +138,7 @@ export abstract class AbstractAsyncHooksContextManager
    * @param ee EventEmitter instance
    * @param original reference to the patched method
    */
-  private _patchRemoveListener(ee: EventEmitter, original: Function) {
+  private _patchRemoveListener<T extends UnknownFuncReturns<T>>(ee: EventEmitter, original: T) {
     const contextManager = this;
     return function (this: never, event: string, listener: Func<void>) {
       const events = contextManager._getPatchMap(ee)?.[event];
@@ -148,7 +156,7 @@ export abstract class AbstractAsyncHooksContextManager
    * @param ee EventEmitter instance
    * @param original reference to the patched method
    */
-  private _patchRemoveAllListeners(ee: EventEmitter, original: Function) {
+  private _patchRemoveAllListeners<T extends UnknownFuncReturns<T>>(ee: EventEmitter, original: T) {
     const contextManager = this;
     return function (this: never, event: string) {
       const map = contextManager._getPatchMap(ee);
@@ -159,7 +167,7 @@ export abstract class AbstractAsyncHooksContextManager
           delete map[event];
         }
       }
-      return original.apply(this, arguments);
+      return original.apply(this, arguments as unknown as unknown[]);
     };
   }
 
@@ -170,9 +178,9 @@ export abstract class AbstractAsyncHooksContextManager
    * @param original reference to the patched method
    * @param [context] context to propagate when calling listeners
    */
-  private _patchAddListener(
+  private _patchAddListener<T extends UnknownFuncReturns<T>>(
     ee: EventEmitter,
-    original: Function,
+    original: T,
     context: Context
   ) {
     const contextManager = this;
