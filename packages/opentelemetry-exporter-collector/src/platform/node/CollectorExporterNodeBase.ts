@@ -68,30 +68,22 @@ export abstract class CollectorExporterNodeBase<
     }
     const serviceRequest = this.convert(objects);
 
-    const promise = new Promise<void>(resolve => {
-      const _onSuccess = (): void => {
-        onSuccess();
-        _onFinish();
-      };
-      const _onError = (error: collectorTypes.CollectorExporterError): void => {
-        onError(error);
-        _onFinish();
-      };
-      const _onFinish = () => {
-        resolve();
-        const index = this._sendingPromises.indexOf(promise);
-        this._sendingPromises.splice(index, 1);
-      };
+    const promise = new Promise<void>((resolve, reject) => {
       sendWithHttp(
         this,
         JSON.stringify(serviceRequest),
         'application/json',
-        _onSuccess,
-        _onError
+        resolve,
+        reject
       );
-    });
+    })
+      .then(onSuccess, onError);
 
     this._sendingPromises.push(promise);
+    promise.finally(() => {
+      const index = this._sendingPromises.indexOf(promise);
+      this._sendingPromises.splice(index, 1);
+    });
   }
 
   onShutdown(): void {}

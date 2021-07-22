@@ -84,11 +84,14 @@ export class ZipkinExporter implements SpanExporter {
       this._sendSpans(spans, serviceName, result => {
         resolve();
         resultCallback(result);
-        const index = this._sendingPromises.indexOf(promise);
-        this._sendingPromises.splice(index, 1);
       });
     });
+
     this._sendingPromises.push(promise);
+    promise.finally(() => {
+      const index = this._sendingPromises.indexOf(promise);
+      this._sendingPromises.splice(index, 1);
+    });
   }
 
   /**
