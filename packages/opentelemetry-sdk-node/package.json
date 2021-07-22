@@ -64,7 +64,7 @@
     "gcp-metadata": "^4.1.4",
     "istanbul-instrumenter-loader": "3.0.1",
     "mocha": "7.2.0",
-    "nock": "12.0.3",
+    "nock": "13.1.1",
     "nyc": "15.1.0",
     "semver": "7.3.5",
     "sinon": "10.0.0",
