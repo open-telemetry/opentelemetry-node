@@ -3,11 +3,18 @@ title: "Browser"
 weight: 2
 ---
 
-This guide uses the example application in HTML & javascript provided below, but the steps to instrument your own application should be broadly the same. Here is an overview of what we will be doing.
+This guide uses the example application in HTML & javascript provided below, but the steps to instrument your own application should be broadly the same.
 
-- Install the required OpenTelemetry libraries
-- Initialize a global [tracer](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/api.md#tracer)
-- Initialize and register a [span exporter](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/sdk.md#span-exporter)
+- [Example Application](#example-application)
+  - [Installation](#installation)
+  - [Initialization and Configuration](#initialization-and-configuration)
+  - [Creating a Tracer Provider](#creating-a-tracer-provider)
+  - [Creating an Exporter](#creating-an-exporter)
+  - [Add Plugins](#add-plugins)
+- [Meta Packages for Web](#meta-packages-for-web)
+- [Instrumentation with Browser Extension](#instrumentation-with-browser-extension)
+
+## Example Application
 
 This is a very simple guide, if you'd like to see more complex examples go to [examples/tracer-web](https://github.com/open-telemetry/opentelemetry-js/tree/main/examples/tracer-web)
 
@@ -38,7 +45,7 @@ Copy the following file into an empty directory and call it `index.html`.
 </html>
 ```
 
-## Installation
+### Installation
 
 To create traces in the browser, you will need `@opentelemetry/web`, and the instrumentation `@opentelemetry/instrumentation-document-load`:
 
@@ -47,7 +54,7 @@ npm init -y
 npm install --save @opentelemetry/web @opentelemetry/instrumentation-document-load @opentelemetry/context-zone
 ```
 
-## Initialization and Configuration
+### Initialization and Configuration
 
 Create a empty file called `document-load.js` and add the following code to your html right before the body end tag:
 
@@ -57,7 +64,7 @@ Create a empty file called `document-load.js` and add the following code to your
 
 We will add some code that will trace the document load timings and output those as OpenTelemetry Spans.
 
-## Creating a Tracer Provider
+### Creating a Tracer Provider
 
 Add the following code to the `document-load.js` to create a tracer provider, which brings the instrumentaion to trace document load:
 
@@ -94,9 +101,16 @@ and open the development webserver (e.g. at `http://localhost:1234`) to see if y
 
 There will be no output of traces yet, for this we need to add an exporter
 
-## Creating a Console Exporter
+### Creating an Exporter
 
-To export traces, modify `document-load.js` so that it matches the following code snippet:
+In the following example, we will use the `ConsoleSpanExporter` which prints all spans to the console.
+
+In order to visualize and analyze your traces, you will need to export them to a tracing backend.
+Follow [these instructions](../exporters.md) for setting up a backend and exporter.
+
+You may also want to use the `BatchSpanProcessor` to export spans in batches in order to more efficiently use resources.
+
+To export traces to the console, modify `document-load.js` so that it matches the following code snippet:
 
 ```javascript
 import { ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/tracing';
@@ -199,3 +213,27 @@ Now, rebuild your application and open the browser again. In the console of the 
   ]
 }
 ```
+
+### Add Plugins
+
+If you want to instrument AJAX requests, User Interactions and others, you can add plugins to your
+instrumentation:
+
+```javascript
+registerInstrumentations({
+  instrumentations: [
+    new UserInteractionInstrumentation(),
+    new XMLHttpRequestInstrumentation()
+  ],
+});
+```
+
+## Meta Packages for Web
+
+To leverage the most common instrumentations all in one you can simply use the
+[OpenTelemetry Meta Packages for Web](https://www.npmjs.com/package/@opentelemetry/auto-instrumentations-web)
+
+## Instrumentation with Browser Extension
+
+If you'd like to quickly preview what OpenTelemetry instrumentation would look like with your website (or any other site)
+installed, you can use the [OpenTelemetry Browser Extension](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/opentelemetry-browser-extension-autoinjection)
