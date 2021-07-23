@@ -45,7 +45,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@babel/core": "7.14.6",
+    "@babel/core": "7.14.8",
     "@opentelemetry/api": "^1.0.1",
     "@opentelemetry/context-zone": "0.23.0",
     "@opentelemetry/propagator-b3": "0.23.0",
@@ -56,7 +56,7 @@
     "@types/sinon": "10.0.2",
     "@types/webpack-env": "1.16.2",
     "babel-loader": "8.2.2",
-    "codecov": "3.8.2",
+    "codecov": "3.8.3",
     "istanbul-instrumenter-loader": "3.0.1",
     "karma": "5.2.3",
     "karma-chrome-launcher": "3.1.0",

@@ -52,7 +52,7 @@
     "@opentelemetry/api": "^1.0.1",
     "@types/mocha": "8.2.3",
     "@types/node": "14.17.5",
-    "codecov": "3.8.2",
+    "codecov": "3.8.3",
     "istanbul-instrumenter-loader": "3.0.1",
     "mocha": "7.2.0",
     "nyc": "15.1.0",
